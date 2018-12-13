@@ -1,0 +1,22 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+#include <windows.h>
+
+#include <ntverp.h>
+
+#define VER_FILETYPE                VFT_DRV
+#define VER_FILESUBTYPE             VFT2_DRV_SYSTEM
+#define VER_FILEDESCRIPTION_STR     "SD Host Controller Standard Driver"
+#define VER_INTERNALNAME_STR        "imxusdhc.sys"
+#define VER_ORIGINALFILENAME_STR    "imxusdhc.sys"
+
+// Ensure that VS_VERSION_INFO in not defined on build machine
+#ifdef XES_MACHINE
+#ifdef VS_VERSION_INFO 
+#undef VS_VERSION_INFO 
+#endif
+#endif
+
+#include "common.ver"
+

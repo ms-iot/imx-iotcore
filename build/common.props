@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros">
+    <OEMName>NXP</OEMName>
+  </PropertyGroup>
+  <PropertyGroup>
+    <!-- Determine package output path depending if this is a build or dev machine -->
+    <MainOutput>$(SolutionDir)Build\$(Configuration)\$(Platform)\</MainOutput>
+    <PkgOutput >$(SolutionDir)Build\$(Configuration)\$(Platform)\</PkgOutput>
+    <OutputPath>$(MainOutput)</OutputPath>
+    <OutDir>$(MainOutput)$(ProjectName)\</OutDir>
+    <IntermediateOutputPath>$(MainOutput)$(ProjectName)\</IntermediateOutputPath>
+    <PackageDir>$(MainOutput)$(ProjectName)\</PackageDir>
+    <UseCommonOutputDirectory>True</UseCommonOutputDirectory>
+    <WindowsTargetPlatformMinVersion>10.0.16299.0</WindowsTargetPlatformMinVersion>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
+    <TargetPlatformMinVersion>10.0.16299.0</TargetPlatformMinVersion>
+    <LatestTargetPlatformMinVersion>10.0.16299.0</LatestTargetPlatformMinVersion>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <SupportJustMyCode>false</SupportJustMyCode>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions Condition="'$(XefMSPropsImported)'=='true'">%(PreprocessorDefinitions);XES_MACHINE=1</PreprocessorDefinitions>
+    </ResourceCompile>
+    <BuildLog>
+      <Path>$(MainOutput)\Logs\$(MSBuildProjectName).log</Path>
+    </BuildLog>
+    <PkgGen>
+      <Variables>"HIVE_ROOT=$(CoreSystem_HivesPath);WIM_ROOT=$(CoreSystem_HivesPath);_RELEASEDIR=$(PackageDir);TARGETNAME=$(TargetName);TARGETEXT=$(TargetExt);$(PkgGen_DefaultDriverDest);OEMNAME=$(OEMName)"</Variables>
+    </PkgGen>
+  </ItemDefinitionGroup>
+  <ItemGroup />
+</Project>

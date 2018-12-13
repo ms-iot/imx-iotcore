@@ -1,0 +1,16 @@
+﻿<?xml version='1.0' encoding='utf-8' standalone='yes'?>
+<identity
+  xmlns="urn:Microsoft.CompPlat/ManifestSchema.v1.00"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  name="HalExtiMX6Timers"
+  namespace="iMX"
+  owner="$(OEMNAME)"
+  legacyName="NXP.iMX.HalExtiMX6Timers"
+  >
+  <drivers>
+    <driver>
+      <inf source="$(_RELEASEDIR)HalExtiMX6Timers.inf"/>
+    </driver>
+  </drivers>
+</identity>

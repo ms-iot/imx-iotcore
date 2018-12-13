@@ -1,0 +1,44 @@
+/dts-v1/;
+/ {
+	description = "OPTEE and U-Boot";
+	#address-cells = <0x1>;
+	images {
+		uboot {
+			description = "U-Boot";
+			data = /incbin/("./u-boot/u-boot-keyed.bin");
+			type = "standalone";
+			arch = "arm";
+			compression = "none";
+			load = <FIT_UBOOT_LOAD_ADDRESS>;
+			hash-1 {
+				algo = "sha256";
+			};
+		};
+		optee {
+			description = "OPTEE";
+			data = /incbin/("./optee_os/core/tee-pager_v2.bin");
+			type = "firmware";
+			os = "tee";
+			arch = "arm";
+			compression = "none";
+			load = <FIT_OPTEE_LOAD_ADDRESS>;
+			entry = <FIT_OPTEE_ENTRY_POINT>;
+			hash-1 {
+				algo = "sha256";
+			};
+		};
+	};
+	configurations {
+		default = "cfg-1";
+		cfg-1 {
+			description = "Windows IoT Core i.MX";
+			firmware = "optee";
+			loadables = "uboot";
+			signature {
+				algo = "sha256,ecc-prime256v1";
+				key-name-hint = "ecc_prime256v1_dev_pem";
+				sign-images = "firmware","loadables";
+			};
+		};
+	};
+};

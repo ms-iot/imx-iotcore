@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<identity
+    xmlns="urn:Microsoft.CompPlat/ManifestSchema.v1.00"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    name="DeviceLayout"
+    namespace="SabreiMX6Q1GB"
+    owner="NXP"
+    legacyName="NXP.EVK_iMX6ULL_512MB.DeviceLayout"
+    >
+    <files>
+        <file
+            destinationDir="$(runtime.windows)\ImageUpdate"
+            source="DeviceLayoutProd\devicelayoutprod.xml"
+            name="DeviceLayout.xml" />
+    </files>
+</identity>

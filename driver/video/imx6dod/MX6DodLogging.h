@@ -1,0 +1,54 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+#ifndef _MX6DOD_LOGGING_H_
+#define _MX6DOD_LOGGING_H_ 1
+
+#ifdef __cplusplus
+extern "C" {
+#endif // __cplusplus
+
+//
+// Defining control guids, including this is required to happen before
+// including the tmh file (if the WppRecorder API is used)
+//
+#include <WppRecorder.h>
+
+//
+// Tracing GUID - {E04A6E1C-366E-45F0-91E2-35DA6D0B4A65}
+//
+#define WPP_CONTROL_GUIDS \
+    WPP_DEFINE_CONTROL_GUID(MX6DOD, (E04A6E1C,366E,45F0,91E2,35DA6D0B4A65), \
+        WPP_DEFINE_BIT(MX6DOD_TRACING_DEFAULT) \
+        WPP_DEFINE_BIT(MX6DOD_TRACING_PRESENT) \
+        WPP_DEFINE_BIT(MX6DOD_TRACING_DEBUG) \
+    )
+
+// begin_wpp config
+//
+// FUNC MX6DOD_LOG_ERROR{LEVEL=TRACE_LEVEL_ERROR, FLAGS=MX6DOD_TRACING_DEFAULT}(MSG, ...);
+// USEPREFIX (MX6DOD_LOG_ERROR, "%!STDPREFIX! [%s @ %u] ERROR :", __FILE__, __LINE__);
+//
+// FUNC MX6DOD_LOG_LOW_MEMORY{LEVEL=TRACE_LEVEL_ERROR, FLAGS=MX6DOD_TRACING_DEFAULT}(MSG, ...);
+// USEPREFIX (MX6DOD_LOG_LOW_MEMORY, "%!STDPREFIX! [%s @ %u] LOW MEMORY :", __FILE__, __LINE__);
+//
+// FUNC MX6DOD_LOG_WARNING{LEVEL=TRACE_LEVEL_WARNING, FLAGS=MX6DOD_TRACING_DEFAULT}(MSG, ...);
+// USEPREFIX (MX6DOD_LOG_WARNING, "%!STDPREFIX! [%s @ %u] WARNING :", __FILE__, __LINE__);
+//
+// FUNC MX6DOD_LOG_INFORMATION{LEVEL=TRACE_LEVEL_INFORMATION, FLAGS=MX6DOD_TRACING_DEFAULT}(MSG, ...);
+// USEPREFIX (MX6DOD_LOG_INFORMATION, "%!STDPREFIX! [%s @ %u] INFO :", __FILE__, __LINE__);
+//
+// FUNC MX6DOD_LOG_TRACE{LEVEL=TRACE_LEVEL_VERBOSE, FLAGS=MX6DOD_TRACING_DEFAULT}(MSG, ...);
+// USEPREFIX (MX6DOD_LOG_TRACE, "%!STDPREFIX! [%s @ %u] TRACE :", __FILE__, __LINE__);
+//
+// FUNC MX6DOD_LOG_PRESENT{LEVEL=TRACE_LEVEL_VERBOSE, FLAGS=MX6DOD_TRACING_PRESENT}(MSG, ...);
+// USEPREFIX (MX6DOD_LOG_PRESENT, "%!STDPREFIX! [%s @ %u] TRACE :", __FILE__, __LINE__);
+//
+// end_wpp
+
+#ifdef __cplusplus
+} // extern "C"
+#endif // __cplusplus
+
+#endif // _MX6DOD_LOGGING_H_
+

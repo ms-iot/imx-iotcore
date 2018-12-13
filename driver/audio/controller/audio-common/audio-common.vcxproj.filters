@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="basetopo.cpp" />
+    <ClCompile Include="kshelper.cpp" />
+    <ClCompile Include="minwavert.cpp" />
+    <ClCompile Include="minwavertstream.cpp" />
+    <ClCompile Include="mintopo.cpp" />
+    <ClCompile Include="micinhptopo.cpp" />
+    <ClCompile Include="speakerhptopo.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="basetopo.h" />
+    <ClInclude Include="common.h" />
+    <ClInclude Include="kshelper.h" />
+    <ClInclude Include="hptoptable.h" />
+    <ClInclude Include="minwavertstream.h" />
+    <ClInclude Include="mintopo.h" />
+    <ClInclude Include="minwavert.h" />
+    <ClInclude Include="simple.h" />
+    <ClInclude Include="speakerhptopo.h" />
+    <ClInclude Include="speakerhptoptable.h" />
+    <ClInclude Include="speakerhpwavtable.h" />
+    <ClInclude Include="micinhptopotable.h" />
+    <ClInclude Include="micinwavtable.h" />
+    <ClInclude Include="minipairs.h" />
+    <ClInclude Include="imx_audio.h" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,143 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Driver Files">
+      <UniqueIdentifier>{8E41214B-6785-4CFE-B992-037D68949A14}</UniqueIdentifier>
+      <Extensions>inf;inv;inx;mof;mc;</Extensions>
+    </Filter>
+    <Filter Include="Source Files\arm">
+      <UniqueIdentifier>{9b63bc22-23d2-4d3a-86e5-b8cf4dac79e0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\arm64">
+      <UniqueIdentifier>{a5c60f50-f5be-4876-8cfc-35e8f5988001}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="OpteeTrEE.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OpteeTrEEService.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="trace.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\sampleservice.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OpteeClientLib\OpteeClientLib.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OpteeClientLib\OpteeClientMemory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OpteeClientLib\OpteeClientMM.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OpteeClientLib\OpteeClientRPC.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OpteeClientLib\OpteeClientSMC.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OpteeClientLib\tee_api_defines.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OpteeClientLib\tee_api_types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OpteeClientLib\tee_client_api.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OpteeClientLib\tee_rpc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OpteeClientLib\tee_rpc_types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OpteeClientLib\teesmc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OpteeClientLib\teesmc_optee.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OpteeClientLib\types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OpteeClientLib\arm\ArmSmcLib.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OpteeVariableService.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OpteeCalls\OpteeCalls\inc\TrEEGenService.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ChecksumService.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OPMService.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OpteeTrEE.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RNGService.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VariableService.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OpteeClientLib\OpteeClientLib.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OpteeClientLib\OpteeClientMemory.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OpteeClientLib\OpteeClientRPC.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OpteeClientLib\OpteeClientSMC.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FtpmService.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="enum.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GenService.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <MASM Include="OpteeClientLib\arm\ArmSmc.asm">
+      <Filter>Source Files\arm</Filter>
+    </MASM>
+    <MASM Include="OpteeClientLib\arm64\ArmSmc.asm">
+      <Filter>Source Files\arm64</Filter>
+    </MASM>
+  </ItemGroup>
+  <ItemGroup>
+    <Inf Include="OpteeTrEE.inf">
+      <Filter>Driver Files</Filter>
+    </Inf>
+  </ItemGroup>
+  <ItemGroup>
+    <PkgGen Include="OpteeTrEE.wm.xml" />
+  </ItemGroup>
+</Project>

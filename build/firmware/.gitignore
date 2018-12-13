@@ -1,0 +1,16 @@
+u-boot
+optee_os
+fTPM
+RIoT
+spl_csf.bin
+spl_HAB.imx
+spl_signed.imx
+u-boot_sign.csf
+firmware.merged
+firmware_fit.merged
+message.txt
+*.fd
+*.dtb
+*.fit
+*.its
+!its/*.its

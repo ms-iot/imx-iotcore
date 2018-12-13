@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <TARGETNAME Condition="'$(OVERRIDE_TARGETNAME)'!='true'">imxusdhc</TARGETNAME>
+    <TARGETTYPE Condition="'$(OVERRIDE_TARGETTYPE)'!='true'">DRIVER</TARGETTYPE>
+    <TARGET_DESTINATION Condition="'$(OVERRIDE_TARGET_DESTINATION)'!='true'">retail</TARGET_DESTINATION>
+    <MUI_VERIFY_NO_LOC_RESOURCE Condition="'$(OVERRIDE_MUI_VERIFY_NO_LOC_RESOURCE)'!='true'">1</MUI_VERIFY_NO_LOC_RESOURCE>
+    <MSC_WARNING_LEVEL Condition="'$(OVERRIDE_MSC_WARNING_LEVEL)'!='true'">/W4 /WX</MSC_WARNING_LEVEL>
+    <TARGETLIBS Condition="'$(OVERRIDE_TARGETLIBS)'!='true'">$(DDK_LIB_PATH)\sdport.lib      $(DDK_LIB_PATH)\wpprecorder.lib</TARGETLIBS>
+    <SOURCES Condition="'$(OVERRIDE_SOURCES)'!='true'">usdhc.cpp      trace.cpp      resource.rc</SOURCES>
+    <RUN_WPP Condition="'$(OVERRIDE_RUN_WPP)'!='true'">$(SOURCES)      -km      -p:USDHC      -DENABLE_WPP_RECORDER=1      -DWPP_EMIT_FUNC_NAME      -scan:trace.hpp</RUN_WPP>
+    <LOC_DRIVER_INFS Condition="'$(OVERRIDE_LOC_DRIVER_INFS)'!='true'">imxusdhc.inf</LOC_DRIVER_INFS>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RUN_WPP Condition="'$(OVERRIDE_RUN_WPP)'!='true'" />
+  </PropertyGroup>
+</Project>

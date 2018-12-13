@@ -1,0 +1,3 @@
+RSB4411_iMX6Q_1GB
+board
+package

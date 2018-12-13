@@ -1,0 +1,17 @@
+#include "verrsrc.h"
+#include <ntverp.h>
+
+#define VER_FILETYPE                VFT_DLL
+#define VER_FILESUBTYPE             VFT_UNKNOWN
+#define VER_FILEDESCRIPTION_STR     "Freescale iMX6 Timers HAL Extension"
+#define VER_INTERNALNAME_STR        "HalExtiMX6Timers.DLL"
+#define VER_ORIGINALFILENAME_STR    "HalExtiMX6Timers.DLL"
+
+// Ensure that VS_VERSION_INFO in not defined on build machine
+#ifdef XES_MACHINE
+#ifdef VS_VERSION_INFO 
+#undef VS_VERSION_INFO 
+#endif
+#endif
+
+#include <common.ver>

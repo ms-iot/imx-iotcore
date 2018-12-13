@@ -1,0 +1,17 @@
+#include "verrsrc.h"
+#include <ntverp.h>
+
+#define VER_FILETYPE                VFT_DLL
+#define VER_FILESUBTYPE             VFT_UNKNOWN
+#define VER_FILEDESCRIPTION_STR     "iMX SDMA HAL Extension"
+#define VER_INTERNALNAME_STR        "HalExtiMXDma.DLL"
+#define VER_ORIGINALFILENAME_STR    "HalExtiMXDma.DLL"
+
+// Ensure that VS_VERSION_INFO in not defined on build machine
+#ifdef XES_MACHINE
+#ifdef VS_VERSION_INFO 
+#undef VS_VERSION_INFO 
+#endif
+#endif
+
+#include <common.ver>

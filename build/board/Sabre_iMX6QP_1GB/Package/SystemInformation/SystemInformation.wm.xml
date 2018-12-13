@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes'?>
+<identity
+    xmlns="urn:Microsoft.CompPlat/ManifestSchema.v1.00"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    name="SystemInformation"
+    namespace="SabreiMX6QP1GB"
+    owner="NXP"
+    legacyName="NXP.Sabre_iMX6QP_1GB.SystemInformation"
+    >
+  <regKeys>
+    <regKey keyName="$(hklm.system)\ControlSet001\Control\SystemInformation">
+      <regValue
+        name="SystemProductName"
+        type="REG_SZ"
+        value="Sabre_iMX6QP_1GB"
+        />
+      <regValue
+        name="SystemManufacturer"
+        type="REG_SZ"
+        value="NXP"
+        />
+    </regKey>
+  </regKeys>
+</identity>

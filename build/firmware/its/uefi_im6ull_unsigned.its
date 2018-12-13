@@ -1,0 +1,28 @@
+/dts-v1/;
+
+/ {
+	description = "UEFI Firmware";
+
+	images {
+		uefi {
+			description = "UEFI";
+			data = /incbin/("./IMXBOARD_EFI.fd");
+			type = "kernel";
+			arch = "arm";
+			os = "linux";
+			compression = "none";
+			load = <0x80820000>;
+			entry = <0x80820000>;
+			hash-1 {
+				algo = "sha256";
+			};
+		};
+	};
+	configurations {
+		default = "conf-1";
+		conf-1 {
+			description = "UEFI Firmware";
+			kernel = "uefi";
+		};
+	};
+};

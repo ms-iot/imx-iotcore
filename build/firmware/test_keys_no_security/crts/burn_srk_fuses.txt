@@ -1,0 +1,8 @@
+fuse prog -y 3 0 0x3A70ADFC
+fuse prog -y 3 1 0xE3467112
+fuse prog -y 3 2 0xBD75A910
+fuse prog -y 3 3 0x7415464F
+fuse prog -y 3 4 0x9747252A
+fuse prog -y 3 5 0xAE797B99
+fuse prog -y 3 6 0x9C83BB12
+fuse prog -y 3 7 0xEC40F2C3

@@ -1,0 +1,29 @@
+[Header]
+Version = 4.1
+Security Configuration = Open
+Hash Algorithm = sha256
+Engine Configuration = 0
+Certificate Format = X509
+Signature Format = CMS
+Engine = CAAM
+
+[Install SRK]
+File = "$KEY_ROOT/crts/SRK_1_2_3_4_table.bin"
+Source index = 0
+
+[Install CSFK]
+File = "$KEY_ROOT/crts/CSF1_1_sha256_4096_65537_v3_usr_crt.pem"
+
+[Authenticate CSF]
+
+[Install Key]
+# Key slot index used to authenticate the key to be installed
+Verification index = 0
+# Key to install
+Target index = 2
+File = "$KEY_ROOT/crts/IMG1_1_sha256_4096_65537_v3_usr_crt.pem"
+
+[Authenticate Data]
+Verification index = 2
+#Blocks = 0x00929400 0x00000000 0x0000ac00 "SPL"
+

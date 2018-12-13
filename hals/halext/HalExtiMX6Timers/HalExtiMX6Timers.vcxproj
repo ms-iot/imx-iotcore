@@ -1,0 +1,151 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|ARM">
+      <Configuration>Debug</Configuration>
+      <Platform>ARM</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|ARM">
+      <Configuration>Release</Configuration>
+      <Platform>ARM</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{3CEF2507-27F7-4669-B8EB-DF558E1DFCEB}</ProjectGuid>
+    <TemplateGuid>{dd38f7fc-d7bd-488b-9242-7d8754cde80d}</TemplateGuid>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <MinimumVisualStudioVersion>12.0</MinimumVisualStudioVersion>
+    <Configuration>Debug</Configuration>
+    <Platform Condition="'$(Platform)' == ''">Win32</Platform>
+    <RootNamespace>HalExtiMX6Timers</RootNamespace>
+    <ProjectName>HalExtiMX6Timers</ProjectName>
+    <WindowsTargetPlatformVersion>$(LatestTargetPlatformVersion)</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'" Label="Configuration">
+    <TargetVersion>Windows10</TargetVersion>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>WindowsKernelModeDriver10.0</PlatformToolset>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <DriverType>WDM</DriverType>
+    <DriverTargetPlatform>Universal</DriverTargetPlatform>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'" Label="Configuration">
+    <TargetVersion>Windows10</TargetVersion>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>WindowsKernelModeDriver10.0</PlatformToolset>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <DriverType>WDM</DriverType>
+    <DriverTargetPlatform>Universal</DriverTargetPlatform>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
+    <Import Project="..\..\..\build\common.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
+    <Import Project="..\..\..\build\common.props" />
+  </ImportGroup>
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
+    <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
+    <TargetExt>.dll</TargetExt>
+    <TargetName>HalExtiMX6Timers</TargetName>
+    <CustomBuildBeforeTargets>DriverPackageTarget</CustomBuildBeforeTargets>
+    <IncludePath>..\..\..\driver\include;$(IncludePath)</IncludePath>
+    <ApiValidator_Enable>false</ApiValidator_Enable>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
+    <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
+    <TargetExt>.dll</TargetExt>
+    <TargetName>HalExtiMX6Timers</TargetName>
+    <CustomBuildBeforeTargets>DriverPackageTarget</CustomBuildBeforeTargets>
+    <IncludePath>..\..\..\driver\include;$(IncludePath)</IncludePath>
+    <ApiValidator_Enable>false</ApiValidator_Enable>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
+    <Link>
+      <AdditionalDependencies>halextlib.lib;libcntpr.lib;bufferoverflowfastfailk.lib</AdditionalDependencies>
+      <ModuleDefinitionFile>HalExtiMX6Timers.def</ModuleDefinitionFile>
+      <AdditionalOptions>/kernel %(AdditionalOptions) -merge:PAGECONST=PAGE -merge:INITCONST=INIT /LARGEADDRESSAWARE</AdditionalOptions>
+      <AdditionalLibraryDirectories>$(DDK_LIB_PATH)</AdditionalLibraryDirectories>
+      <EntryPointSymbol>HalExtensionInit</EntryPointSymbol>
+    </Link>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(DDK_INC_PATH);$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_ARM_;ARM;_USE_DECLSPECS_FOR_SAL=1;STD_CALL;HALEXT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <CustomBuildStep>
+      <Command>set PATH=$(PATH);$(WDKContentRoot)tools\bin\i386\
+set SIGN_OEM=1
+sign -hal $(OutDir)$(TARGETNAME)$(TARGETEXT)</Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Message>Test sign HAL Extension</Message>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <!-- Specify fake placeholder so MSBUILD thinks that this process is always out of date and execute the custom build -->
+      <!-- Reference : https://blogs.msdn.microsoft.com/visualstudio/2010/04/26/custom-build-steps-tools-and-events/ -->
+      <Outputs>placeholder</Outputs>
+    </CustomBuildStep>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
+    <Link>
+      <AdditionalDependencies>halextlib.lib;libcntpr.lib;bufferoverflowfastfailk.lib</AdditionalDependencies>
+      <ModuleDefinitionFile>HalExtiMX6Timers.def</ModuleDefinitionFile>
+      <AdditionalOptions>/kernel %(AdditionalOptions) -merge:PAGECONST=PAGE -merge:INITCONST=INIT /LARGEADDRESSAWARE</AdditionalOptions>
+      <AdditionalLibraryDirectories>$(DDK_LIB_PATH)</AdditionalLibraryDirectories>
+      <EntryPointSymbol>HalExtensionInit</EntryPointSymbol>
+    </Link>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(DDK_INC_PATH);$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_ARM_;ARM;_USE_DECLSPECS_FOR_SAL=1;STD_CALL;HALEXT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <CustomBuildStep>
+      <Command>set PATH=$(PATH);$(WDKContentRoot)tools\bin\i386\
+set SIGN_OEM=1
+sign -hal $(OutDir)$(TARGETNAME)$(TARGETEXT)</Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Message>Test sign HAL Extension</Message>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <!-- Specify fake placeholder so MSBUILD thinks that this process is always out of date and execute the custom build -->
+      <!-- Reference : https://blogs.msdn.microsoft.com/visualstudio/2010/04/26/custom-build-steps-tools-and-events/ -->
+      <Outputs>placeholder</Outputs>
+    </CustomBuildStep>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <Inf Include="HalExtiMX6Timers.inf" />
+  </ItemGroup>
+  <ItemGroup>
+    <FilesToPackage Include="$(TargetPath)" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="HalExtension.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="HalExtiMX6Timers.def" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="HalExtiMX6Timers.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="iMX6Timers.h" />
+    <ClInclude Include="resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <PkgGen Include="HalExtiMX6Timers.wm.xml" >
+      <AdditionalOptions>/universalbsp</AdditionalOptions>
+      <SubType>Designer</SubType>
+    </PkgGen>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

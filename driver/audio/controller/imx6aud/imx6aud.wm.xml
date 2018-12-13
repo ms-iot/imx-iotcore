@@ -1,0 +1,16 @@
+﻿<?xml version='1.0' encoding='utf-8' standalone='yes'?>
+<identity
+  xmlns="urn:Microsoft.CompPlat/ManifestSchema.v1.00"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  name="imx6aud"
+  namespace="iMX"
+  owner="$(OEMNAME)"
+  legacyName="NXP.iMX.imx6aud"
+  >
+  <drivers>
+    <driver>
+      <inf source="$(_RELEASEDIR)imx6aud.inf"/>
+    </driver>
+  </drivers>
+</identity>

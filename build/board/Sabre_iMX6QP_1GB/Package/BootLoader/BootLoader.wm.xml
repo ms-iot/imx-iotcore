@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<identity
+    xmlns="urn:Microsoft.CompPlat/ManifestSchema.v1.00"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    name="BootLoader"
+    namespace="SabreiMX6QP1GB"
+    owner="NXP"
+    legacyName="NXP.Sabre_iMX6QP_1GB.BootLoader"
+    >
+    <onecorePackageInfo targetPartition="BOOTLOADER" binaryPartition="true">
+        <binaryPartition imageSource="BootLoader\firmware_fit.merged" />
+    </onecorePackageInfo>
+</identity>

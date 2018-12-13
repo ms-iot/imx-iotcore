@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <TARGETNAME Condition="'$(OVERRIDE_TARGETNAME)'!='true'">mx6pep</TARGETNAME>
+    <TARGETTYPE Condition="'$(OVERRIDE_TARGETTYPE)'!='true'">DRIVER</TARGETTYPE>
+    <TARGET_DESTINATION Condition="'$(OVERRIDE_TARGET_DESTINATION)'!='true'">retail</TARGET_DESTINATION>
+    <MUI_VERIFY_NO_LOC_RESOURCE Condition="'$(OVERRIDE_MUI_VERIFY_NO_LOC_RESOURCE)'!='true'">1</MUI_VERIFY_NO_LOC_RESOURCE>
+    <MSC_WARNING_LEVEL Condition="'$(OVERRIDE_MSC_WARNING_LEVEL)'!='true'">/W4 /WX</MSC_WARNING_LEVEL>
+    <INCLUDES Condition="'$(OVERRIDE_INCLUDES)'!='true'">$(INCLUDES)      $(HALKIT_INC_PATH);</INCLUDES>
+    <SOURCES Condition="'$(OVERRIDE_SOURCES)'!='true'">mx6dpm.cpp      mx6pep.cpp      mx6ppm.cpp      resource.rc</SOURCES>
+    <TARGETLIBS Condition="'$(OVERRIDE_TARGETLIBS)'!='true'">$(TARGETLIBS)      $(DDK_LIB_PATH)\wpprecorder.lib</TARGETLIBS>
+    <RUN_WPP Condition="'$(OVERRIDE_RUN_WPP)'!='true'">$(SOURCES)      -km      -p:mx6pep      -DENABLE_WPP_RECORDER=1      -DWPP_EMIT_FUNC_NAME      -scan:trace.h</RUN_WPP>
+    <DRIVER_INFS Condition="'$(OVERRIDE_DRIVER_INFS)'!='true'">mx6pep.inf</DRIVER_INFS>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RUN_WPP Condition="'$(OVERRIDE_RUN_WPP)'!='true'" />
+  </PropertyGroup>
+</Project>

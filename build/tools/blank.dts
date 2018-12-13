@@ -1,0 +1,11 @@
+/* Copyright (c) Microsoft Corporation. All rights reserved.
+   Licensed under the MIT License. */
+
+// This empty DTS file was used to build blank.dtb
+// blank.dtb is used to include an empty FDT into a
+//  FIT so that U-Boot's bootm command will boot
+
+/dts-v1/;
+
+/ {
+};
