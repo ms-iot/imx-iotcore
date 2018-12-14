@@ -27,8 +27,6 @@ public: // NONPAGED
         CPU3,
         GPT,
         EPIT1,
-        EPIT2,
-        RTC,
         I2C1,
         I2C2,
         I2C3,
