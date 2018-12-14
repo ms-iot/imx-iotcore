@@ -49,8 +49,7 @@ The following tools are required to build the driver packages and IoT Core FFU: 
 * If the WDK installer says it could not find the correct SDK version, install [SDK 1809](https://developer.microsoft.com/en-us/windows/downloads/windows-10-sdk)
 
 #### IoT Core OS Packages
-* Search for ["Windows 10 IoT Core, version 1809 (Updated Nov 2018)"](https://my.visualstudio.com/Downloads?q=Windows%2010%20IoT%20Core%20version%201809%20(Updated%20Nov%202018)) on the MSDN Downloads page and download the iso.
-  * **An MSDN subscription is required to access the Windows 10 IoT Core OS packages**.
+* Visit the [Windows IoT Core Downloads](https://www.microsoft.com/en-us/software-download/windows10IoTCore#!) page and download "Windows 10 IoT Core Packages – Windows 10 IoT Core, version 1809 (LTSC)".
 * Open the iso and install ```Windows_10_IoT_Core_ARM_Packages.msi```
 
 ### One-Time Environment Setup
