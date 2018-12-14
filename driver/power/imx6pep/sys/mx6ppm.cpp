@@ -468,22 +468,33 @@ BOOLEAN MX6_PEP::PpmQueryVetoReason (
 _IRQL_requires_max_(PASSIVE_LEVEL)
 BOOLEAN MX6_PEP::PpmEnumerateBootVetoes (PEPHANDLE /*Handle*/)
 {
+    NTSTATUS status;
     POHANDLE cpu0Handle =
             this->contextFromDeviceId(_DEVICE_ID::CPU0)->KernelHandle;
 
     //
-    // ARM off platform idle state is temporarily disabled in multicore config
+    // Disable stop light mode due to always-on counter dependency
     //
-    if (this->activeProcessorCount > 1) {
-        NTSTATUS status = this->pepKernelInfo.PlatformIdleVeto(
-                cpu0Handle,
-                PLATFORM_IDLE_STATE_ARM_OFF,
-                MX6_VETO_REASON_DISABLED,
-                TRUE);
+    status = this->pepKernelInfo.PlatformIdleVeto(
+            cpu0Handle,
+            PLATFORM_IDLE_STATE_STOP_LIGHT,
+            MX6_VETO_REASON_DISABLED,
+            TRUE);
 
-        UNREFERENCED_PARAMETER(status);
-        NT_ASSERT(NT_SUCCESS(status));
-    }
+    UNREFERENCED_PARAMETER(status);
+    NT_ASSERT(NT_SUCCESS(status));
+
+    //
+    // ARM off platform idle state disabled due to lack of PSCI support
+    //
+    status = this->pepKernelInfo.PlatformIdleVeto(
+            cpu0Handle,
+            PLATFORM_IDLE_STATE_ARM_OFF,
+            MX6_VETO_REASON_DISABLED,
+            TRUE);
+
+    UNREFERENCED_PARAMETER(status);
+    NT_ASSERT(NT_SUCCESS(status));
 
     return TRUE;
 }
