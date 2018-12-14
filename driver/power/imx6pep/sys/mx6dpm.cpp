@@ -36,10 +36,8 @@ namespace { // static
         RTL_CONSTANT_STRING(L"\\_SB.CPU1"),      // CPU1
         RTL_CONSTANT_STRING(L"\\_SB.CPU2"),      // CPU2
         RTL_CONSTANT_STRING(L"\\_SB.CPU3"),      // CPU3
-        RTL_CONSTANT_STRING(L"VEN_NXP&DEV_0101&SUBDEV_0000&REV_0000&UID_00000003"), // GPT
-        RTL_CONSTANT_STRING(L"VEN_NXP&DEV_0101&SUBDEV_0000&REV_0000&UID_00000004"), // EPIT1
-        RTL_CONSTANT_STRING(L"VEN_NXP&DEV_0101&SUBDEV_0000&REV_0000&UID_00000005"), // EPIT2
-        RTL_CONSTANT_STRING(L"VEN_NXP&DEV_0101&SUBDEV_0000&REV_0000&UID_00000006"), // RTC
+        RTL_CONSTANT_STRING(L"VEN_NXPI&DEV_0101&SUBDEV_0000&REV_0000&UID_00000003"), // GPT
+        RTL_CONSTANT_STRING(L"VEN_NXPI&DEV_0101&SUBDEV_0000&REV_0000&UID_00000004"), // EPIT1
         RTL_CONSTANT_STRING(L"\\_SB.I2C1"),      // I2C1
         RTL_CONSTANT_STRING(L"\\_SB.I2C2"),      // I2C2
         RTL_CONSTANT_STRING(L"\\_SB.I2C3"),      // I2C3
@@ -470,8 +468,6 @@ BOOLEAN MX6_PEP::DpmDeviceIdleContraints (
         {{ PowerDeviceUnspecified }},                                   // CPU3
         {{ PowerDeviceUnspecified }},                                   // GPT (core system resource)
         {{ PowerDeviceUnspecified }},                                   // EPIT1 (core system resource)
-        {{ PowerDeviceUnspecified }},                                   // EPIT2 (core system resource)
-        {{ PowerDeviceUnspecified }},                                   // RTC (core system resource)
         {{ PowerDeviceD0, PowerDeviceD1, PowerDeviceD1 }},              // I2C1 (PERCLK_CLK_ROOT -> IPG_CLK_ROOT -> AHB_CLK_ROOT -> PERIPH_CLK -> PRE_PERIPH_CLK -> PLL2_MAIN_CLK)
         {{ PowerDeviceD0, PowerDeviceD1, PowerDeviceD1 }},              // I2C2
         {{ PowerDeviceD0, PowerDeviceD1, PowerDeviceD1 }},              // I2C3

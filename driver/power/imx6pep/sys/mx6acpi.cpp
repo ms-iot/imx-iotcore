@@ -36,8 +36,6 @@ namespace { // static
         CSU_INDEX_INVALID,                      // CPU3
         CSU_SLAVE_INDEX(1, CSU_SLAVE_HIGH),     // GPT
         CSU_SLAVE_INDEX(1, CSU_SLAVE_HIGH),     // EPIT1
-        CSU_SLAVE_INDEX(1, CSU_SLAVE_HIGH),     // EPIT2
-        CSU_SLAVE_INDEX(1, CSU_SLAVE_HIGH),     // RTC
         CSU_SLAVE_INDEX(11, CSU_SLAVE_HIGH),    // I2C1
         CSU_SLAVE_INDEX(12, CSU_SLAVE_LOW),     // I2C2
         CSU_SLAVE_INDEX(12, CSU_SLAVE_HIGH),    // I2C3
