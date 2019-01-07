@@ -100,14 +100,17 @@ call BuildImage Sabre_iMX6Q_1GB Sabre_iMX6Q_1GB_TestOEMInput.xml
 
 ### Building the FFU with the IoT ADK AddonKit
 1. Build the GenerateBSP project to create a BSP folder in the root of the repository.
-2. Setup the IoT ADK AddonKit (https://github.com/ms-iot/iot-adk-addonkit) following the instructions from the IoT Core Manufacturing Guide (https://docs.microsoft.com/en-us/windows-hardware/manufacture/iot/iot-core-manufacturing-guide)
-3. Copy the BSP\HummingBoard folder to iot-adk-addonkit\Workspace\Source-arm\BSP\
-* Open an IoT ADK AddonKit environment with `iot-adk-addonkit\IoTCoreShell-arm.cmd`
-* Run `set SIGNFILES=NONE`
-    * This is to stop the ADK AddonKit from resigning the HAL Extensions with an unbootable signature.
-* Run `buildpkg.cmd all`
-* Run `newproduct.cmd HummingBoard HummingBoardEdge_iMX6Q_2GB`
-* Run `buildimage.cmd HummingBoard Test`
+2. Clone the [IoT ADK AddonKit](https://github.com/ms-iot/iot-adk-addonkit).
+3. Follow the [Create a basic image instructions](https://docs.microsoft.com/en-us/windows-hardware/manufacture/iot/create-a-basic-image) from the IoT Core Manufacturing guide with the following changes.
+* When importing a BSP use one of the board names from the newly generated BSP folder in the imx-iotcore repo.
+    ```
+    Import-IoTBSP HummingBoardEdge_iMX6Q_2GB <Path to imx-iotcore\BSP>
+    ```
+* When creating a product use the same board name from the BSP import.
+    ```
+    Add-IoTProduct ProductA HummingBoardEdge_iMX6Q_2GB
+    ```
+
 
 # Building Firmware from Source
 

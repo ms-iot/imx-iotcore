@@ -33,11 +33,9 @@
   <Feature>IOT_EFIESP</Feature>
   <Feature>IOT_EFIESP_BCD_MBR</Feature>
   <Feature>IOT_APP_TOOLKIT</Feature>
-  <Feature>IOT_CORTANA</Feature>
   <Feature>IOT_SHELL_HOTKEY_SUPPORT</Feature>
   <Feature>IOT_SIREP</Feature>
   <Feature>IOT_SSH</Feature>
-  <Feature>IOT_APPLICATIONS</Feature>
   <Feature>IOT_BERTHA</Feature>
   <Feature>IOT_UAP_OOBE</Feature>
   <Feature>IOT_WEBB_EXTN</Feature>
@@ -56,7 +54,6 @@
   <Feature>IOT_NANORDPSERVER</Feature>
 </Microsoft>
 <OEM>
-  <Feature>TEST</Feature>
   <Feature>IMX_DRIVERS</Feature>
 </OEM>
 </Features>

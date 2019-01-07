@@ -42,7 +42,6 @@ ServiceBinary  = %13%\MyTestDriver.sys
 4) **If you did not create a new FeatureID, skip this step.** If you created a new FeatureID in your DeviceFM.xml then you must select it in your ProductionOEMInput.xml and TestOEMInput.xml files to include the driver in the respective image (e.g. HummingBoard Edge iMX6Q uses `imx-iotcore\build\board\HummingBoardEdge_iMX6Q_2GB\HummingBoardEdge_iMX6Q_2GB_TestOEMInput.xml` and `imx-iotcore\build\board\HummingBoardEdge_iMX6Q_2GB\HummingBoardEdge_iMX6Q_2GB_ProductionOEMInput.xml`).
 ```XML
 <OEM>
-  <Feature>TEST</Feature>
   <Feature>MYNEWFEATURE_DRIVERS</Feature>
   <Feature>IMX_DRIVERS</Feature>
 </OEM>
