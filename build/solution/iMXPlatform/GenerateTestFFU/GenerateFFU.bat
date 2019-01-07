@@ -30,6 +30,10 @@ REM cd /d %BATCH_HOME%
 REM echo "Building UdooNeo_iMX6SX_1GB FFU"
 REM call BuildImage UdooNeo_iMX6SX_1GB UdooNeo_iMX6SX_1GB_TestOEMInput.xml
 
+REM cd /d %BATCH_HOME%
+REM echo "Building VAB820_iMX6Q_1GB FFU"
+REM call BuildImage VAB820_iMX6Q_1GB VAB820_iMX6Q_1GB_TestOEMInput.xml
+
 REM i.MX7 Platforms
 
 REM cd /d %BATCH_HOME%
