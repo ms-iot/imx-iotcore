@@ -45,6 +45,16 @@ enum {
 };
 
 enum {
+    // i.MX6 ULL specifics
+    IMX6ULL_GPIO_PINS_PER_BANK = 32,
+    IMX6ULL_GPIO_BANK_COUNT = 5,
+    IMX6ULL_GPIO_PIN_COUNT = IMX_MAKE_PIN_1(4, 27) + 1, // 124 pins
+    IMX6ULL_GPIO_BANK_STRIDE = 0x4000,
+    IMX6ULL_GPIO_PULL_SHIFT = 12,
+    IMX6ULL_GPIO_PULL_MASK = (0b1111 << IMX6ULL_GPIO_PULL_SHIFT)
+}; 
+
+enum {
     // i.MX7 Dual specifics
     IMX7_GPIO_PINS_PER_BANK = 32,
     IMX7_GPIO_BANK_COUNT = 7,
