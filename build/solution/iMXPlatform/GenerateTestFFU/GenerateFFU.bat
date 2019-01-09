@@ -6,9 +6,9 @@ call ..\..\..\tools\SetupBuildEnv.bat
 
 REM i.MX6 Platforms
 
-cd /d %BATCH_HOME%
-echo "Building HummingBoardEdge_iMX6Q_2GB FFU"
-call BuildImage HummingBoardEdge_iMX6Q_2GB HummingBoardEdge_iMX6Q_2GB_TestOEMInput.xml
+REM cd /d %BATCH_HOME%
+REM echo "Building HummingBoardEdge_iMX6Q_2GB FFU"
+REM call BuildImage HummingBoardEdge_iMX6Q_2GB HummingBoardEdge_iMX6Q_2GB_TestOEMInput.xml
 
 REM cd /d %BATCH_HOME%
 REM echo "Building Sabre_iMX6Q_1GB FFU"
@@ -43,3 +43,9 @@ REM call BuildImage ClSomImx7_iMX7D_1GB ClSomImx7_iMX7D_1GB_TestOEMInput.xml
 REM cd /d %BATCH_HOME%
 REM echo "Building Sabre_iMX7D_1GB FFU"
 REM call BuildImage Sabre_iMX7D_1GB Sabre_iMX7D_1GB_TestOEMInput.xml
+
+REM i.MX8M Platforms
+ 
+cd /d %BATCH_HOME%
+echo "Building NXPEVK_iMX8M_4GB FFU"
+call BuildImage NXPEVK_iMX8M_4GB NXPEVK_iMX8M_4GB_TestOEMInput.xml

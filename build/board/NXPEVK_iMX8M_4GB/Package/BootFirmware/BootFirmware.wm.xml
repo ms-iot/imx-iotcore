@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<identity
+    xmlns="urn:Microsoft.CompPlat/ManifestSchema.v1.00"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    name="BootFirmware"
+    namespace="NXPEVKiMX8M4GB"
+    owner="NXP"
+    legacyName="NXP.NXPEVK_iMX8M_4GB.BootFirmware"
+    >
+    <onecorePackageInfo targetPartition="BOOTFIRMWARE" binaryPartition="true">
+        <binaryPartition imageSource="BootFirmware\uefi.fit" />
+    </onecorePackageInfo>
+</identity>

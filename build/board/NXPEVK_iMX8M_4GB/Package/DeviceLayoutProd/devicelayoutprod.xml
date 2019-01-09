@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DeviceLayout xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/embedded/2004/10/ImageUpdate">
+  <Partitions>
+    <!-- BootLoader starting offset is set in OffsetInSectors which is set as 66 -->
+    <Partition>
+      <Name>BOOTLOADER</Name>
+      <TotalSectors>4096</TotalSectors>
+      <Type>{07DE03AA-F07C-4800-A28A-9B9FF76E9F47}</Type>
+      <OffsetInSectors>66</OffsetInSectors>
+    </Partition>
+    <!-- UEFI image -->
+    <Partition>
+      <Name>BOOTFIRMWARE</Name>
+      <TotalSectors>4096</TotalSectors>
+      <Type>{1D30ADF8-0AEF-4D83-B78C-AC719086C709}</Type>
+    </Partition>
+    <!-- EFI -->
+    <Partition>
+      <Name>EFIESP</Name>
+      <FileSystem>FAT</FileSystem>
+      <TotalSectors>65536</TotalSectors>
+      <Type>{c12a7328-f81f-11d2-ba4b-00a0c93ec93b}</Type>
+      <Bootable>true</Bootable>
+      <RequiredToFlash>true</RequiredToFlash>
+    </Partition> 
+    <!-- MainOS -->
+    <Partition>    
+      <Name>MainOS</Name>
+      <Type>{ebd0a0a2-b9e5-4433-87c0-68b6b72699c7}</Type>
+      <MinFreeSectors>1048576</MinFreeSectors>
+      <ByteAlignment>0x800000</ByteAlignment>
+      <ClusterSize>0x1000</ClusterSize>
+      <FileSystem>NTFS</FileSystem>
+    </Partition>
+    <!-- Used by packages that requires Data Partition  -->
+    <Partition>
+      <Name>Data</Name>
+      <Type>{ebd0a0a2-b9e5-4433-87c0-68b6b72699c7}</Type>
+      <UseAllSpace>true</UseAllSpace>      
+      <ByteAlignment>0x800000</ByteAlignment>
+      <ClusterSize>0x4000</ClusterSize>  
+      <FileSystem>NTFS</FileSystem>
+    </Partition>
+  </Partitions>
+  <SectorSize>512</SectorSize>
+  <ChunkSize>128</ChunkSize>
+  <VersionTag>IoTUAP</VersionTag>
+</DeviceLayout>
