@@ -416,7 +416,7 @@ For the best experience using the PWM WinRT APIs from UWP apps some additional d
 
 For an example of setting the PWM deivce interface properties statically from an inf file, see the [Virtual PWM driver sample [Virtual PWM driver sample here](https://github.com/Microsoft/Windows-iotcore-samples/tree/develop/Drivers/VirtualPWM).
 
-For an example of how to read the ACPI _DSD from within a WDF driver and how you can assign the PWM device properties at runtime, see the [i.MX SDHC driver here](https://github.com/MHesham/imx-iotcore/tree/public_preview/driver/sd/imxusdhc).
+For an example of how to read the ACPI _DSD from within a WDF driver and how you can assign the PWM device properties at runtime, see the [i.MX SDHC driver here](../driver/sd/imxusdhc).
 
 #### PWM References:
 
