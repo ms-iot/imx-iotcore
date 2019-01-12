@@ -116,17 +116,7 @@
       set PkgOutput=$(PkgOutput)
       set OutDir=$(OutDir)
       set OEMName=$(OEMName)
-      call ..\..\..\tools\BuildBSP.bat iMX6 HummingBoardEdge_iMX6DL_1GB
-      call ..\..\..\tools\BuildBSP.bat iMX6 HummingBoardEdge_iMX6Q_2GB
-      call ..\..\..\tools\BuildBSP.bat iMX6 HummingBoardEdge_iMX6S_512MB
-      REM call ..\..\..\tools\BuildBSP.bat iMX6 RSB4411_iMX6Q_1GB
-      call ..\..\..\tools\BuildBSP.bat iMX6 Sabre_iMX6Q_1GB
-      call ..\..\..\tools\BuildBSP.bat iMX6 Sabre_iMX6QP_1GB
-      REM call ..\..\..\tools\BuildBSP.bat iMX6 SabreLite_iMX6Q_1GB
-      call ..\..\..\tools\BuildBSP.bat iMX6 UdooNeo_iMX6SX_1GB
-      REM call ..\..\..\tools\BuildBSP.bat iMX6 VAB820_iMX6Q_1GB
-      call ..\..\..\tools\BuildBSP.bat iMX7 ClSomImx7_iMX7D_1GB
-      call ..\..\..\tools\BuildBSP.bat iMX7 Sabre_iMX7D_1GB
+      call ..\..\..\tools\BuildBSP.bat iMX8 NXPEVK_iMX8M_4GB
     </NMakeBuildCommandLine>
     <NMakeReBuildCommandLine>
       set Configuration=$(Configuration)
@@ -134,17 +124,7 @@
       set PkgOutput=$(PkgOutput)
       set OutDir=$(OutDir)
       set OEMName=$(OEMName)
-      call ..\..\..\tools\BuildBSP.bat iMX6 HummingBoardEdge_iMX6DL_1GB
-      call ..\..\..\tools\BuildBSP.bat iMX6 HummingBoardEdge_iMX6Q_2GB
-      call ..\..\..\tools\BuildBSP.bat iMX6 HummingBoardEdge_iMX6S_512MB
-      REM call ..\..\..\tools\BuildBSP.bat iMX6 RSB4411_iMX6Q_1GB
-      call ..\..\..\tools\BuildBSP.bat iMX6 Sabre_iMX6Q_1GB
-      call ..\..\..\tools\BuildBSP.bat iMX6 Sabre_iMX6QP_1GB
-      REM call ..\..\..\tools\BuildBSP.bat iMX6 SabreLite_iMX6Q_1GB
-      call ..\..\..\tools\BuildBSP.bat iMX6 UdooNeo_iMX6SX_1GB
-      REM call ..\..\..\tools\BuildBSP.bat iMX6 VAB820_iMX6Q_1GB
-      call ..\..\..\tools\BuildBSP.bat iMX7 ClSomImx7_iMX7D_1GB
-      call ..\..\..\tools\BuildBSP.bat iMX7 Sabre_iMX7D_1GB
+      call ..\..\..\tools\BuildBSP.bat iMX8 NXPEVK_iMX8M_4GB
     </NMakeReBuildCommandLine>
     <NMakePreprocessorDefinitions>WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
     <NMakeCleanCommandLine>
