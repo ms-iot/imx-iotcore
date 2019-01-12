@@ -10,6 +10,10 @@ if "%Configuration%"=="" (
     SET Configuration=Debug
 )
 
+if "%PLATFORM%"=="" (
+    SET PLATFORM=ARM
+)
+
 if "%1"=="" (
     echo "Missing SOC argument to BuildBSP.bat"
     echo "Usage: BuildBSP.bat <SOC> <boardname>"
@@ -45,7 +49,7 @@ set BOARDNAME=%2
 set REPO_ROOT=%cd%
 set BSP_ROOT=%cd%\BSP\%BOARDNAME%
 set PKG_ROOT=%BSP_ROOT%\Packages
-set BUILD_ROOT=%REPO_ROOT%\build\solution\iMXPlatform\Build\%Configuration%\ARM
+set BUILD_ROOT=%REPO_ROOT%\build\solution\iMXPlatform\Build\%PLATFORM%\%Configuration%
 set INFO_ROOT=%REPO_ROOT%\build\board\%BOARDNAME%\Package
 set FAILURE=
 

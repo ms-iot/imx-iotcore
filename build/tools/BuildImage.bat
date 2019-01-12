@@ -87,16 +87,16 @@ if "%SolutionDir%"=="" (
 REM
 echo Export packages to one directory
 REM
-set BSPPKG_DIR=%REPO_BUILD_ROOT%\solution\iMXPlatform\Build\FFU\bspcabs
+set BSPPKG_DIR=%REPO_BUILD_ROOT%\solution\iMXPlatform\Build\FFU\bspcabs\%PLATFORM%\%Configuration%
 set PKG_VER=1.0.0.0
 if not exist %BSPPKG_DIR% ( mkdir %BSPPKG_DIR% )
 
-if not exist %REPO_BUILD_ROOT%\..\..\b\%Configuration%\%PLATFORM% (dir /S /B %REPO_BUILD_ROOT%\solution\iMXPlatform\Build\%Configuration%\%PLATFORM%\*.cab > filelist.txt)
-if exist %REPO_BUILD_ROOT%\..\..\b\%Configuration%\%PLATFORM% (dir /S /B %REPO_BUILD_ROOT%\..\..\b\%Configuration%\%PLATFORM%\*.cab > filelist.txt)
+if not exist %REPO_BUILD_ROOT%\..\..\b\%PLATFORM%\%Configuration% (dir /S /B %REPO_BUILD_ROOT%\solution\iMXPlatform\Build\%PLATFORM%\%Configuration%\*.cab > filelist.txt)
+if exist %REPO_BUILD_ROOT%\..\..\b\%PLATFORM%\%Configuration% (dir /S /B %REPO_BUILD_ROOT%\..\..\b\%PLATFORM%\%Configuration%\*.cab > filelist.txt)
 
 REM Append the %BOARD_NAME%Package folder to the end of the scrape list so the correct SV.PlatExtensions.UpdateOS.cab is in bspcabs
-if not exist %REPO_BUILD_ROOT%\..\..\b\%Configuration%\%PLATFORM% (dir /S /B %REPO_BUILD_ROOT%\solution\iMXPlatform\Build\%Configuration%\%PLATFORM%\%BOARD_NAME%Package\*.cab >> filelist.txt)
-if exist %REPO_BUILD_ROOT%\..\..\b\%Configuration%\%PLATFORM% (dir /S /B %REPO_BUILD_ROOT%\..\..\b\%Configuration%\%PLATFORM%\%BOARD_NAME%Package\*.cab >> filelist.txt)
+if not exist %REPO_BUILD_ROOT%\..\..\b\%PLATFORM%\%Configuration% (dir /S /B %REPO_BUILD_ROOT%\solution\iMXPlatform\Build\%PLATFORM%\%Configuration%\%BOARD_NAME%Package\*.cab >> filelist.txt)
+if exist %REPO_BUILD_ROOT%\..\..\b\%PLATFORM%\%Configuration% (dir /S /B %REPO_BUILD_ROOT%\..\..\b\%PLATFORM%\%Configuration%\%BOARD_NAME%Package\*.cab >> filelist.txt)
 
 for /f "delims=" %%i in (filelist.txt) do (
     echo %%i
