@@ -50,9 +50,9 @@
   <Feature>IOT_UMDFDBG_SETTINGS</Feature>
   <Feature>IOT_USBFN_CLASS_EXTENSION</Feature>
 <!--  <Feature>IOT_ONBOARDING_APP</Feature> -->
-<!--  <Feature>IOT_CRASHCONTROL_SETTINGS</Feature> -->
-<!--  <Feature>IOT_NARRATOR</Feature> -->
-<!--  <Feature>IOT_OCR_EN_US</Feature> -->
+  <Feature>IOT_CRASHCONTROL_SETTINGS</Feature>
+  <Feature>IOT_NARRATOR</Feature>
+  <Feature>IOT_OCR_EN_US</Feature>
 </Microsoft>
 <OEM>
   <Feature>IMX_DRIVERS</Feature>
