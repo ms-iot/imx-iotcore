@@ -36,4 +36,3 @@ print_board_list:
 .PHONY: subdirs $(UPDATEDIRS)
 .PHONY: subdirs $(CLEANDIRS)
 .PHONY: all update-ffu clean
-
