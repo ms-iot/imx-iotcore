@@ -410,6 +410,20 @@ Edit `Dsdt-Sdhc.inc` and ensure that the SDHC instance on which your boot media 
 ```c
 Package (2) { "Regulator1V8Exist", 0 }, // 1.8V Switching External Circuitry: Not implemented
 ```
+### PWM
+
+For the best experience using the PWM WinRT APIs from UWP apps some additional device properties need to be set. Documentation on these device interface properties can be found here in the [Setting device interface properties](https://docs.microsoft.com/en-us/windows-hardware/drivers/spb/pulse-width-controller%20driver#setting-device-interface-properties) section of the PWM DDI MSDN article.
+
+For an example of setting the PWM deivce interface properties statically from an inf file, see the [Virtual PWM driver sample](https://github.com/Microsoft/Windows-iotcore-samples/tree/develop/Drivers/VirtualPWM).
+
+For an example of how to read the ACPI _DSD from within a WDF driver and how you can assign the PWM device properties at runtime, see the [i.MX SDHC driver here](../driver/sd/imxusdhc).
+
+#### PWM References:
+
+- [PWM DDI](https://docs.microsoft.com/en-us/windows-hardware/drivers/spb/pulse-width-controller%20driver)
+- [PWM Driver Reference](https://docs.microsoft.com/en-us/windows/desktop/devio/pwm-api)
+- [PWM WinRT APIs](https://docs.microsoft.com/en-us/uwp/api/windows.devices.pwm)
+- [Virtual PWM Driver Sample](https://github.com/Microsoft/Windows-iotcore-samples/tree/develop/Drivers)
 
 ## Building UEFI
 
