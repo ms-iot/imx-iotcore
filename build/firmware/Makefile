@@ -9,6 +9,7 @@ BOARDS=\
 	Sabre_iMX6QP_1GB \
 	Sabre_iMX7D_1GB \
 	UdooNeo_iMX6SX_1GB \
+	NXPEVK_iMX8M_4GB \
 	VAB820_iMX6Q_1GB \
 
 UPDATEDIRS=$(BOARDS:%=update-%)

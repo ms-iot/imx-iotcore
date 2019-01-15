@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes'?>
+<identity
+  xmlns="urn:Microsoft.CompPlat/ManifestSchema.v1.00"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  name="UpdateOS"
+  namespace="PlatExtensions"
+  owner="SV"
+  legacyName="SV.PlatExtensions.UpdateOS"
+  >
+  <onecorePackageInfo targetPartition="UPDATEOS"/>
+  <drivers>
+    <driver>
+      <inf source="$(_RELEASEDIR)\..\imxusdhc\imxusdhc.inf"/>
+    </driver>
+  </drivers>
+</identity>

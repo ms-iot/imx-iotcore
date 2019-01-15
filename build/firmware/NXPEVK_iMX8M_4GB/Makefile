@@ -1,0 +1,18 @@
+
+UBOOT_CONFIG=imx8mq_evk_nt_defconfig
+
+EDK2_DSC=MCIMX8M_EVK_4GB
+EDK2_PLATFORM=NXP/MCIMX8M_EVK_4GB
+EDK2_DEBUG_RELEASE=RELEASE
+
+UBOOT_OPTEE_ITS=uboot_optee_unsigned.its
+UEFI_ITS=uefi_unsigned.its
+
+all: flash.bin firmwareversions.log
+
+include ../Common.mk
+
+.PHONY: $(OPTEE)
+$(OPTEE):
+	$(MAKE) -C $(OPTEE_ROOT) O=$(OPTEE_OUT) PLATFORM=imx PLATFORM_FLAVOR=mx8mqevk \
+	  $(OPTEE_FLAGS_IMX8)

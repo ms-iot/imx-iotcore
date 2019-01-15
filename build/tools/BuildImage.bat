@@ -87,16 +87,16 @@ if "%SolutionDir%"=="" (
 REM
 echo Export packages to one directory
 REM
-set BSPPKG_DIR=%REPO_BUILD_ROOT%\solution\iMXPlatform\Build\FFU\bspcabs
+set BSPPKG_DIR=%REPO_BUILD_ROOT%\solution\iMXPlatform\Build\FFU\bspcabs\%PLATFORM%\%Configuration%
 set PKG_VER=1.0.0.0
 if not exist %BSPPKG_DIR% ( mkdir %BSPPKG_DIR% )
 
-if not exist %REPO_BUILD_ROOT%\..\..\b\%Configuration%\ARM (dir /S /B %REPO_BUILD_ROOT%\solution\iMXPlatform\Build\%Configuration%\ARM\*.cab > filelist.txt)
-if exist %REPO_BUILD_ROOT%\..\..\b\%Configuration%\ARM (dir /S /B %REPO_BUILD_ROOT%\..\..\b\%Configuration%\ARM\*.cab > filelist.txt)
+if not exist %REPO_BUILD_ROOT%\..\..\b\%Configuration%\%PLATFORM% (dir /S /B %REPO_BUILD_ROOT%\solution\iMXPlatform\Build\%PLATFORM%\%Configuration%\*.cab > filelist.txt)
+if exist %REPO_BUILD_ROOT%\..\..\b\%Configuration%\%PLATFORM% (dir /S /B %REPO_BUILD_ROOT%\..\..\b\%Configuration%\%PLATFORM%\*.cab > filelist.txt)
 
 REM Append the %BOARD_NAME%Package folder to the end of the scrape list so the correct SV.PlatExtensions.UpdateOS.cab is in bspcabs
-if not exist %REPO_BUILD_ROOT%\..\..\b\%Configuration%\ARM (dir /S /B %REPO_BUILD_ROOT%\solution\iMXPlatform\Build\%Configuration%\ARM\%BOARD_NAME%Package\*.cab >> filelist.txt)
-if exist %REPO_BUILD_ROOT%\..\..\b\%Configuration%\ARM (dir /S /B %REPO_BUILD_ROOT%\..\..\b\%Configuration%\ARM\%BOARD_NAME%Package\*.cab >> filelist.txt)
+if not exist %REPO_BUILD_ROOT%\..\..\b\%Configuration%\%PLATFORM% (dir /S /B %REPO_BUILD_ROOT%\solution\iMXPlatform\Build\%PLATFORM%\%Configuration%\%BOARD_NAME%Package\*.cab >> filelist.txt)
+if exist %REPO_BUILD_ROOT%\..\..\b\%Configuration%\%PLATFORM% (dir /S /B %REPO_BUILD_ROOT%\..\..\b\%Configuration%\%PLATFORM%\%BOARD_NAME%Package\*.cab >> filelist.txt)
 
 for /f "delims=" %%i in (filelist.txt) do (
     echo %%i
@@ -106,7 +106,7 @@ del filelist.txt >nul
 REM
 echo Run Feature Merger
 REM
-FeatureMerger %BOARD_BUILD_PATH%\%BOARD_NAME%_FMFileList.xml %BSPPKG_DIR% %PKG_VER% %BOARD_BUILD_PATH%\MergedFMs /InputFMDir:%BOARD_BUILD_PATH%\InputFMs /Languages:en-us /Resolutions:1024x768 /ConvertToCBS /variables:_cputype=ARM;buildtype=fre;releasetype=production >fmlog.txt
+FeatureMerger %BOARD_BUILD_PATH%\%BOARD_NAME%_FMFileList.xml %BSPPKG_DIR% %PKG_VER% %BOARD_BUILD_PATH%\MergedFMs /InputFMDir:%BOARD_BUILD_PATH%\InputFMs /Languages:en-us /Resolutions:1024x768 /ConvertToCBS /variables:_cputype=%PLATFORM%;buildtype=fre;releasetype=production >fmlog.txt
 del %BSPPKG_DIR%\*.spkg >nul 2>nul
 del %BSPPKG_DIR%\*.merged.txt >nul 2>nul
 
@@ -114,8 +114,8 @@ REM
 echo Begin Image generation
 REM
 echo building image
-echo imggen.cmd "%FFU_FILE_NAME%" "%BOARD_BUILD_PATH%\%INPUT_FILE_NAME%" "%KITSROOT%MSPackages"
-call imggen.cmd "%FFU_FILE_NAME%" "%BOARD_BUILD_PATH%\%INPUT_FILE_NAME%" "%KITSROOT%MSPackages"
+echo imggen.cmd "%FFU_FILE_NAME%" "%BOARD_BUILD_PATH%\%INPUT_FILE_NAME%" "%KITSROOT%MSPackages" %PLATFORM%
+call imggen.cmd "%FFU_FILE_NAME%" "%BOARD_BUILD_PATH%\%INPUT_FILE_NAME%" "%KITSROOT%MSPackages" %PLATFORM%
 goto :EXIT
 
 :USAGE

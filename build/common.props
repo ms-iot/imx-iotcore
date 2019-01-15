@@ -6,8 +6,8 @@
   </PropertyGroup>
   <PropertyGroup>
     <!-- Determine package output path depending if this is a build or dev machine -->
-    <MainOutput>$(SolutionDir)Build\$(Configuration)\$(Platform)\</MainOutput>
-    <PkgOutput >$(SolutionDir)Build\$(Configuration)\$(Platform)\</PkgOutput>
+    <MainOutput>$(SolutionDir)Build\$(Platform)\$(Configuration)\</MainOutput>
+    <PkgOutput >$(SolutionDir)Build\$(Platform)\$(Configuration)\</PkgOutput>
     <OutputPath>$(MainOutput)</OutputPath>
     <OutDir>$(MainOutput)$(ProjectName)\</OutDir>
     <IntermediateOutputPath>$(MainOutput)$(ProjectName)\</IntermediateOutputPath>
@@ -26,7 +26,7 @@
       <PreprocessorDefinitions Condition="'$(XefMSPropsImported)'=='true'">%(PreprocessorDefinitions);XES_MACHINE=1</PreprocessorDefinitions>
     </ResourceCompile>
     <BuildLog>
-      <Path>$(MainOutput)\Logs\$(MSBuildProjectName).log</Path>
+      <Path>$(SolutionDir)Build\$(Platform)\$(Configuration)\Logs\$(MSBuildProjectName).log</Path>
     </BuildLog>
     <PkgGen>
       <Variables>"HIVE_ROOT=$(CoreSystem_HivesPath);WIM_ROOT=$(CoreSystem_HivesPath);_RELEASEDIR=$(PackageDir);TARGETNAME=$(TargetName);TARGETEXT=$(TargetExt);$(PkgGen_DefaultDriverDest);OEMNAME=$(OEMName)"</Variables>
