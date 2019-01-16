@@ -27,6 +27,7 @@
 #include "imx6dq.hpp"
 #include "imx6sdl.hpp"
 #include "imx7d.hpp"
+#include "imx6ull.hpp"
 #include "imx8m.hpp"
 
 IMX_NONPAGED_SEGMENT_BEGIN; //====================================================
@@ -1844,6 +1845,18 @@ NTSTATUS IMX_GPIO::configureCPUType (
     cpuType = IMX_CPU_TYPE(cpuRev);
 
     switch (cpuType) {
+    case IMX_CPU_MX6ULL:
+        bankStride = IMX6ULL_GPIO_BANK_STRIDE;
+        bankCount = IMX6ULL_GPIO_BANK_COUNT;
+        pinCount = IMX6ULL_GPIO_PIN_COUNT;
+        pullShift = IMX6ULL_GPIO_PULL_SHIFT;
+        pullMask = IMX6ULL_GPIO_PULL_MASK;
+        sparsePinMap = Imx6ULLGpioPinDataSparseMap;
+        sparsePinMapLength = ARRAYSIZE(Imx6ULLGpioPinDataSparseMap);
+        inputSelectMap = Imx6ULLGpioPinInputSelectTable;
+        inputSelectMapLength = ARRAYSIZE(Imx6ULLGpioPinInputSelectTable);
+        break;
+
     case IMX_CPU_MX6D:
     case IMX_CPU_MX6DP:
     case IMX_CPU_MX6Q:
