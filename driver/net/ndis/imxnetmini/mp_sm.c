@@ -195,7 +195,7 @@ void MpOnPausingStateHandler(_In_ PMP_ADAPTER pAdapter, _In_ MP_STATE PreviousSt
                 break;                                                                      // Keep waiting...
             }
             ASSERT(pAdapter->Tx_PendingNBs == 0);
-            if (MpQueueGetDepth(&pAdapter->Rx_qFreeBDs) != pAdapter->Rx_DmaBDT_ItemCount) { // Wait until NDIS returns all indicated NBLs
+            if (IsRxFramePandingInNdis(pAdapter)) {                                         // Wait until NDIS returns all indicated NBLs
                 DBG_SM_PRINT_TRACE("PAUSING -> PAUSING, waiting for NDIS to return Rx");
                 break;                                                                      // Keep waiting...
             }
@@ -250,22 +250,8 @@ void MpOnPausedStateHandler(_In_ PMP_ADAPTER pAdapter, _In_ MP_STATE PreviousSta
                 (void)SmSetState(pAdapter, pAdapter->StateMachine.SM_OnResetPreviousState, MP_SM_NEXT_STATE_IMMEDIATELY, SM_CALLED_BY_DISPATCHER);   // Set next state
                 break;
             }
-            if (pAdapter->pNdisPowerReq != NULL) {
-                DBG_SM_PRINT_TRACE("PAUSING -> PAUSED, calling NdisMOidRequestComplete()");
-                NdisMSynchronizeWithInterruptEx(pAdapter->NdisInterruptHandle, 0, EnetDisableRxAndTxInterrupts, pAdapter);
-                pAdapter->CurrentPowerState  = NdisDeviceStateD3;
-
-                pAdapter->LinkSpeed = 0;
-                pAdapter->DuplexMode = MediaDuplexStateUnknown;
-                pAdapter->MediaConnectState = MediaConnectStateUnknown;
-                MpIndicateLinkStatus(pAdapter);
-
-                NdisMOidRequestComplete(pAdapter->AdapterHandle, pAdapter->pNdisPowerReq, NDIS_STATUS_SUCCESS);
-                pAdapter->pNdisPowerReq = NULL;
-            } else {
-                DBG_SM_PRINT_TRACE("PAUSING -> PAUSED, calling NdisMPauseComplete()");
-                NdisMPauseComplete(pAdapter->AdapterHandle);          // Complete pause request.
-            }
+            DBG_SM_PRINT_TRACE("PAUSING -> PAUSED, calling NdisMPauseComplete()");
+            NdisMPauseComplete(pAdapter->AdapterHandle);          // Complete pause request.
             NdisReleaseSpinLock(&pAdapter->Dev_SpinLock);
             break;
         default:

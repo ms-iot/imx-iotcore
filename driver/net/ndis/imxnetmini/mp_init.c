@@ -64,7 +64,6 @@ NDIS_STATUS MpAllocAdapterBlock(PMP_ADAPTER *ppAdapter, NDIS_HANDLE MiniportAdap
         InitializeListHead(&pAdapter->PoMgmt.PatternList);
         NdisAllocateSpinLock(&pAdapter->Dev_SpinLock);
 
-        MpQueueInit(&pAdapter->Rx_qFreeBDs);                   // Initialize Free RX frame descriptors queue
         MpQueueInit(&pAdapter->Tx_qMpOwnedBDs);                // Initialize pending Tx Ethernet frames (NET_BUFFERs) queue
         MpQueueInit(&pAdapter->Tx_qDmaOwnedBDs);               // Initialize in-progress Tx Ethernet frames (NET_BUFFERs) queue
         NdisAllocateSpinLock(&pAdapter->Tx_SpinLock);          // Initialize Tx path spin lock
@@ -158,7 +157,7 @@ NDIS_STATUS NICAllocAdapterMemory(PMP_ADAPTER pAdapter)
         // Initialize Tx Lookaside lists
         NdisInitializeNPagedLookasideList(&pAdapter->Tx_MpTxBDLookasideList, NULL, NULL, 0, sizeof(MP_TX_BD) - sizeof(SCATTER_GATHER_LIST) + pAdapter->Tx_SGListSize, MP_TAG_TX_BD, 0);
 
-        pAdapter->Rx_DmaBDT_ReadyBDsLowWatterMark = (pAdapter->Rx_DmaBDT_ItemCount * MAC_RX_BUFFER_LOW_WATER_PERCENT) / 100;
+        pAdapter->Rx_DmaBDT_DmaOwnedBDsLowWatterMark = (pAdapter->Rx_DmaBDT_ItemCount * MAC_RX_BUFFER_LOW_WATER_PERCENT) / 100;
 
         /* ************************************************************************************************************************************ */
         /* Allocated memory for ENET DMA Receive Descriptors Table(Rx_DmaBDT). Note: This memory must be 8 bytes aligned!                       */
@@ -187,13 +186,13 @@ NDIS_STATUS NICAllocAdapterMemory(PMP_ADAPTER pAdapter)
         NdisZeroMemory((PVOID)pAdapter->Tx_DmaBDT, pAdapter->Tx_DmaBDT_Size);
 
         // Allocate RX DMA SW extension buffer descriptors array.
-        ULONG Rx_DmaSwExtBDTSize =  sizeof(PMP_RX_FRAME_BD) * pAdapter->Rx_DmaBDT_ItemCount;
-        if ((pAdapter->Rx_DmaSwExtBDT = NdisAllocateMemoryWithTagPriority(pAdapter->AdapterHandle, Rx_DmaSwExtBDTSize, MP_TAG_RX_PAYLOAD_DESC, NormalPoolPriority)) == NULL) {
+        ULONG Rx_DmaBDT_SwExtSize =  sizeof(PMP_RX_FRAME_BD) * pAdapter->Rx_DmaBDT_ItemCount;
+        if ((pAdapter->Rx_DmaBDT_SwExt = NdisAllocateMemoryWithTagPriority(pAdapter->AdapterHandle, Rx_DmaBDT_SwExtSize, MP_TAG_RX_PAYLOAD_DESC, NormalPoolPriority)) == NULL) {
             Status = NDIS_STATUS_RESOURCES;
             DBG_ENET_DEV_PRINT_ERROR_WITH_STATUS("NdisMAllocateSharedMemory() failed to allocated RX Dma SW extension descriptors table.");
             break;
         }
-        NdisZeroMemory(pAdapter->Rx_DmaSwExtBDT, Rx_DmaSwExtBDTSize);
+        NdisZeroMemory(pAdapter->Rx_DmaBDT_SwExt, Rx_DmaBDT_SwExtSize);
         // Allocate RX frame buffer descriptors array.
         ULONG Rx_FrameBDTSize =  sizeof(MP_RX_FRAME_BD) * pAdapter->Rx_DmaBDT_ItemCount;
         if ((pAdapter->Rx_FrameBDT = NdisAllocateMemoryWithTagPriority(pAdapter->AdapterHandle, Rx_FrameBDTSize, MP_TAG_RX_PAYLOAD_DESC, NormalPoolPriority)) == NULL) {
@@ -238,7 +237,6 @@ NDIS_STATUS NICAllocAdapterMemory(PMP_ADAPTER pAdapter)
                 break;
             }
             MP_NBL_SET_RX_FRAME_BD(pRxFrameBD->pNBL, pRxFrameBD);       // Associate NBL and payload buffer descriptor
-            MpQueueAdd(&pAdapter->Rx_qFreeBDs, &pRxFrameBD->Link);      // Queue Rx frame descriptor
         }
         if (Status != NDIS_STATUS_SUCCESS) {
             break;
@@ -323,10 +321,10 @@ void MpFreeAdapter(PMP_ADAPTER  pAdapter)
             NdisMFreeSharedMemory(pAdapter->AdapterHandle, pAdapter->Rx_DmaBDT_Size, FALSE, (PVOID)pAdapter->Rx_DmaBDT, pAdapter->Rx_DmaBDT_Pa);
             pAdapter->Rx_DmaBDT = NULL;
         }
-        // Free Rx_DmaSwExtBDT
-        if (pAdapter->Rx_DmaSwExtBDT != NULL) {
-            NdisFreeMemory(pAdapter->Rx_DmaSwExtBDT, 0, 0);
-            pAdapter->Rx_DmaSwExtBDT = NULL;
+        // Free Rx_DmaBDT_SwExt
+        if (pAdapter->Rx_DmaBDT_SwExt != NULL) {
+            NdisFreeMemory(pAdapter->Rx_DmaBDT_SwExt, 0, 0);
+            pAdapter->Rx_DmaBDT_SwExt = NULL;
         }
         // Free RX payload buffer descriptors
         if (pAdapter->Rx_FrameBDT != NULL) {

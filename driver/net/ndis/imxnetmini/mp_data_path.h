@@ -75,6 +75,6 @@ _IRQL_requires_max_(DISPATCH_LEVEL)
 void MpHandleRecvInterrupt(_In_ PMP_ADAPTER pAdapter, _Inout_ PULONG pMaxNBLsToIndicate, _Inout_ PNDIS_RECEIVE_THROTTLE_PARAMETERS pRecvThrottleParameters);
 void MpTxInit(_In_ PMP_ADAPTER pAdapter);
 void MpRxInit(_In_ PMP_ADAPTER pAdapter);
-void MpRxDeinit(_In_ PMP_ADAPTER pAdapter);
+BOOLEAN IsRxFramePandingInNdis(PMP_ADAPTER pAdapter);
 
 #endif // _MP_DATA_PATH_H

@@ -232,6 +232,11 @@ typedef struct _MP_RX_FRAME_BD {
     NDIS_PHYSICAL_ADDRESS   BufferPa;       // Physical address of the buffer
 } MP_RX_FRAME_BD, *PMP_RX_FRAME_BD;
 
+
+typedef struct _MP_ENET_BD_SW_EXT_ {
+    PMP_RX_FRAME_BD         pRxFrameBD;
+} MP_ENET_BD_SW_EXT, *PMP_ENET_BD_SW_EXT;
+
 // Next state delay periods...
 #define MP_SM_NEXT_STATE_IMMEDIATELY                 -1
 #define MP_SM_NEXT_STATE_SAMPLE_DEALY_MSEC          100
@@ -296,6 +301,8 @@ typedef struct _MP_ADAPTER {
     BOOLEAN                 DpcRunning;               // Set to TRUE at the begin of DPC and to FALSE ad the and of DPC
     MP_NDIS_PEND_OPS        PendingNdisOperations;
     NDIS_STATUS             NdisStatus;
+    BOOLEAN                 EnetStarted;              // Set to TRUE(data path is running) by EnetStart() and to FALSE in EnetStop() method. 
+    BOOLEAN                 RestartEnetAfterResume;
     volatile CSP_ENET_REGS *ENETRegBase;              // ENET peripheral registers virtual base address
     UINT32                  InterruptFlags;
     UCHAR                   PermanentAddress[ETH_LENGTH_OF_ADDRESS];
@@ -336,16 +343,16 @@ typedef struct _MP_ADAPTER {
     NDIS_HANDLE             Rx_NBAndNBLPool;                       // NB and NBL pool handle
     PMP_RX_FRAME_BD         Rx_FrameBDT;                           // Rx payload data buffer descriptor table address
     NDIS_SPIN_LOCK          Rx_SpinLock;                           // Rx path spin lock
-    MP_QUEUE                Rx_qFreeBDs;                           // Free RX frame descriptors queue
     LONG                    Rx_EnetFreeBDIdx;                      // Index of the first free BD
     LONG                    Rx_EnetPendingBDIdx;                   // Index of first BD submitted to ENET DMA
-    LONG                    Rx_DmaBDT_ReadyBDsCount;               // Number of BDs owned by ENET DMA (ready to receive data)
-    LONG                    Rx_DmaBDT_ReadyBDsLowWatterMark;       // Number of BDs that must be ready for data reception
+    LONG                    Rx_NdisOwnedBDsCount;                  // Number of buffers owned by NDIS
+    LONG                    Rx_DmaBDT_DmaOwnedBDsCount;            // Number of BDs owned by ENET DMA (ready to receive data)
+    LONG                    Rx_DmaBDT_DmaOwnedBDsLowWatterMark;    // Number of BDs that must be ready for data reception
     PENET_BD                Rx_DmaBDT;                             // ENET peripheral Dma buffer descriptor table (BDT) address
+    PMP_ENET_BD_SW_EXT      Rx_DmaBDT_SwExt;                       // SW extension of Rx_DmaBDT
     LONG                    Rx_DmaBDT_ItemCount;                   // ENET peripheral Dma buffer descriptor table (BDT) item count
     ULONG                   Rx_DmaBDT_Size;                        // Size of Rx_DmaBDT in bytes
     NDIS_PHYSICAL_ADDRESS   Rx_DmaBDT_Pa;                          // Physical address of Rx_DmaBDT
-    PMP_RX_FRAME_BD        *Rx_DmaSwExtBDT;                        // SW extension of Rx_DmaBDT
     LONG                    Rx_NBLCounter;                         // For debug only
     NDIS_SPIN_LOCK          Dev_SpinLock;                          // spin locks
     // Packet Filter and look ahead size.
@@ -371,7 +378,6 @@ typedef struct _MP_ADAPTER {
 
     NDIS_DEVICE_POWER_STATE     CurrentPowerState;
     NDIS_DEVICE_POWER_STATE     NewPowerState;
-    PNDIS_OID_REQUEST           pNdisPowerReq;
 
 
     BOOLEAN                 bResetPending;
@@ -427,7 +433,7 @@ typedef struct _MP_ADAPTER {
 
 MINIPORT_INTERRUPT_DPC EnetDpc;
 
-NDIS_STATUS MpSetPower           (_In_ PMP_ADAPTER pAdapter, _In_ PNDIS_OID_REQUEST pSetPowerReq, _In_ NDIS_DEVICE_POWER_STATE PowerState);
+NDIS_STATUS MpSetPower           (_In_ PMP_ADAPTER pAdapter, _In_ NDIS_DEVICE_POWER_STATE PowerState);
 
 NDIS_TIMER_FUNCTION MpSmDispatcher;
 
