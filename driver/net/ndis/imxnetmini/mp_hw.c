@@ -288,9 +288,8 @@ void EnetStop(PMP_ADAPTER pAdapter, NDIS_STATUS NdisStatus)
     NdisMSynchronizeWithInterruptEx(pAdapter->NdisInterruptHandle, 0, EnetDisableRxAndTxInterrupts, pAdapter);
     ENETRegBase->ECR.U &= ~ENET_ECR_ETHER_EN_MASK;        // Disable Enet MAC (Clear "Enable" bit)
     while (ENETRegBase->ECR.U & ENET_ECR_ETHER_EN_MASK);  // Wait until Enet MAC is disabled
-    ENETRegBase->ECR.U |= ENET_ECR_ETHER_EN_MASK;         // Start Enet (ENET must be running in order to invoke MII interrupt)
     pAdapter->NdisStatus = NdisStatus;                    // Remember new NDIS status
-    MpRxDeinit(pAdapter);
+    pAdapter->EnetStarted = FALSE;                        // Remember new Enet state
     DBG_SM_PRINT_TRACE("ENET stopped, status: %s, releasing all spinlocks", Dbg_GetNdisStatusName(NdisStatus));
     NdisReleaseSpinLock(&pAdapter->Tx_SpinLock);
     NdisReleaseSpinLock(&pAdapter->Rx_SpinLock);
@@ -317,6 +316,7 @@ void EnetStart(PMP_ADAPTER pAdapter)
     DBG_SM_PRINT_TRACE("Starting ENET, all spinlocks acquired");
     MpTxInit(pAdapter);                                               // Initialize Tx data structures
     MpRxInit(pAdapter);                                               // Initialize Rx data structures
+    pAdapter->EnetStarted = TRUE;                                     // Remember new Enet state
     pAdapter->NdisStatus = NDIS_STATUS_SUCCESS;                       // Remember new NDIS status
     pAdapter->InterruptFlags = 0;                                     // No interrupt flags pending from previous call of DPC
     ENETRegBase->ERDSR = (ULONG)pAdapter->Rx_DmaBDT_Pa.QuadPart;      // Set the Rx_DmaBDT physical address
@@ -324,6 +324,8 @@ void EnetStart(PMP_ADAPTER pAdapter)
     ENETRegBase->EMRBR = 0x7f0;                                       //
     ENETRegBase->EIR.U = (ENET_RX_TX_INT_MASK);                       // Clear Rx and Tx interrupts flags
     NdisMSynchronizeWithInterruptEx(pAdapter->NdisInterruptHandle, 0, EnetEnableRxAndTxInterrupts, pAdapter);
+    _DataSynchronizationBarrier();                                    // Wait until mem-io accesses are finished 
+    ENETRegBase->ECR.U |= ENET_ECR_ETHER_EN_MASK;                     // Start Enet (ENET must be running in order to invoke MII interrupt)
     ENETRegBase->RDAR = 0x00000000;                                   // Start data reception
     DBG_SM_PRINT_TRACE("ENET started, releasing all spinlocks");
     NdisReleaseSpinLock(&pAdapter->Tx_SpinLock);
@@ -424,7 +426,6 @@ void EnetInit(PMP_ADAPTER pAdapter, MP_MDIO_PHY_INTERFACE_TYPE EnetPhyInterfaceT
     ENETRegBase->TSEM = ENET_MAC_TX_SECTION_EMPTY_DEFAULT_VALUE; // 8~480?
 #endif
     SetUnicast(pAdapter);
-    ENETRegBase->ECR.U |= ENET_ECR_ETHER_EN_MASK;                     // Enable Enet
     //Dbg_DumpFifoTrasholdsAndPauseFrameDuration(pAdapter);
     DBG_SM_METHOD_END();
 }

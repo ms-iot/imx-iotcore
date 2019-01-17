@@ -59,9 +59,6 @@ const char* Dbg_GetEnetPhyInterfaceTypeName(_In_ MP_MDIO_PHY_INTERFACE_TYPE i);
 const char* Dbg_GetACPIFunctionName(_In_ ULONG i);
 const char* Dbg_GetMIICallbackName(_In_ void * FunctionAddress);
 
-#define DBG_CODE(_line_) _line_
-#define DBG_PRINT_SETTINGS(_format_str_,...)                                      DbgPrintEx(DPFLTR_IHVDRIVER_ID,0xFFFFFFFF,_format_str_"\n",__VA_ARGS__)
-
 // DO NOT COMMENT OUT ERROR MACROS in debug build
 #define DBG_DRV_PRINT_ERROR(_format_str_,...)                                             DbgPrintEx(DPFLTR_IHVDRIVER_ID,0xFFFFFFFE,"C%d D%d %s:%s ERROR !!!"_format_str_,KeGetCurrentProcessorNumber(),KeGetCurrentIrql(),pDriver?pDriver->MDIODrv_DeviceName:"ENETx",__FUNCTION__,__VA_ARGS__)
 #define DBG_DRV_PRINT_ERROR_WITH_STATUS(_str_)                                            DbgPrintEx(DPFLTR_IHVDRIVER_ID,0xFFFFFFFE,"C%d D%d %s:%s ERROR !!!"_str_" Status %s\n",KeGetCurrentProcessorNumber(),KeGetCurrentIrql(),pDriver?pDriver->MDIODrv_DeviceName:"ENETx",__FUNCTION__,Dbg_GetNdisStatusName(Status))
@@ -110,8 +107,13 @@ const char* Dbg_GetMIICallbackName(_In_ void * FunctionAddress);
 #define DBG_MDIO_DEV_CMD_PRINT_ERROR_WITH_STATUS_AND_PARAMS(_str_,_format_str_,...)       DbgPrintEx(DPFLTR_IHVDRIVER_ID,0xFFFFFFFE,"C%d D%d %s:%s ERROR !!!"_str_" Status %s, "_format_str_"\n",KeGetCurrentProcessorNumber(),KeGetCurrentIrql(),pMDIODev?pMDIODev->MDIODev_DeviceName:"MDIOx(ENETx",__FUNCTION__,Dbg_GetNdisStatusName(Status),__VA_ARGS__)
 
 // Uncomment next line for debug message printing
-#define DBG_MESSAGE_PRINTING
+//#define DBG_MESSAGE_PRINTING
 #ifdef DBG_MESSAGE_PRINTING
+
+#define DBG_CODE(_line_) _line_
+
+// Uncomment next line to print basic ENET HW configuration
+#define DBG_PRINT_BASIC_ENET_CONFIGURATION(_format_str_,...)                              DbgPrintEx(DPFLTR_IHVDRIVER_ID,0xFFFFFFFF,_format_str_"\n",__VA_ARGS__)
 
 // ENET driver specific macros - uncomment next line for message printing
 //#define DBG_DRV
@@ -332,10 +334,14 @@ const char* Dbg_GetMIICallbackName(_In_ void * FunctionAddress);
 #define Dbg_GetACPIFunctionName(...)
 #define Dbg_GetMIICallbackName(...)
 
-#define DBG_CODE(...)
-#define DBG_PRINT_SETTINGS(...)
-
 #endif // DBG
+
+#ifndef DBG_CODE
+#define DBG_CODE(...)
+#endif
+#ifndef  DBG_PRINT_BASIC_ENET_CONFIGURATION
+#define DBG_PRINT_BASIC_ENET_CONFIGURATION(...)
+#endif
 
 #ifndef DBG_DRV_CODE
 #define DBG_DRV_CODE(...)

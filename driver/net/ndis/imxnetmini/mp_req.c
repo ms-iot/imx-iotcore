@@ -266,6 +266,7 @@ NDIS_STATUS NICSetMulticastList(PMP_ADAPTER pAdapter)
     return(NDIS_STATUS_SUCCESS);
 }
 
+void MpIndicateLinkStatus(_In_ PMP_ADAPTER pAdapter);
 /*++
 Routine Description:
     This routine is called when the adapter receives a SetPower request.
@@ -279,9 +280,11 @@ Return Value:
     NDIS_STATUS_HARDWARE_ERRORS
 --*/
 _Use_decl_annotations_
-NDIS_STATUS MpSetPower(PMP_ADAPTER pAdapter, PNDIS_OID_REQUEST pSetPowerReq, NDIS_DEVICE_POWER_STATE NewPowerState)
+NDIS_STATUS MpSetPower(PMP_ADAPTER pAdapter, NDIS_DEVICE_POWER_STATE NewPowerState)
 {
     NDIS_STATUS       Status = NDIS_STATUS_SUCCESS;
+    LONG              SendWaitCounter = 100;
+
     DBG_ENET_DEV_OIDS_METHOD_BEG_WITH_PARAMS("New power state: %s", Dbg_GetNdisPowerStateName(NewPowerState));
 
     ASSERT(NewPowerState >= NdisDeviceStateD0 && NewPowerState <= NdisDeviceStateD3);
@@ -292,27 +295,54 @@ NDIS_STATUS MpSetPower(PMP_ADAPTER pAdapter, PNDIS_OID_REQUEST pSetPowerReq, NDI
     NdisAcquireSpinLock(&pAdapter->Dev_SpinLock);
     do {
         if (pAdapter->CurrentPowerState == NewPowerState) {
-            Status = NDIS_STATUS_SUCCESS;
             break;
         }
         pAdapter->NewPowerState = NewPowerState;
-        pAdapter->pNdisPowerReq = pSetPowerReq;
         if (NewPowerState == NdisDeviceStateD0) {
             DBG_ENET_DEV_PRINT_INFO("SET_POWER_OID D0");
             pAdapter->CurrentPowerState = NewPowerState;
-            NdisReleaseSpinLock(&pAdapter->Dev_SpinLock);
-            EnetStart(pAdapter);
-            NdisAcquireSpinLock(&pAdapter->Dev_SpinLock);
+            if (pAdapter->RestartEnetAfterResume) {
+                pAdapter->RestartEnetAfterResume = FALSE;
+                DBG_ENET_DEV_PRINT_INFO("Enet device was running before suspend. Start Enet now.");
+                NdisReleaseSpinLock(&pAdapter->Dev_SpinLock);
+                EnetStart(pAdapter);
+                NdisAcquireSpinLock(&pAdapter->Dev_SpinLock);
+            } else {
+                DBG_ENET_DEV_PRINT_INFO("Enet device was not running before suspend. Do not start Enet now.");
+            }
         } else {
             DBG_ENET_DEV_PRINT_INFO("SET_POWER_OID D3");
-            Status = NDIS_STATUS_PENDING;
-            NdisReleaseSpinLock(&pAdapter->Dev_SpinLock);
-            (void)SmSetState(pAdapter, SM_STATE_PAUSING, MP_SM_NEXT_STATE_IMMEDIATELY, SM_CALLED_BY_NDIS);  // Switch to the PAUSING state immediately
-            NdisAcquireSpinLock(&pAdapter->Dev_SpinLock);
+            if (pAdapter->EnetStarted) {                                                        // Is ENET running?
+                DBG_ENET_DEV_PRINT_INFO("Enet device is running. Trying to stop Enet...");
+                pAdapter->RestartEnetAfterResume = TRUE;
+                NdisReleaseSpinLock(&pAdapter->Dev_SpinLock);                                   
+                EnetStop(pAdapter, NDIS_STATUS_LOW_POWER_STATE);                                // Stop the adapter and remember new NDIS status.
+                (void)MpTxCancelAll(pAdapter);                                                  // Cancel all queued send requests.
+                while (pAdapter->Tx_PendingNBs != 0) {                                          // Wait up to 100 ms untill all TX NBL are return to NDIS
+                    DBG_ENET_DEV_PRINT_INFO("Waiting for pAdapter->Tx_PendingNBs == 0");
+                    if (SendWaitCounter--) {
+                        NdisMSleep(1000);                                                       // Wait 1 ms
+                        (void)MpTxCancelAll(pAdapter);
+                    } else {
+                        DBG_ENET_DEV_PRINT_ERROR("Waiting for pAdapter->Tx_PendingNBs == 0 FAILED");
+                        ASSERT(0);
+                    }
+                }
+                NdisAcquireSpinLock(&pAdapter->Dev_SpinLock);
+            } else {
+                pAdapter->RestartEnetAfterResume = FALSE;
+                DBG_ENET_DEV_PRINT_INFO("Enet device is stopped. No action needed.");
+            }
+            pAdapter->CurrentPowerState = NdisDeviceStateD3;
+            pAdapter->LinkSpeed = 0;
+            pAdapter->DuplexMode = MediaDuplexStateUnknown;
+            pAdapter->MediaConnectState = MediaConnectStateUnknown;
+            MpIndicateLinkStatus(pAdapter);
         }
     } while (0);
     NdisReleaseSpinLock(&pAdapter->Dev_SpinLock);
-    return Status;
+    DBG_ENET_DEV_OIDS_METHOD_END_WITH_STATUS(Status);
+    return Status; 
 }
 
 /*++
@@ -565,7 +595,7 @@ NDIS_STATUS MpSetInformation(NDIS_HANDLE MiniportAdapterContext, PNDIS_OID_REQUE
               Status = NDIS_STATUS_INVALID_LENGTH;
               break;
           }
-          Status = MpSetPower(pAdapter, NdisRequest, *(PNDIS_DEVICE_POWER_STATE UNALIGNED)InformationBuffer);
+          Status = MpSetPower(pAdapter, *(PNDIS_DEVICE_POWER_STATE UNALIGNED)InformationBuffer);
           if ((Status == NDIS_STATUS_SUCCESS) || (Status == NDIS_STATUS_PENDING)) {
               BytesRead = sizeof(NDIS_DEVICE_POWER_STATE);
           }
@@ -637,20 +667,7 @@ Return Value:
 _Use_decl_annotations_
 VOID MpCancelOidRequest(NDIS_HANDLE MiniportAdapterContext, PVOID RequestId)
 {
-    PMP_ADAPTER          pAdapter = (PMP_ADAPTER) MiniportAdapterContext;
-
-    DBG_ENET_DEV_OIDS_METHOD_BEG();
-    NdisAcquireSpinLock(&pAdapter->Dev_SpinLock);
-    if (pAdapter->pNdisPowerReq != NULL) {
-        if (pAdapter->pNdisPowerReq->RequestId == RequestId) {
-            Dbg_PrintOidDescription(pAdapter, RequestId, NDIS_STATUS_REQUEST_ABORTED);
-            NdisMOidRequestComplete(pAdapter->AdapterHandle, pAdapter->pNdisPowerReq, NDIS_STATUS_REQUEST_ABORTED);
-            pAdapter->pNdisPowerReq = NULL;
-        } else {
-            ASSERT(0);
-        }
-    }
-    NdisReleaseSpinLock(&pAdapter->Dev_SpinLock);
-    DBG_ENET_DEV_OIDS_METHOD_END();
+    UNREFERENCED_PARAMETER(MiniportAdapterContext);
+    UNREFERENCED_PARAMETER(RequestId);
 }
 

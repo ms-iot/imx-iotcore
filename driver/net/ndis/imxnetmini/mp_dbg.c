@@ -819,9 +819,9 @@ void Dbg_PrintENETDeviceSettings(MP_ADAPTER *pENETDev) {
     MP_PHY_DEVICE  *pPHYDev  = &pENETDev->ENETDev_PHYDevice;
     MP_MDIO_BUS    *pMDIOBus = pMDIODev->MDIODev_pBus;
 
-    DBG_PRINT_SETTINGS("%s ENET device address: 0x%08x_%08x, Irq: 0x%x, MAC: %02X-%02X-%02X-%02X-%02X-%02X\n"
-                 "      MDIO device address: 0x%08x_%08x(%s), ENET_PHY address: %d, MDIO clock %d[kHz], MDIO hold time %d[ns], Preamble: %s\n"
-                 "      ENET PHY ID: 0x%08X, type: %s name: %s",\
+    DBG_PRINT_BASIC_ENET_CONFIGURATION("%s ENET device address: 0x%08x_%08x, Irq: 0x%x, MAC: %02X-%02X-%02X-%02X-%02X-%02X\n"
+                                       "      MDIO device address: 0x%08x_%08x(%s), ENET_PHY address: %d, MDIO clock %d[kHz], MDIO hold time %d[ns], Preamble: %s\n"
+                                       "      ENET PHY ID: 0x%08X, type: %s name: %s",\
         pENETDev->ENETDev_DeviceName,\
         NdisGetPhysicalAddressHigh(pENETDev->ENETDev_RegsPhyAddress),\
         NdisGetPhysicalAddressLow(pENETDev->ENETDev_RegsPhyAddress),\

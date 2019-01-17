@@ -410,7 +410,6 @@ void MpHaltEx(NDIS_HANDLE MiniportAdapterContext, NDIS_HALT_ACTION HaltAction)
 
     DBG_SM_METHOD_BEG();
     UNREFERENCED_PARAMETER(HaltAction);
-    ASSERT(MpQueueGetDepth(&pAdapter->Rx_qFreeBDs) == pAdapter->Rx_DmaBDT_ItemCount);
     ASSERT(pAdapter->Tx_PendingNBs == 0);
     NdisResetEvent(&pAdapter->StateMachine.SM_EnetHaltedEvent);                                            // Set event to not-signaled state
     (void)SmSetState(pAdapter, SM_STATE_HALTED, MP_SM_NEXT_STATE_IMMEDIATELY, SM_CALLED_BY_NDIS);          // Switch to the HALTED state immediately

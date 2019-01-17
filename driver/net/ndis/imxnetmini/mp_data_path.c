@@ -755,50 +755,43 @@ void MpRxInit(PMP_ADAPTER pAdapter)
 {
     PENET_BD             pDmaBD = NULL;
 
-    ASSERT(pAdapter->Rx_DmaBDT_ItemCount);                                      // There must be at least one Rx buffer
-    pAdapter->Rx_EnetFreeBDIdx        = 0;                                      // Initialize HW Dma buffer descriptor ring index
-    pAdapter->Rx_EnetPendingBDIdx     = 0;
-    pAdapter->Rx_NBLCounter           = 0;
-    pAdapter->Rx_DmaBDT_ReadyBDsCount = pAdapter->Rx_DmaBDT_ItemCount;
+    ASSERT(pAdapter->Rx_DmaBDT_ItemCount);                                                // There must be at least one Rx buffer
+    pAdapter->Rx_EnetFreeBDIdx           = 0;                                             // Initialize HW Dma buffer descriptor ring index
+    pAdapter->Rx_EnetPendingBDIdx        = 0;                                             
+    pAdapter->Rx_NBLCounter              = 0;
+    pAdapter->Rx_NdisOwnedBDsCount       = 0;                                             // No buffer is owned by NDIS
+    pAdapter->Rx_DmaBDT_DmaOwnedBDsCount = pAdapter->Rx_DmaBDT_ItemCount;                 // All Rx BDs are owned by ENET DMA
     NdisZeroMemory(&pAdapter->RcvStatus, sizeof(pAdapter->RcvStatus));
-    for (LONG Idx = 0; Idx < pAdapter->Rx_DmaBDT_ItemCount; ++Idx) {                          // For each DmaBD do:
-        pDmaBD = &pAdapter->Rx_DmaBDT[Idx];                                                   // Get DmaBD address
-        PLIST_ENTRY pListEntry = MpQueueGetNext(&pAdapter->Rx_qFreeBDs);                      // Get free Rx frame descriptor
-        if (pListEntry != NULL) {
-            PMP_RX_FRAME_BD pRxFrameBD = CONTAINING_RECORD(pListEntry, MP_RX_FRAME_BD, Link);
-            pAdapter->Rx_DmaSwExtBDT[Idx] = pRxFrameBD;                                       // Create link between Rx frame descriptor and DmaBD
-            NET_BUFFER_LIST_NEXT_NBL(pRxFrameBD->pNBL) = NULL;                                // Not necessary consider removing
-            pDmaBD->BufferAddress = pRxFrameBD->BufferPa.LowPart;                             // Fill DmaBD data buffer address
-            pDmaBD->ControlStatus = ENET_RX_BD_E_MASK | ENET_RX_BD_L_MASK;                    // Fill DMaBD Status (Mark DmaBD as ready to receive data)
-            /* MS-temp */ NdisAdjustMdlLength(pRxFrameBD->pMdl, ENET_RX_FRAME_SIZE);
-        } else {
-            pAdapter->Rx_DmaSwExtBDT[Idx] = NULL;                                              // No Frame descriptor associated
-            pDmaBD->ControlStatus = ENET_RX_BD_L_MASK;                                         // Fill DMaBD Status (Mark DmaBD as NOT ready to receive data)
-        }
+    for (LONG Idx = 0; Idx < pAdapter->Rx_DmaBDT_ItemCount; ++Idx) {                      // For each DmaBD do:
+        MP_RX_FRAME_BD *pRxFrameBD = &pAdapter->Rx_FrameBDT[Idx];
+        pDmaBD = &pAdapter->Rx_DmaBDT[Idx];                                               // Get DmaBD address
+        pAdapter->Rx_DmaBDT_SwExt[Idx].pRxFrameBD = pRxFrameBD;                           // Create link between Rx frame descriptor and DmaBD
+        NET_BUFFER_LIST_NEXT_NBL(pRxFrameBD->pNBL) = NULL;                                // Not necessary consider removing
+        pDmaBD->BufferAddress = pRxFrameBD->BufferPa.LowPart;                             // Fill DmaBD data buffer address
+        pDmaBD->ControlStatus = ENET_RX_BD_E_MASK | ENET_RX_BD_L_MASK;                    // Fill DMaBD Status (Mark DmaBD as ready to receive data)
+        /* MS-temp */ NdisAdjustMdlLength(pRxFrameBD->pMdl, ENET_RX_FRAME_SIZE);
     }
     if (pDmaBD) {
-        pDmaBD->ControlStatus |= ENET_RX_BD_W_MASK;                                           // Mark last DmaBD
+        pDmaBD->ControlStatus |= ENET_RX_BD_W_MASK;                                       // Mark last DmaBD
     }
 }
 
 /*++
 Routine Description:
-    De-initialize receive data structures.
+    Returns TRUE if ndis owns at lease one RX buffer.
 Arguments:
     pAdapter    Pointer to adapter data
 Return Value:
-    None
+    TRUE - Ndis owns at lease one RX buffer.
+    FALSE - Ndis owns no RX buffer.
 --*/
 _Use_decl_annotations_
-void MpRxDeinit(PMP_ADAPTER pAdapter)
-{
-    for (LONG Idx = 0; Idx < pAdapter->Rx_DmaBDT_ItemCount; ++Idx) {                          // For each DmaBD do:
-        pAdapter->Rx_DmaBDT[Idx].ControlStatus = 0;                                           // Clears DmaBD control word
-        if (pAdapter->Rx_DmaSwExtBDT[Idx] != NULL) {
-            MpQueueAdd(&pAdapter->Rx_qFreeBDs, &pAdapter->Rx_DmaSwExtBDT[Idx]->Link);         // Queue Rx frame descriptor
-            pAdapter->Rx_DmaSwExtBDT[Idx] = NULL;
-        }
-    }
+BOOLEAN IsRxFramePandingInNdis(PMP_ADAPTER pAdapter) {
+    BOOLEAN RxFramePanding;
+    NdisAcquireSpinLock(&pAdapter->Rx_SpinLock);
+    RxFramePanding = pAdapter->Rx_NdisOwnedBDsCount != 0;
+    NdisReleaseSpinLock(&pAdapter->Rx_SpinLock);
+    return RxFramePanding;
 }
 
 /*++
@@ -818,13 +811,13 @@ Return Value:
 _Use_decl_annotations_
 void MpReturnNetBufferLists(NDIS_HANDLE MiniportAdapterContext, PNET_BUFFER_LIST pNBL, ULONG ReturnFlags)
 {
-    PMP_ADAPTER pAdapter = (PMP_ADAPTER)MiniportAdapterContext;
-    PNET_BUFFER_LIST     pNextNBL;
-    PMP_RX_FRAME_BD      pRxFrameBD;
-    PENET_BD             pCurrentDmaBD;
-    PENET_BD             pFirstDmaBD = NULL;
-    USHORT               CurrentControlStatus, FirtsControlStatus = 0;
-    LONG                 Rx_EnetFreeBDIdx;
+    PMP_ADAPTER       pAdapter = (PMP_ADAPTER)MiniportAdapterContext;
+    PNET_BUFFER_LIST  pNextNBL;
+    PMP_RX_FRAME_BD   pRxFrameBD;
+    PENET_BD          pCurrentDmaBD;
+    PENET_BD          pFirstDmaBD = NULL;
+    USHORT            CurrentControlStatus, FirtsControlStatus = 0;
+    LONG              Rx_EnetFreeBDIdx;
 
     UNREFERENCED_PARAMETER(ReturnFlags);
     DBG_ENET_DEV_RX_METHOD_BEG();
@@ -836,16 +829,15 @@ void MpReturnNetBufferLists(NDIS_HANDLE MiniportAdapterContext, PNET_BUFFER_LIST
         pNextNBL = NET_BUFFER_LIST_NEXT_NBL(pCurrentNBL);
         pRxFrameBD = MP_NBL_RX_FRAME_BD(pCurrentNBL);                               // Get Frame BD address from the current NBL.
         /* MS-temp */ NdisAdjustMdlLength(pRxFrameBD->pMdl, ENET_RX_FRAME_SIZE);
-        pAdapter->Rx_DmaBDT_ReadyBDsCount++;                                        // Increment counter of Rx BDs owned by ENET DMA.
-        if (pAdapter->NdisStatus != NDIS_STATUS_SUCCESS) {                          // Adapter ready?
-            MpQueueAdd(&pAdapter->Rx_qFreeBDs, &pRxFrameBD->Link);                  // No, Queue TX frame descriptor to the RxFreeBD queue.
-            DBG_SM_PRINT_TRACE("Adapter not ready, rd cnt: %d", pAdapter->Rx_DmaBDT_ReadyBDsCount);
+        pAdapter->Rx_DmaBDT_DmaOwnedBDsCount++;                                     // Increment counter of Rx BDs owned by ENET DMA.
+        pAdapter->Rx_NdisOwnedBDsCount--;
+        if (!pAdapter->EnetStarted) {
             continue;
         }
-        ASSERT(!pAdapter->Rx_DmaSwExtBDT[Rx_EnetFreeBDIdx]);
+        ASSERT(!pAdapter->Rx_DmaBDT_SwExt[Rx_EnetFreeBDIdx].pRxFrameBD);
         /* Reuse frame descriptor */
-        pAdapter->Rx_DmaSwExtBDT[Rx_EnetFreeBDIdx] = pRxFrameBD;                // Association current Frame BD and the first free Dma BD
-        DBG_ENET_DEV_RX_PRINT_TRACE("NBL(%4d, 0x%08X) returned,       DmaIdx: %4d, NewDmaIdx: %4d DmaBD ready: %4d, PhyAddr: 0x%08X", MP_NBL_ID(pCurrentNBL), pCurrentNBL, MP_NB_DmaIdx(pCurrentNBL->FirstNetBuffer), Rx_EnetFreeBDIdx, pAdapter->Rx_DmaBDT_ReadyBDsCount, pRxFrameBD->BufferPa.LowPart);
+        pAdapter->Rx_DmaBDT_SwExt[Rx_EnetFreeBDIdx].pRxFrameBD = pRxFrameBD;    // Association current Frame BD and the first free Dma BD
+        DBG_ENET_DEV_RX_PRINT_TRACE("NBL(%4d, 0x%08X) returned,       DmaIdx: %4d, NewDmaIdx: %4d DmaBD ready: %4d, PhyAddr: 0x%08X", MP_NBL_ID(pCurrentNBL), pCurrentNBL, MP_NB_DmaIdx(pCurrentNBL->FirstNetBuffer), Rx_EnetFreeBDIdx, pAdapter->Rx_DmaBDT_DmaOwnedBDsCount, pRxFrameBD->BufferPa.LowPart);
         pCurrentDmaBD                = &pAdapter->Rx_DmaBDT[Rx_EnetFreeBDIdx];  // Get address of the first free Dma BD
         pCurrentDmaBD->BufferAddress = pRxFrameBD->BufferPa.LowPart;            // Fill Dma BD data buffer address
         CurrentControlStatus = ENET_RX_BD_E_MASK;                               // Set EMPTY bit
@@ -875,7 +867,7 @@ void MpReturnNetBufferLists(NDIS_HANDLE MiniportAdapterContext, PNET_BUFFER_LIST
         }
     }
     NdisReleaseSpinLock(&pAdapter->Rx_SpinLock);
-    DBG_ENET_DEV_RX_METHOD_BEG();
+    DBG_ENET_DEV_RX_METHOD_END();
 }
 
 /*++
@@ -898,17 +890,15 @@ _Use_decl_annotations_
 void MpHandleRecvInterrupt(PMP_ADAPTER pAdapter, PULONG pMaxNBLsToIndicate, PNDIS_RECEIVE_THROTTLE_PARAMETERS pRecvThrottleParameters)
 {
     PNET_BUFFER_LIST *ppNBLTail;
-    PNET_BUFFER_LIST pErrorNBLHead = NULL;
-    PNET_BUFFER_LIST pAsyncNBLHead = NULL;
-    PNET_BUFFER_LIST pAsyncNBLTail = NULL;
+    PNET_BUFFER_LIST pErrorNBLHead     = NULL;
+    ULONG            ErrorNBLItemCount = 0;
+    PNET_BUFFER_LIST pAsyncNBLHead     = NULL;
+    PNET_BUFFER_LIST pAsyncNBLTail     = NULL;
     ULONG            AsyncNBLItemCount = 0;
-    PNET_BUFFER_LIST pSyncNBLHead = NULL;
-    PNET_BUFFER_LIST pSyncNBLTail = NULL;
+    PNET_BUFFER_LIST pSyncNBLHead      = NULL;
+    PNET_BUFFER_LIST pSyncNBLTail      = NULL;
     ULONG            SyncNBLItemCount = 0;
     LONG             Rx_EnetPendingBDIdx;
-    #if DBG
-    ULONG            NewFrameCount = 0;
-    #endif
 
     DBG_ENET_DEV_DPC_RX_METHOD_BEG();
     NdisDprAcquireSpinLock(&pAdapter->Rx_SpinLock);
@@ -918,28 +908,23 @@ void MpHandleRecvInterrupt(PMP_ADAPTER pAdapter, PULONG pMaxNBLsToIndicate, PNDI
        return;
     }
     Rx_EnetPendingBDIdx = pAdapter->Rx_EnetPendingBDIdx;
-    for (LONG Idx = 0; Idx < pAdapter->Rx_DmaBDT_ItemCount; ++Idx) {          // One call of MpHandleRecvInterrupt() will indicate max pAdapter->Rx_DmaBDT_ItemCount NBLs
+    for (LONG Idx = 0; Idx < pAdapter->Rx_DmaBDT_ItemCount; ++Idx) {          // One call of MpHandleRecvInterrupt() will indicate up to pAdapter->Rx_DmaBDT_ItemCount NBLs
         PENET_BD pDmaBD = &pAdapter->Rx_DmaBDT[Rx_EnetPendingBDIdx];          // Get address of the first not checked BD
         if (pDmaBD->ControlStatus & ENET_RX_BD_E_MASK) {                      // No data received or reception in progress?
             break;                                                            // Stop BD checking
         }
-        if (pAdapter->Rx_DmaBDT_ReadyBDsCount == 0) {                         // All NBL has been already indicated to NDIS, next packet will be lost
+        if (pAdapter->Rx_DmaBDT_DmaOwnedBDsCount == 0) {                      // All NBL has been already indicated to NDIS, next packet will be lost
             break;
         }
         if ((*pMaxNBLsToIndicate) == 0) {                                     // Did we reach the max number of RX frames we are allowed to indicate to NDIS?
-//            DBG_PRINT_WARN_RX("NDIS RX frame throttle applied %d RX frames will be indicated", NewFrameCount);
+            DBG_ENET_DEV_PRINT_WARNING("NDIS RX frame throttle applied %d RX frames will be indicated", AsyncNBLItemCount + SyncNBLItemCount);
             pRecvThrottleParameters->MoreNblsPending = TRUE;                  // No, inform NDIS about it
             break;
         }
-        #if DBG
-        NewFrameCount++;
-        #endif
-        pAdapter->Rx_DmaBDT_ReadyBDsCount--;                                                       // Decrement counter of Rx BDs owned by ENET DMA
-        PMP_RX_FRAME_BD pRxFrameBD = pAdapter->Rx_DmaSwExtBDT[Rx_EnetPendingBDIdx];                // Get frame descriptor
-        if (pRxFrameBD == NULL) {
-            break;
-        }
-        pAdapter->Rx_DmaSwExtBDT[Rx_EnetPendingBDIdx] = NULL;                                      //
+        pAdapter->Rx_DmaBDT_DmaOwnedBDsCount--;                                                    // Decrement counter of Rx BDs owned by ENET DMA
+        PMP_RX_FRAME_BD pRxFrameBD = pAdapter->Rx_DmaBDT_SwExt[Rx_EnetPendingBDIdx].pRxFrameBD;    // Get frame descriptor
+        ASSERT(pRxFrameBD != NULL);
+        pAdapter->Rx_DmaBDT_SwExt[Rx_EnetPendingBDIdx].pRxFrameBD = NULL;                          // Disconnect Rx Frame BD from ENET DMA BD
         PNET_BUFFER_LIST  pCurrentNBL     = pRxFrameBD->pNBL;                                      // Get NBL
         ULONG             realFrameLength = (ULONG)pDmaBD->DataLen - ETHER_FRAME_CRC_LENGTH - 2;   // Compute real data length
         #if DBG
@@ -953,80 +938,70 @@ void MpHandleRecvInterrupt(PMP_ADAPTER pAdapter, PULONG pMaxNBLsToIndicate, PNDI
             NET_BUFFER_LIST_NEXT_NBL(pCurrentNBL) = pErrorNBLHead;        // Append this NBL to the had of the error NBL list
             pErrorNBLHead = pCurrentNBL;
             pAdapter->RcvStatus.FrameRcvErrors++;
+            ErrorNBLItemCount++;
             if (pDmaBD->ControlStatus & ENET_RX_BD_TR_MASK) {             // Truncated frame?
-                DBG_ENET_DEV_PRINT_ERROR(" NBL(%4d) data received, DmaIdx: %4d, DmaOwnedBDs: %4d:, !!! ERROR Truncated frame !!!, status: 0x%08X, Size: %4d, PhyAddr: 0x%08X", MP_NBL_ID(pCurrentNBL), Rx_EnetPendingBDIdx, pAdapter->Rx_DmaBDT_ReadyBDsCount, pDmaBD->ControlStatus, realFrameLength, pRxFrameBD->BufferPa.LowPart);
+                DBG_ENET_DEV_PRINT_ERROR(" NBL(%4d) data received, DmaIdx: %4d, DmaOwnedBDs: %4d:, !!! ERROR Truncated frame !!!, status: 0x%08X, Size: %4d, PhyAddr: 0x%08X", MP_NBL_ID(pCurrentNBL), Rx_EnetPendingBDIdx, pAdapter->Rx_DmaBDT_DmaOwnedBDsCount, pDmaBD->ControlStatus, realFrameLength, pRxFrameBD->BufferPa.LowPart);
                 pAdapter->RcvStatus.FrameRcvLCErrors++;
             } else if (pDmaBD->ControlStatus & ENET_RX_BD_OV_MASK) {      // Receive FIFO overrun?
-                DBG_ENET_DEV_PRINT_ERROR(" NBL(%4d) data received, DmaIdx: %4d, DmaOwnedBDs: %4d:, !!! ERROR Receive FIFO overrun !!!, status: 0x%08X, Size: %4d, PhyAddr: 0x%08X", MP_NBL_ID(pCurrentNBL), Rx_EnetPendingBDIdx, pAdapter->Rx_DmaBDT_ReadyBDsCount, pDmaBD->ControlStatus, realFrameLength, pRxFrameBD->BufferPa.LowPart);
+                DBG_ENET_DEV_PRINT_ERROR(" NBL(%4d) data received, DmaIdx: %4d, DmaOwnedBDs: %4d:, !!! ERROR Receive FIFO overrun !!!, status: 0x%08X, Size: %4d, PhyAddr: 0x%08X", MP_NBL_ID(pCurrentNBL), Rx_EnetPendingBDIdx, pAdapter->Rx_DmaBDT_DmaOwnedBDsCount, pDmaBD->ControlStatus, realFrameLength, pRxFrameBD->BufferPa.LowPart);
                 pAdapter->RcvStatus.FrameRcvOverrunErrors++;
             } else if (pDmaBD->ControlStatus & ENET_RX_BD_NO_MASK) {      // No-octet aligned frame
-                DBG_ENET_DEV_PRINT_ERROR(" NBL(%4d) data received, DmaIdx: %4d, DmaOwnedBDs: %4d:, !!! ERROR No-octet aligned frame !!!, status: 0x%08X, Size: %4d, PhyAddr: 0x%08X", MP_NBL_ID(pCurrentNBL), Rx_EnetPendingBDIdx, pAdapter->Rx_DmaBDT_ReadyBDsCount, pDmaBD->ControlStatus,realFrameLength,  pRxFrameBD->BufferPa.LowPart);
+                DBG_ENET_DEV_PRINT_ERROR(" NBL(%4d) data received, DmaIdx: %4d, DmaOwnedBDs: %4d:, !!! ERROR No-octet aligned frame !!!, status: 0x%08X, Size: %4d, PhyAddr: 0x%08X", MP_NBL_ID(pCurrentNBL), Rx_EnetPendingBDIdx, pAdapter->Rx_DmaBDT_DmaOwnedBDsCount, pDmaBD->ControlStatus,realFrameLength,  pRxFrameBD->BufferPa.LowPart);
                 pAdapter->RcvStatus.FrameRcvAllignmentErrors++;
             } else if (pDmaBD->ControlStatus & ENET_RX_BD_CR_MASK) {      // CRC error?
-                DBG_ENET_DEV_PRINT_ERROR(" NBL(%4d) data received, DmaIdx: %4d, DmaOwnedBDs: %4d:, !!! ERROR CRC !!!, status: 0x%08X, Size: %4d, PhyAddr: 0x%08X", MP_NBL_ID(pCurrentNBL), Rx_EnetPendingBDIdx, pAdapter->Rx_DmaBDT_ReadyBDsCount, pDmaBD->ControlStatus, realFrameLength, pRxFrameBD->BufferPa.LowPart);
+                DBG_ENET_DEV_PRINT_ERROR(" NBL(%4d) data received, DmaIdx: %4d, DmaOwnedBDs: %4d:, !!! ERROR CRC !!!, status: 0x%08X, Size: %4d, PhyAddr: 0x%08X", MP_NBL_ID(pCurrentNBL), Rx_EnetPendingBDIdx, pAdapter->Rx_DmaBDT_DmaOwnedBDsCount, pDmaBD->ControlStatus, realFrameLength, pRxFrameBD->BufferPa.LowPart);
                 pAdapter->RcvStatus.FrameRcvCRCErrors++;
             } else {                                                      // Too long frame
-                DBG_ENET_DEV_PRINT_ERROR(" NBL(%4d) data received, DmaIdx: %4d, DmaOwnedBDs: %4d:, !!! ERROR Frame too long !!!, status: 0x%08X, Size: %4d, PhyAddr: 0x%08X", MP_NBL_ID(pCurrentNBL), Rx_EnetPendingBDIdx, pAdapter->Rx_DmaBDT_ReadyBDsCount, pDmaBD->ControlStatus, realFrameLength, pRxFrameBD->BufferPa.LowPart);
+                DBG_ENET_DEV_PRINT_ERROR(" NBL(%4d) data received, DmaIdx: %4d, DmaOwnedBDs: %4d:, !!! ERROR Frame too long !!!, status: 0x%08X, Size: %4d, PhyAddr: 0x%08X", MP_NBL_ID(pCurrentNBL), Rx_EnetPendingBDIdx, pAdapter->Rx_DmaBDT_DmaOwnedBDsCount, pDmaBD->ControlStatus, realFrameLength, pRxFrameBD->BufferPa.LowPart);
                 pAdapter->RcvStatus.FrameRcvExtraDataErrors++;
             }
-            if (++Rx_EnetPendingBDIdx == pAdapter->Rx_DmaBDT_ItemCount) { // Compute next Rx_EnetPendingBDIdx
-                Rx_EnetPendingBDIdx = 0;
-            }
-            continue;
-        }
-        (*pMaxNBLsToIndicate)--;                                                   // Decrement MaxNBLsToIndicate counter
-        NdisFlushBuffer(pRxFrameBD->pMdl, FALSE);                                  // Flush Rx buffer
-        /* MS-temp */NdisAdjustMdlLength(pRxFrameBD->pMdl, realFrameLength + 2);   // Update real length in MDL
-        DBG_ENET_DEV_RX_PRINT_TRACE(" NBL(%4d) data received, DmaIdx: %4d, DmaOwnedBDs: %4d:, Size: %d, PhyAddr: 0x%08X", MP_NBL_ID(pCurrentNBL), Rx_EnetPendingBDIdx, pAdapter->Rx_DmaBDT_ReadyBDsCount, realFrameLength, pRxFrameBD->BufferPa.LowPart);
-        // Decide how we are going to indicate the RX buffer to NDIS. If we are running low on RX buffers, we will do in synchronously, otherwise we do it asynchronously.
-        if (pAdapter->Rx_DmaBDT_ReadyBDsCount <= pAdapter->Rx_DmaBDT_ReadyBDsLowWatterMark) {
-            ppNBLTail = &pSyncNBLTail;                            // Low RX buffers level, use synchronous RX buffer indication
-            if (pSyncNBLTail == NULL) {                           // Synchronous NBL list empty?
-                pSyncNBLHead = pCurrentNBL;                       // Current NBL is the first item of the Synchronous NBL list
-            }
-            SyncNBLItemCount++;                                   // Increment SyncNBLItemCount
-            DBG_ENET_DEV_RX_PRINT_TRACE(" NBL(%4d, 0x%08X) indicate  SYNC, DmaIdx: %4d, Size: %d", MP_NBL_ID(pCurrentNBL), pCurrentNBL, MP_NB_DmaIdx(pCurrentNBL->FirstNetBuffer), NET_BUFFER_DATA_LENGTH(pCurrentNBL->FirstNetBuffer));
         } else {
-            ppNBLTail = &pAsyncNBLTail;                           // Normal RX buffers, use asynchronous RX buffer indication
-            if (pAsyncNBLTail == NULL) {                          // Asynchronous NBL list empty?
-                pAsyncNBLHead = pCurrentNBL;                      // Current NBL is the first item of the Asynchronous NBL list
+            (*pMaxNBLsToIndicate)--;                                                   // Decrement MaxNBLsToIndicate counter
+            NdisFlushBuffer(pRxFrameBD->pMdl, FALSE);                                  // Flush Rx buffer
+            /* MS-temp */NdisAdjustMdlLength(pRxFrameBD->pMdl, realFrameLength + 2);   // Update real length in MDL
+            DBG_ENET_DEV_RX_PRINT_TRACE(" NBL(%4d) data received, DmaIdx: %4d, DmaOwnedBDs: %4d:, Size: %d, PhyAddr: 0x%08X", MP_NBL_ID(pCurrentNBL), Rx_EnetPendingBDIdx, pAdapter->Rx_DmaBDT_DmaOwnedBDsCount, realFrameLength, pRxFrameBD->BufferPa.LowPart);
+            // Decide how we are going to indicate the RX buffer to NDIS. If we are running low on RX buffers, we will do in synchronously, otherwise we do it asynchronously.
+            if (pAdapter->Rx_DmaBDT_DmaOwnedBDsCount <= pAdapter->Rx_DmaBDT_DmaOwnedBDsLowWatterMark) {
+                ppNBLTail = &pSyncNBLTail;                            // Low RX buffers level, use synchronous RX buffer indication
+                if (pSyncNBLTail == NULL) {                           // Synchronous NBL list empty?
+                    pSyncNBLHead = pCurrentNBL;                       // Current NBL is the first item of the Synchronous NBL list
+                }
+                SyncNBLItemCount++;                                   // Increment SyncNBLItemCount
+                DBG_ENET_DEV_RX_PRINT_TRACE(" NBL(%4d, 0x%08X) indicate  SYNC, DmaIdx: %4d, Size: %d", MP_NBL_ID(pCurrentNBL), pCurrentNBL, MP_NB_DmaIdx(pCurrentNBL->FirstNetBuffer), NET_BUFFER_DATA_LENGTH(pCurrentNBL->FirstNetBuffer));
+            } else {
+                ppNBLTail = &pAsyncNBLTail;                           // Normal RX buffers, use asynchronous RX buffer indication
+                if (pAsyncNBLTail == NULL) {                          // Asynchronous NBL list empty?
+                    pAsyncNBLHead = pCurrentNBL;                      // Current NBL is the first item of the Asynchronous NBL list
+                }
+                AsyncNBLItemCount++;                                  // Increment AsyncNBLItemCount
+                DBG_ENET_DEV_RX_PRINT_TRACE(" NBL(%4d, 0x%08X) indicate ASYNC, DmaIdx: %4d, Size: %d", MP_NBL_ID(pCurrentNBL), pCurrentNBL, MP_NB_DmaIdx(pCurrentNBL->FirstNetBuffer), NET_BUFFER_DATA_LENGTH(pCurrentNBL->FirstNetBuffer));
             }
-            AsyncNBLItemCount++;                                  // Increment AsyncNBLItemCount
-            DBG_ENET_DEV_RX_PRINT_TRACE(" NBL(%4d, 0x%08X) indicate ASYNC, DmaIdx: %4d, Size: %d", MP_NBL_ID(pCurrentNBL), pCurrentNBL, MP_NB_DmaIdx(pCurrentNBL->FirstNetBuffer), NET_BUFFER_DATA_LENGTH(pCurrentNBL->FirstNetBuffer));
+            if (*ppNBLTail != NULL) {                                 // List empty?
+                NET_BUFFER_LIST_NEXT_NBL(*ppNBLTail) = pCurrentNBL;   // No, attach current NBL to the tail of the list
+            }
+            *ppNBLTail = pCurrentNBL;                                 // Remember current tail of the list
+            NET_BUFFER_LIST_NEXT_NBL(pCurrentNBL) = NULL;             // Current NBL is the last NBL in the list
+            pCurrentNBL->SourceHandle = pAdapter->AdapterHandle;      // Set NBL source handle
         }
-        if (*ppNBLTail != NULL) {                                 // List empty?
-            NET_BUFFER_LIST_NEXT_NBL(*ppNBLTail) = pCurrentNBL;   // No, attach current NBL to the tail of the list
-        }
-        *ppNBLTail = pCurrentNBL;                                 // Remember current tail of the list
-        NET_BUFFER_LIST_NEXT_NBL(pCurrentNBL) = NULL;             // Current NBL is the last NBL in the list
-        pCurrentNBL->SourceHandle = pAdapter->AdapterHandle;      // Set NBL source handle
         if (++Rx_EnetPendingBDIdx == pAdapter->Rx_DmaBDT_ItemCount) { // Compute next Rx_EnetPendingBDIdx
             Rx_EnetPendingBDIdx = 0;
         }
     } // More RFDs
-    pAdapter->Rx_EnetPendingBDIdx = Rx_EnetPendingBDIdx;          // Update Ethernet Dma Rx empty buffer index
+    pAdapter->Rx_EnetPendingBDIdx = Rx_EnetPendingBDIdx;              // Update Ethernet Dma Rx empty buffer index
+    pAdapter->Rx_NdisOwnedBDsCount += AsyncNBLItemCount + SyncNBLItemCount + ErrorNBLItemCount;
     NdisDprReleaseSpinLock(&pAdapter->Rx_SpinLock);
     if (pErrorNBLHead) {
-        DBG_ENET_DEV_RX_PRINT_TRACE(" NBL(%4d) received with error, returning back", MP_NBL_ID(pErrorNBLHead));
+        DBG_ENET_DEV_RX_PRINT_ERROR(" NBL(%4d) received with error, returning back", MP_NBL_ID(pErrorNBLHead));
         MpReturnNetBufferLists(pAdapter, pErrorNBLHead, 0);
     }
     // Indicate received RX frames to NDIS, if any...
     if (pAsyncNBLHead) {    // Asynchronous list not empty?
-        if (SmIsAdapterRunning(pAdapter)) {
-            NdisMIndicateReceiveNetBufferLists(pAdapter->AdapterHandle, pAsyncNBLHead, NDIS_DEFAULT_PORT_NUMBER, AsyncNBLItemCount, NDIS_RECEIVE_FLAGS_DISPATCH_LEVEL);
-        } else {
-            DBG_ENET_DEV_RX_PRINT_TRACE(" Adapter not ready, returning ASYNC list back", MP_NBL_ID(pAsyncNBLHead));
-            MpReturnNetBufferLists(pAdapter, pAsyncNBLHead, 0);
-        }
+        NdisMIndicateReceiveNetBufferLists(pAdapter->AdapterHandle, pAsyncNBLHead, NDIS_DEFAULT_PORT_NUMBER, AsyncNBLItemCount, NDIS_RECEIVE_FLAGS_DISPATCH_LEVEL);
     } // Sync list
     if (pSyncNBLHead) {     // Sync list not empty?
-        if (SmIsAdapterRunning(pAdapter)) {
-            ULONG tcr = ENET_TCR_TFC_PAUSE_MASK | pAdapter->ENETRegBase->TCR.U;
-            pAdapter->ENETRegBase->TCR.U = tcr;
-            NdisMIndicateReceiveNetBufferLists(pAdapter->AdapterHandle, pSyncNBLHead, NDIS_DEFAULT_PORT_NUMBER, SyncNBLItemCount, NDIS_RECEIVE_FLAGS_DISPATCH_LEVEL | NDIS_RECEIVE_FLAGS_RESOURCES);
-        } else {
-            DBG_ENET_DEV_RX_PRINT_TRACE(" Adapter not ready, returning SYNC list back", MP_NBL_ID(pSyncNBLHead));
-        }
+        ULONG tcr = ENET_TCR_TFC_PAUSE_MASK | pAdapter->ENETRegBase->TCR.U;
+        pAdapter->ENETRegBase->TCR.U = tcr;
+        NdisMIndicateReceiveNetBufferLists(pAdapter->AdapterHandle, pSyncNBLHead, NDIS_DEFAULT_PORT_NUMBER, SyncNBLItemCount, NDIS_RECEIVE_FLAGS_DISPATCH_LEVEL | NDIS_RECEIVE_FLAGS_RESOURCES);
         MpReturnNetBufferLists(pAdapter, pSyncNBLHead, 0);
     } // Sync list
     DBG_ENET_DEV_DPC_RX_METHOD_END();
