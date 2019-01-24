@@ -13,6 +13,7 @@ Windows 10 IoT Core for NXP i.MX Processors
 |-----|-----|-----|-----|
 |i.MX 6Quad | SolidRun | HummingBoard Edge | HummingBoardEdge_iMX6Q_2GB |
 |i.MX 6Quad | NXP | i.MX 6Quad SABRE | Sabre_iMX6Q_1GB |
+|i.MX 6Quad | Boundry Devices | i.MX 6Quad SABRELITE | SabreLite_iMX6Q_1GB |
 |i.MX 6Quad | VIA | VAB-820 | VAB820_iMX6Q_1GB |
 |i.MX 6QuadPlus | NXP | i.MX 6QuadPlus SABRE | Sabre_iMX6QP_1GB |
 |i.MX 6DualLite | SolidRun | HummingBoard Edge | HummingBoardEdge_iMX6DL_1GB |
