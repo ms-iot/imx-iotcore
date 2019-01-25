@@ -37,7 +37,7 @@ The first step is to bring up U-Boot SPL. We use U-Boot in a specific way to imp
 
 1. Clone our reference U-Boot repository.
 
-        git clone --recursive -b u-boot-imx https://github.com/ms-iot/SolidRun-u-boot.git
+        git clone --recursive -b u-boot-imx https://github.com/ms-iot/u-boot.git
 
 1. Copy `configs/mx6cuboxi_nt_defconfig` to `configs/yourboard_nt_defconfig` (For iMX7 start with mx7sabresd_nt_defconfig or clsomimx7)
 1. Edit `configs/yourboard_nt_defconfig`
