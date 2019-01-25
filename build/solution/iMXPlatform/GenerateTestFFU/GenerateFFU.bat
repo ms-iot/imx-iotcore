@@ -18,6 +18,10 @@ if "%PLATFORM%"=="ARM" (
     REM call BuildImage Sabre_iMX6Q_1GB Sabre_iMX6Q_1GB_TestOEMInput.xml
 
     REM cd /d %BATCH_HOME%
+    REM echo "Building SabreLite_iMX6Q_1GB FFU"
+    REM call BuildImage SabreLite_iMX6Q_1GB SabreLite_iMX6Q_1GB_TestOEMInput.xml
+
+    REM cd /d %BATCH_HOME%
     REM echo "Building Sabre_iMX6QP_1GB FFU"
     REM call BuildImage Sabre_iMX6QP_1GB Sabre_iMX6QP_1GB_TestOEMInput.xml
 
