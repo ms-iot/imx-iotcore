@@ -305,7 +305,7 @@ Edit the `.dsc` file and change the following settings as appropriate for your b
         giMXPlatformTokenSpaceGuid.PcdSdhc2Enable|TRUE
 
  * `giMXPlatformTokenSpaceGuid.PcdSerialRegisterBase` - set to the base address of the UART instance that you want UEFI output to go to.
- * `giMXPlatformTokenSpaceGuid.PcdKdUartInstance` - set this to 1, 2, 3, 4, or 5. This is the UART instance that Windows will use for kernel debugging.
+ * `giMXPlatformTokenSpaceGuid.PcdKdUartInstance` - set this to 1, 2, 3, 4, or 5 (6 and 7 are also available on i.MX7). This is the UART instance that Windows will use for kernel debugging. You will also need to reference `giMXPlatformTokenSpaceGuid.PcdKdUartInstance` in your board's `AcpiTables.inf` file. U-Boot must initialize the UART, including baud rate and pin muxing. Windows will not reinitialize the UART.
 
 ## Board-specific Initialization
 
