@@ -135,6 +135,8 @@
     <ClCompile Include="..\..\shared\acpi\acpiutil.cpp">
       <WppEnabled Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">true</WppEnabled>
       <WppEnabled Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">true</WppEnabled>
+      <WppEnabled Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">true</WppEnabled>
+      <WppEnabled Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">true</WppEnabled>
     </ClCompile>
     <ClCompile Include="@(ClSourceFiles)" Exclude="@(ClCompile)">
       <WppEnabled>true</WppEnabled>

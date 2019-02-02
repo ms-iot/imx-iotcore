@@ -37,7 +37,7 @@ The first step is to bring up U-Boot SPL. We use U-Boot in a specific way to imp
 
 1. Clone our reference U-Boot repository.
 
-        git clone --recursive -b u-boot-imx https://github.com/ms-iot/SolidRun-u-boot.git
+        git clone --recursive -b u-boot-imx https://github.com/ms-iot/u-boot.git
 
 1. Copy `configs/mx6cuboxi_nt_defconfig` to `configs/yourboard_nt_defconfig` (For iMX7 start with mx7sabresd_nt_defconfig or clsomimx7)
 1. Edit `configs/yourboard_nt_defconfig`
@@ -305,7 +305,7 @@ Edit the `.dsc` file and change the following settings as appropriate for your b
         giMXPlatformTokenSpaceGuid.PcdSdhc2Enable|TRUE
 
  * `giMXPlatformTokenSpaceGuid.PcdSerialRegisterBase` - set to the base address of the UART instance that you want UEFI output to go to.
- * `giMXPlatformTokenSpaceGuid.PcdKdUartInstance` - set this to 1, 2, 3, 4, or 5. This is the UART instance that Windows will use for kernel debugging.
+ * `giMXPlatformTokenSpaceGuid.PcdKdUartInstance` - set this to 1, 2, 3, 4, or 5 (6 and 7 are also available on i.MX7). This is the UART instance that Windows will use for kernel debugging. You will also need to reference `giMXPlatformTokenSpaceGuid.PcdKdUartInstance` in your board's `AcpiTables.inf` file. U-Boot must initialize the UART, including baud rate and pin muxing. Windows will not reinitialize the UART.
 
 ## Board-specific Initialization
 

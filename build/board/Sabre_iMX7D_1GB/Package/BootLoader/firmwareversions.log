@@ -1,7 +1,14 @@
 U-Boot commit information:
 https://github.com/ms-iot/u-boot.git
-9fc8de8a04ea35ddabcefa616f461fa51a663f47
+5b621bce2fcbf23748896a6800912919e9363eb9
 U-Boot diff information:
+diff --git a/external/RIoT b/external/RIoT
+index 9d31ae9439..1c2d2bf509 160000
+--- a/external/RIoT
++++ b/external/RIoT
+@@ -1 +1 @@
+-Subproject commit 9d31ae9439b41a455d9c16c9cceb965ff2f7b4ac
++Subproject commit 1c2d2bf5090232c76943c123865815c3e4c80023
 U-Boot diff end
 OPTEE commit information:
 https://github.com/ms-iot/optee_os.git
@@ -10,11 +17,11 @@ OPTEE diff information:
 OPTEE diff end
 EDK2 commit information:
 https://github.com/tianocore/edk2
-b1e5547551e2a4d0e61923f86e5d921415e872dc
+66509f90fc6636f22e4ea9d6d11655b2f9268b91
 EDK2 diff information:
 EDK2 diff end
 EDK2-Platforms commit information:
 https://github.com/ms-iot/imx-edk2-platforms.git
-db71d05a2c29081cdc2a930930a5bca837ccfc20
+dd96611c3c907625ed62685dea865e42a17c3e50
 EDK2-Platforms diff information:
 EDK2-Platforms diff end
