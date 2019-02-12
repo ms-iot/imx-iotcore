@@ -135,6 +135,7 @@ Building custom firmware into an FFU requires additional steps:
 * [Building and Updating Firmware for ARM64](Documentation/build-arm64-firmware.md)
 * [Firmware Boot Documentation](Documentation/boot.md)
 * [Testing your BSP](Documentation/tests.md)
+* [Manufacturing with your Firmware](Documentation/provisioning.md)
 * [Creating Windows PE images and booting from eMMC](Documentation/winpe-mmc.md)
 
 The firmware code can be found in the following repos:

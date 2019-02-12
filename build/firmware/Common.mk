@@ -47,6 +47,7 @@ MKIMAGE=$(UBOOT_OUT)/tools/mkimage
 # Signing parameters for mkimage FIT generation
 UBOOT_OPTEE_KEY_PARAMS = -k $(KEY_ROOT) -r -K dt-spl.dtb
 UEFI_KEY_PARAMS = -k $(KEY_ROOT) -r -K dt.dtb
+SRKH_FUSE_BIN = ../test_keys_no_security/crts/SRK_1_2_3_4_fuse.bin
 
 FTPM_FLAGS= \
 	$(FTPM_CRYPTO_PROVIDER) \
@@ -62,6 +63,7 @@ OPTEE_FLAGS= \
 	CFG_PSCI_ARM32=y \
 	CFG_REE_FS=n \
 	CFG_RPMB_FS=y \
+	CFG_RPMB_RESET_FAT=n \
 	CFG_RPMB_WRITE_KEY=y \
 	CFG_RPMB_TESTKEY=y \
 	CFG_TA_HELLO_WORLD=n \
@@ -201,8 +203,15 @@ u-boot_sign.csf: $(UBOOT_OPTEE_FIT) ../u-boot_sign.csf-template $(SPL_PUB_KEYED)
 	  sed -e 's#\$$KEY_ROOT#$(KEY_ROOT)#g' > $@
 
 # The dt-spl.dtb has been filled with the public key from the U-Boot/OP-TEE fit, so add it into a clean u-boot-spl binary.
+# Hexdump the SRKH fuse bin and add its values into an srkh node in SPL's DTB.
 $(SPL_PUB_KEYED): $(UBOOT_OPTEE_FIT)
 	touch $(UBOOT_OUT)/spl/u-boot-spl-pad.bin
+	dtc -I dtb -O dts -o temp-dt-spl.dts dt-spl.dtb
+	echo "/ { srkh { srkh-fuse = <" >> temp-dt-spl.dts
+	hexdump -e '/4 "0x"' -e '/4 "%X""\n"' < $(SRKH_FUSE_BIN) >> temp-dt-spl.dts
+	echo ">; }; };" >> temp-dt-spl.dts
+	dtc -I dts -O dtb -o dt-spl.dtb temp-dt-spl.dts
+	rm -f temp-dt-spl.dts
 	cat $(UBOOT_OUT)/spl/u-boot-spl-nodtb.bin $(UBOOT_OUT)/spl/u-boot-spl-pad.bin dt-spl.dtb > $@
 	rm -f dt-spl.dtb
 

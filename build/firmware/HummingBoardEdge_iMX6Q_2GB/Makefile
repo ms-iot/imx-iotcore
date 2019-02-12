@@ -18,4 +18,4 @@ include ../Common.mk
 .PHONY: $(OPTEE)
 $(OPTEE):
 	$(MAKE) -C $(OPTEE_ROOT) O=$(OPTEE_OUT) PLATFORM=imx-mx6qhmbedge \
-	  $(OPTEE_FLAGS_IMX6) \
+	  $(OPTEE_FLAGS_IMX6) CFG_FSL_SEC=y CFG_RPMB_KEY_WRITE_LOCK=y\
