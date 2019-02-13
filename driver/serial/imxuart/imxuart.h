@@ -474,6 +474,16 @@ IMXUartComputeDividers (
     _Out_ ULONG* UbmrPtr
     );
 
+_IRQL_requires_max_(PASSIVE_LEVEL)
+NTSTATUS
+IMXUartConfigureUart (
+    WDFDEVICE WdfDevice,
+    ULONG BaudRate,
+    const SERIAL_LINE_CONTROL *LineControl,
+    const SERIAL_HANDFLOW *Handflow,
+    bool RtsCtsEnabled
+    );
+
 _IRQL_requires_max_(DISPATCH_LEVEL)
 NTSTATUS
 IMXUartSetBaudRate (
