@@ -594,7 +594,29 @@ NTSTATUS IMXUartEvtSerCx2FileOpen (WDFDEVICE WdfDevice)
         IMXUartRestoreHardwareFromShadowedRegisters(interruptContextPtr);
         WdfInterruptReleaseLock(interruptContextPtr->WdfInterrupt);
     } else {
-        IMX_UART_LOG_TRACE("Waiting for ApplyConfig to configure UART for the first time.");
+        IMX_UART_LOG_TRACE("Configuring UART for the first time with reasonable defaults.");
+
+        SERIAL_LINE_CONTROL lineControl = {0};
+        SERIAL_HANDFLOW handflow = {0};
+
+        lineControl.StopBits = STOP_BIT_1;
+        lineControl.Parity = NO_PARITY;
+        lineControl.WordLength = 8;
+
+        status = IMXUartConfigureUart(
+                WdfDevice,
+                115200,
+                &lineControl,
+                &handflow,
+                false);
+
+        if (!NT_SUCCESS(status)) {
+            IMX_UART_LOG_ERROR(
+                "Failed to do initial configuration of UART. (status = %!STATUS!)",
+                status);
+
+            return status;
+        }
     }
 
     return STATUS_SUCCESS;
@@ -2830,10 +2852,30 @@ IMXUartEvtSerCx2ApplyConfig (
         return status;
     }
 
+    return IMXUartConfigureUart(
+            WdfDevice,
+            baudRate,
+            &lineControl,
+            &handflow,
+            rtsCtsEnabled);
+}
+
+_Use_decl_annotations_
+NTSTATUS
+IMXUartConfigureUart (
+    WDFDEVICE WdfDevice,
+    ULONG BaudRate,
+    const SERIAL_LINE_CONTROL *LineControl,
+    const SERIAL_HANDFLOW *Handflow,
+    bool RtsCtsEnabled
+    )
+{
+    IMX_UART_ASSERT_MAX_IRQL(PASSIVE_LEVEL);
+
     IMX_UART_DEVICE_CONTEXT* deviceContextPtr =
             IMXUartGetDeviceContext(WdfDevice);
 
-    status = IMXUartCheckValidStateForConfigIoctl(deviceContextPtr);
+    NTSTATUS status = IMXUartCheckValidStateForConfigIoctl(deviceContextPtr);
     if (!NT_SUCCESS(status)) {
         IMX_UART_LOG_ERROR(
             "Configuration cannot be applied while IO is active. (status = %!STATUS!)",
@@ -2847,7 +2889,7 @@ IMXUartEvtSerCx2ApplyConfig (
 
     IMX_UART_REGISTERS* registersPtr = deviceContextPtr->RegistersPtr;
 
-    deviceContextPtr->RtsCtsLinesEnabled = rtsCtsEnabled;
+    deviceContextPtr->RtsCtsLinesEnabled = RtsCtsEnabled;
 
     if (deviceContextPtr->Initialized) {
         WdfInterruptAcquireLock(interruptContextPtr->WdfInterrupt);
@@ -2902,17 +2944,17 @@ IMXUartEvtSerCx2ApplyConfig (
         WdfInterruptReleaseLock(interruptContextPtr->WdfInterrupt);
     }
 
-    status = IMXUartSetBaudRate(deviceContextPtr, baudRate);
+    status = IMXUartSetBaudRate(deviceContextPtr, BaudRate);
     if (!NT_SUCCESS(status)) {
         IMX_UART_LOG_ERROR(
             "Failed to set baud rate. (status = %!STATUS!, baudRate = %lu)",
             status,
-            baudRate);
+            BaudRate);
 
         return status;
     }
 
-    status = IMXUartSetLineControl(deviceContextPtr, &lineControl);
+    status = IMXUartSetLineControl(deviceContextPtr, LineControl);
     if (!NT_SUCCESS(status)) {
         IMX_UART_LOG_ERROR(
             "Failed to set line control. (status = %!STATUS!)",
@@ -2921,7 +2963,7 @@ IMXUartEvtSerCx2ApplyConfig (
         return status;
     }
 
-    status = IMXUartSetHandflow(deviceContextPtr, &handflow);
+    status = IMXUartSetHandflow(deviceContextPtr, Handflow);
     if (!NT_SUCCESS(status)) {
         IMX_UART_LOG_ERROR(
             "Failed to set handflow. (status = %!STATUS!)",
