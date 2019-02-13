@@ -572,7 +572,7 @@ NTSTATUS IMXUartEvtSerCx2FileOpen (WDFDEVICE WdfDevice)
     NT_ASSERT(interruptContextPtr->WaitEvents == 0);
 
     //
-    // DMA request lines can be shared, take ownership while the device is 
+    // DMA request lines can be shared, take ownership while the device is
     // opened.
     //
     NTSTATUS status = IMXUartAcquireDmaRequestLineOwnership(
@@ -827,12 +827,12 @@ IMXUartEvtSerCx2PioReceiveReadBuffer (
     interruptContextPtr->RxState = IMX_UART_STATE::IDLE;
 
     //
-    // Check if there is any RX data pending from 
+    // Check if there is any RX data pending from
     // previous DMA transaction?
     //
     ULONG bytesRead = IMXUartPioDequeueDmaBytes(
-        interruptContextPtr, 
-        BufferPtr, 
+        interruptContextPtr,
+        BufferPtr,
         Length);
 
     if (bytesRead != 0) {
@@ -1358,18 +1358,18 @@ IMXUartEvtSerCx2CustomReceiveTransactionStart (
     rxDmaTransactionContextPtr->TransferLength = Length;
     rxDmaTransactionContextPtr->BytesTransferred = 0;
     rxDmaTransactionContextPtr->UnreportedBytes = 0;
-  
+
     WdfSpinLockAcquire(rxDmaTransactionContextPtr->Lock);
     status = WdfRequestMarkCancelableEx(
-        WdfRequest, 
+        WdfRequest,
         IMXUartEvtCustomReceiveTransactionRequestCancel);
 
     if (NT_SUCCESS(status)) {
         //
         // Enable RX DMA and Aging DMA timer
         //
-        // Even though we do not handle DMA receive transactions through 
-        // ISR/DPC, but rather through the DMA completion routine, and 
+        // Even though we do not handle DMA receive transactions through
+        // ISR/DPC, but rather through the DMA completion routine, and
         // DMA progress timer, we set the RxDma state to WAITING_FOR_DPC,
         // to mark it as active.
         //
@@ -1435,8 +1435,8 @@ IMXUartEvtSerCx2CustomReceiveTransactionCleanup (
         rxDmaTransactionContextPtr->BytesTransferred);
 
     //
-    // We do not pause the DMA transfer to avoid loosing 
-    // data. New received data will be picked up by the 
+    // We do not pause the DMA transfer to avoid loosing
+    // data. New received data will be picked up by the
     // next custom/PIO transaction.
     // We set the RX DMA state to STOPPING, so it will not block
     // UART setup requests.
@@ -1491,21 +1491,21 @@ IMXUartEvtCustomReceiveTransactionRequestCancel (
     IMX_UART_DEVICE_CONTEXT* deviceContextPtr = IMXUartGetDeviceContext(
         WdfIoQueueGetDevice(WdfRequestGetIoQueue(WdfRequest)));
 
-    IMX_UART_INTERRUPT_CONTEXT* interruptContextPtr = 
+    IMX_UART_INTERRUPT_CONTEXT* interruptContextPtr =
         deviceContextPtr->InterruptContextPtr;
 
     IMX_UART_RX_DMA_TRANSACTION_CONTEXT* rxDmaTransactionContextPtr =
         interruptContextPtr->RxDmaTransactionContextPtr;
 
     //
-    // We do not pause the DMA transfer to avoid loosing 
-    // data. New received data which will be picked up by the 
+    // We do not pause the DMA transfer to avoid loosing
+    // data. New received data which will be picked up by the
     // next custom/PIO transaction.
     // We set the RX DMA state to STOPPING, so it will not block
     // UART setup requests.
     //
     // We need to acquire the DMA transaction lock in order to
-    // sync access to the caller buffer. 
+    // sync access to the caller buffer.
     //
 
     WdfSpinLockAcquire(rxDmaTransactionContextPtr->Lock);
@@ -1529,8 +1529,8 @@ IMXUartEvtCustomReceiveTransactionRequestCancel (
     WdfSpinLockRelease(rxDmaTransactionContextPtr->Lock);
     if (wdfRequest != WDF_NO_HANDLE) {
         WdfRequestCompleteWithInformation(
-            wdfRequest, 
-            STATUS_SUCCESS, 
+            wdfRequest,
+            STATUS_SUCCESS,
             rxDmaTransactionContextPtr->BytesTransferred);
     }
 }
@@ -1553,7 +1553,7 @@ IMXUartEvtWdfRxDmaTransactionConfigureDmaChannel (
         rxDmaTransactionContextPtr->InterruptContextPtr;
 
     WdfInterruptAcquireLock(interruptContextPtr->WdfInterrupt);
-    ULONG watermarkLevel = 
+    ULONG watermarkLevel =
         (interruptContextPtr->UfcrCopy & IMX_UART_UFCR_RXTL_MASK) >>
         IMX_UART_UFCR_RXTL_SHIFT;
 
@@ -1609,7 +1609,7 @@ IMXUartEvtWdfProgramRxDma (
     )
 {
     //
-    // Since we are using System DMA, WDF programs the SG list into the 
+    // Since we are using System DMA, WDF programs the SG list into the
     // System DMA controller for us.
     // We use the EvtWdfProgramDma callback as a transaction setup.
     //
@@ -1623,7 +1623,7 @@ IMXUartEvtWdfProgramRxDma (
     IMX_UART_REGISTERS* registersPtr = interruptContextPtr->RegistersPtr;
 
     //
-    // Keep the DMA transfer paused until enabled 
+    // Keep the DMA transfer paused until enabled
     // through the custom receive transaction.
     //
     // Disable RX DMA and Aging DMA timer
@@ -1726,7 +1726,7 @@ IMXUartEvtWdfRxDmaTransactionTransferComplete (
             bytesTransferred);
 
         IMX_UART_LOG_TRACE(
-            "RX DMA: Got %Iu bytes. %Iu out of %Iu transferred ", 
+            "RX DMA: Got %Iu bytes. %Iu out of %Iu transferred ",
             bytesTransferred,
             rxDmaTransactionContextPtr->BytesTransferred,
             rxDmaTransactionContextPtr->TransferLength);
@@ -1823,7 +1823,7 @@ IMXUartRxDmaGetBytesTransferred (
     RxDmaTransactionContextPtr->LastDmaCounter = dmaCounter;
     WdfSpinLockRelease(RxDmaTransactionContextPtr->Lock);
     InterlockedAdd(
-        &RxDmaTransactionContextPtr->UnreportedBytes, 
+        &RxDmaTransactionContextPtr->UnreportedBytes,
         LONG(newBytes));
 
     return (ULONG)newBytes;
@@ -1846,7 +1846,7 @@ IMXUartRxDmaCopyToUserBuffer (
         RxDmaTransactionContextPtr->InterruptContextPtr;
 
     //
-    // A DPC for RX completion/progress timer may have been queued 
+    // A DPC for RX completion/progress timer may have been queued
     // just before RX DMA was stopped. Ignore it.
     //
     if (!interruptContextPtr->IsRxDmaStarted) {
@@ -1868,7 +1868,7 @@ IMXUartRxDmaCopyToUserBuffer (
     }
 
     //
-    // Check for DMA buffer (SW) overrun 
+    // Check for DMA buffer (SW) overrun
     //
     if (RxDmaTransactionContextPtr->DmaBufferPendingBytes >
         RxDmaTransactionContextPtr->DmaBufferSize) {
@@ -1903,7 +1903,7 @@ IMXUartRxDmaCopyToUserBuffer (
     //
     PMDL mdlPtr = RxDmaTransactionContextPtr->BufferMdlPtr;
     size_t mdlOffset = RxDmaTransactionContextPtr->BufferMdlOffset;
-    UCHAR* mdlAddr = 
+    UCHAR* mdlAddr =
         reinterpret_cast<UCHAR*>(mdlPtr->MappedSystemVa) + mdlOffset;
 
     size_t maxBytesToCopy = RxDmaTransactionContextPtr->TransferLength -
@@ -1975,7 +1975,7 @@ IMXUartPioDequeueDmaBytes (
 
     //
     // If DMA is not active, nothing more to do here...
-    // No need to sync access to RxDmaState since if it is 
+    // No need to sync access to RxDmaState since if it is
     // active it is modified later on in this routine, and if it is not,
     // it will be changed by the next custom receive transaction which
     // is synchronized with this routine by SerCx2.
@@ -1984,7 +1984,7 @@ IMXUartPioDequeueDmaBytes (
         return 0;
     }
 
-    size_t newBytesTransferred = 
+    size_t newBytesTransferred =
         IMXUartRxDmaGetBytesTransferred(rxDmaTransactionContextPtr);
 
     WdfSpinLockAcquire(rxDmaTransactionContextPtr->Lock);
@@ -1996,7 +1996,7 @@ IMXUartPioDequeueDmaBytes (
 
     if (rxDmaTransactionContextPtr->DmaBufferPendingBytes == 0) {
         //
-        // Stop RX DMA 
+        // Stop RX DMA
         //
         IMX_UART_REGISTERS* registersPtr = interruptContextPtr->RegistersPtr;
 
@@ -2246,7 +2246,7 @@ IMXUartEvtCustomTransmitTransactionRequestCancel (
 
     //
     // Update the drain state if we can at this point.
-    // We DO NOT change the TxDmaState since until it is completed, 
+    // We DO NOT change the TxDmaState since until it is completed,
     // so ISR uses the DMA path (vs PIO path).
     // TxDma cancellation is marked by IsDeferredCancellation.
     //
@@ -2279,7 +2279,7 @@ IMXUartEvtCustomTransmitTransactionRequestCancel (
     //
     // Check if request was canceled before map registers were
     // allocated. In this case complete the request locally since
-    // DMA callbacks will not be called for this transaction. 
+    // DMA callbacks will not be called for this transaction.
     //
     if (WdfDmaTransactionCancel(wdfDmaTransaction)) {
         IMX_UART_LOG_TRACE(
@@ -2316,7 +2316,7 @@ IMXUartEvtCustomTransmitTransactionRequestCancel (
 
     //
     // Stop the DMA transaction, processing continues in
-    // the transaction completion routine 
+    // the transaction completion routine
     // IMXUartEvtWdfTxDmaTransactionTransferComplete.
     //
     WdfDmaTransactionStopSystemTransfer(wdfDmaTransaction);
@@ -2383,7 +2383,7 @@ IMXUartEvtWdfProgramTxDma (
     )
 {
     //
-    // Since we are using System DMA, WDF programs the SG list into the 
+    // Since we are using System DMA, WDF programs the SG list into the
     // System DMA controller for us.
     //
     return TRUE;
@@ -2468,7 +2468,7 @@ IMXUartTxDmaDrainFifo (
         interruptContextPtr->TxDmaDrainState = IMX_UART_STATE::COMPLETE;
         WdfInterruptReleaseLock(interruptContextPtr->WdfInterrupt);
         IMXUartCompleteCustomTxTransactionRequest(
-            TxDmaTransactionContextPtr, 
+            TxDmaTransactionContextPtr,
             STATUS_SUCCESS);
 
         return;
@@ -2487,7 +2487,7 @@ IMXUartTxDmaDrainFifo (
         "TX DMA: enabled TX FIFO empty interrupt to notify of drain "
         "completion");
 
-    interruptContextPtr->TxDmaDrainState = 
+    interruptContextPtr->TxDmaDrainState =
         IMX_UART_STATE::WAITING_FOR_INTERRUPT;
 
     WdfInterruptReleaseLock(interruptContextPtr->WdfInterrupt);
@@ -2508,7 +2508,7 @@ IMXUartCompleteCustomTxTransactionRequest (
         return;
     }
 
-    WDFDMATRANSACTION wdfDmaTransaction = 
+    WDFDMATRANSACTION wdfDmaTransaction =
         TxDmaTransactionContextPtr->WdfDmaTransaction;
 
     BOOLEAN isDone;
@@ -2539,7 +2539,7 @@ IMXUartCompleteCustomTxTransactionRequest (
 
     //
     // If request was canceled and few bytes were sent,
-    // fix the status so caller gets number of bytes sent. 
+    // fix the status so caller gets number of bytes sent.
     //
     if ((RequestStatus == STATUS_REQUEST_CANCELED) &&
         (TxDmaTransactionContextPtr->BytesTransferred != 0)) {
@@ -2627,7 +2627,7 @@ IMXUartGetErrorInformation (
     }
 
     IMX_UART_LOG_TRACE(
-        "DMA error: CommStatus: 0x%08X ", 
+        "DMA error: CommStatus: 0x%08X ",
         InterruptContextPtr->CommStatusErrors);
 
     WdfInterruptReleaseLock(InterruptContextPtr->WdfInterrupt);
@@ -2657,7 +2657,7 @@ IMXUartNotifyEventsDuringDma (
     if (waitEvents != 0) {
         IMX_UART_LOG_TRACE("DMA: Completing wait. "
             "(WaitEvents = 0x%lx, CommStatusInfo = 0x%lx)",
-            waitEvents, 
+            waitEvents,
             CommStatusInfo);
 
         SerCx2CompleteWait(DmaTransactionContextPtr->WdfDevice, waitEvents);
@@ -4455,7 +4455,7 @@ IMXUartUpdateDmaSettings (
     IMX_UART_DEVICE_CONTEXT* DeviceContextPtr
     )
 {
-    IMX_UART_INTERRUPT_CONTEXT* interruptContextPtr = 
+    IMX_UART_INTERRUPT_CONTEXT* interruptContextPtr =
         DeviceContextPtr->InterruptContextPtr;
 
     IMX_UART_RX_DMA_TRANSACTION_CONTEXT* rxDmaTransactionContextPtr =
@@ -4471,7 +4471,7 @@ IMXUartUpdateDmaSettings (
     //
     // If baud rate has not changed, nothing left to do here...
     //
-    if (rxDmaTransactionContextPtr->CurrentBaudRate == 
+    if (rxDmaTransactionContextPtr->CurrentBaudRate ==
         DeviceContextPtr->CurrentBaudRate) {
 
         return STATUS_SUCCESS;
@@ -4531,8 +4531,8 @@ IMXUartStartRxDma (
     }
 
     //
-    // Initialize and start the DMA transaction. 
-    // Transfer is paused until enabled when the SerCX2 'Custom Receive' 
+    // Initialize and start the DMA transaction.
+    // Transfer is paused until enabled when the SerCX2 'Custom Receive'
     // transaction is started...
     //
 
@@ -4558,7 +4558,7 @@ IMXUartStartRxDma (
     }
 
     //
-    //  Start the DMA transaction synchronously! 
+    //  Start the DMA transaction synchronously!
     //
     WdfDmaTransactionSetImmediateExecution(rxWdfDmaTransaction, TRUE);
     status = WdfDmaTransactionExecute(
@@ -4611,7 +4611,7 @@ IMXUartStopRxDma (
     WdfTimerStop(rxDmaTransactionContextPtr->WdfProgressTimer, FALSE);
 
     //
-    // Stop RX DMA 
+    // Stop RX DMA
     //
 
     IMX_UART_REGISTERS* registersPtr = InterruptContextPtr->RegistersPtr;
@@ -4628,7 +4628,7 @@ IMXUartStopRxDma (
     WdfInterruptReleaseLock(InterruptContextPtr->WdfInterrupt);
 
     //
-    // Stop the RX DMA transaction 
+    // Stop the RX DMA transaction
     //
 
     NTSTATUS status;
@@ -4636,9 +4636,9 @@ IMXUartStopRxDma (
         rxDmaTransactionContextPtr->WdfDmaTransaction;
 
     //
-    // Check if we are stopping before map registers were allocated. 
+    // Check if we are stopping before map registers were allocated.
     // In this case we release the transaction locally since
-    // DMA callbacks will not be called for it. 
+    // DMA callbacks will not be called for it.
     //
     if (WdfDmaTransactionCancel(wdfDmaTransaction)) {
         IMX_UART_LOG_TRACE(
@@ -4849,7 +4849,7 @@ IMXUartEvtDevicePrepareHardware (
             break;
         case CmResourceTypeDma:
             switch (dmaResourceCount) {
-            case 0: 
+            case 0:
                 rxDmaResourcePtr = resourcePtr;
                 break;
             case 1:
@@ -5004,9 +5004,9 @@ IMXUartEvtDevicePrepareHardware (
         NT_ASSERT(txDmaResourcePtr != nullptr);
 
         status = IMXUartInitializeDma(
-            WdfDevice, 
-            memResourcePtr, 
-            rxDmaResourcePtr, 
+            WdfDevice,
+            memResourcePtr,
+            rxDmaResourcePtr,
             txDmaResourcePtr);
 
         if (!NT_SUCCESS(status)) {
@@ -5014,7 +5014,7 @@ IMXUartEvtDevicePrepareHardware (
         }
     }
 
-    status = 
+    status =
         IMXUartResetHardwareAndClearShadowedRegisters(interruptContextPtr);
 
     if (!NT_SUCCESS(status)) {
@@ -5998,7 +5998,7 @@ IMXUartInitializeDma (
     IMX_UART_DEVICE_CONTEXT* deviceContextPtr =
         IMXUartGetDeviceContext(WdfDevice);
 
-    IMX_UART_INTERRUPT_CONTEXT* interruptContextPtr = 
+    IMX_UART_INTERRUPT_CONTEXT* interruptContextPtr =
         deviceContextPtr->InterruptContextPtr;
 
     NTSTATUS status;
@@ -6076,13 +6076,13 @@ IMXUartInitializeDma (
 
         auto dmaTransactionContextPtr =
             new (IMXUartGetRxDmaTransactionContext(
-                 serCx2CustomRxTransaction)) 
+                 serCx2CustomRxTransaction))
             IMX_UART_RX_DMA_TRANSACTION_CONTEXT();
 
         dmaTransactionContextPtr->SerCx2CustomRx = serCx2CustomRx;
         dmaTransactionContextPtr->SerCx2CustomRxTransaction =
             serCx2CustomRxTransaction;
-        interruptContextPtr->RxDmaTransactionContextPtr = 
+        interruptContextPtr->RxDmaTransactionContextPtr =
             dmaTransactionContextPtr;
 
         //
@@ -6173,10 +6173,10 @@ IMXUartInitializeDma (
         dmaTransactionContextPtr->WdfDmaTransaction = wdfDmaTransaction;
         dmaTransactionContextPtr->DmaAdapterPtr =
             WdfDmaEnablerWdmGetDmaAdapter(
-                wdfDmaEnabler, 
+                wdfDmaEnabler,
                 WdfDmaDirectionReadFromDevice);
 
-        dmaTransactionContextPtr->DmaRequestLine = 
+        dmaTransactionContextPtr->DmaRequestLine =
             RxDmaResourcePtr->u.DmaV3.RequestLine;
 
         NT_ASSERT(deviceContextPtr->Parameters.RxDmaIntermediateBufferSize >=
@@ -6198,7 +6198,7 @@ IMXUartInitializeDma (
 
             return status;
         }
-        
+
         //
         // Allocate the DMA RX buffer and related resources.
         // Buffer is allocated as non paged/non-cached.
@@ -6280,7 +6280,7 @@ IMXUartInitializeDma (
             new (IMXUartGetRxDmaTimerContext(
                 dmaTransactionContextPtr->WdfProgressTimer))
             IMX_UART_RX_DMA_TIMER_CONTEXT();
-        
+
         customRxTimerContextPtr->RxDmaTransactionPtr = dmaTransactionContextPtr;
     } // Configure receive DMA
 
@@ -6289,7 +6289,7 @@ IMXUartInitializeDma (
     //
     // For transmit DMA we use SerCx2 custom transmit which is implemented
     // using the WDF system DMA profile.
-    // We cannot use SerCx2 system DMA directly since we are using custom 
+    // We cannot use SerCx2 system DMA directly since we are using custom
     // receive due to the SerCx2 receive auto-initialize (cyclic) limitation.
     //
     if (deviceContextPtr->Parameters.TxDmaMinTransactionLength == 0) {
@@ -6363,7 +6363,7 @@ IMXUartInitializeDma (
         dmaTransactionContextPtr->SerCx2CustomTxTransaction =
             serCx2CustomTxTransaction;
 
-        interruptContextPtr->TxDmaTransactionContextPtr = 
+        interruptContextPtr->TxDmaTransactionContextPtr =
             dmaTransactionContextPtr;
 
         //
@@ -6493,7 +6493,7 @@ IMXUartDeinitializeDma (
 
     IMX_UART_DEVICE_CONTEXT* deviceContextPtr =
         IMXUartGetDeviceContext(WdfDevice);
-    
+
     IMX_UART_INTERRUPT_CONTEXT* interruptContextPtr =
         deviceContextPtr->InterruptContextPtr;
 
