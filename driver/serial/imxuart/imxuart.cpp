@@ -5067,15 +5067,38 @@ IMXUartEvtDevicePrepareHardware (
     // Create device interface if we received a UartSerialBus resource
     //
     if (selfConnectionId.QuadPart != 0) {
-        status = IMXUartCreateDeviceInterface(WdfDevice, selfConnectionId);
+        RTL_OSVERSIONINFOW verInfo = {0};
+        verInfo.dwOSVersionInfoSize = sizeof(verInfo);
+        status = RtlGetVersion(&verInfo);
         if (!NT_SUCCESS(status)) {
             IMX_UART_LOG_ERROR(
-                "IMXUartCreateDeviceInterface(...) failed. "
-                "(status = %!STATUS!, selfConnectionId = %llx)",
-                status,
-                selfConnectionId.QuadPart);
+                "RtlGetVersion(...) failed. "
+                "(status = %!STATUS!)",
+                status);
 
             return status;
+        }
+
+        //
+        // Self-publishing is only necessary on OS versions prior to 19H1
+        //
+        if (verInfo.dwBuildNumber <= 17763) {
+            status = IMXUartCreateDeviceInterface(WdfDevice, selfConnectionId);
+            if (!NT_SUCCESS(status)) {
+                IMX_UART_LOG_ERROR(
+                    "IMXUartCreateDeviceInterface(...) failed. "
+                    "(status = %!STATUS!, selfConnectionId = %llx)",
+                    status,
+                    selfConnectionId.QuadPart);
+
+                return status;
+            }
+        } else {
+            IMX_UART_LOG_INFORMATION(
+                "Skipping self-publishing due to OS version. "
+                "Use SerCx2 to publish a device interface. "
+                "(BuildNumber = %d)",
+                verInfo.dwBuildNumber);
         }
     }
 
@@ -5546,10 +5569,12 @@ VOID IMXUartEvtDriverUnload (WDFDRIVER WdfDriver)
 //  as seen by WinRT. If the _DDN method is not present, no friendly name
 //  will be assigned.
 //
+//  In 19H1, SerCx2 added support to publish a device interface. When this
+//  driver no longer needs to support RS5 (17763), this function can be deleted.
+//
 // Arguments:
 //
-//  WdfDevice - The WdfDevice object the represent the PL011 this instance of
-//      the PL011 controller.
+//  WdfDevice - The WdfDevice object
 //
 //  ConnectionId - A resource hub Connection Id to a UartSerialBus connection.
 //
