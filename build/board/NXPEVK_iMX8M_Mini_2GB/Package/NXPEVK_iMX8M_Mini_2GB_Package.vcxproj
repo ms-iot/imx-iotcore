@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{4CA07F09-11B7-476C-BB4F-4EDE6058D910}</ProjectGuid>
+    <ProjectGuid>{7A17A8CF-F2C4-4639-8F0E-57EDB5BC6C01}</ProjectGuid>
     <TemplateGuid>{497e31cb-056b-4f31-abb8-447fd55ee5a5}</TemplateGuid>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <MinimumVisualStudioVersion>12.0</MinimumVisualStudioVersion>
