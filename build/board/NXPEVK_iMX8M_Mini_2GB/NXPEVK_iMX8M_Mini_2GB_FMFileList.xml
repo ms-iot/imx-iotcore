@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FMCollectionManifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/embedded/2004/10/ImageUpdate" Product="IoTUAP" >
+  <IsBuildFeatureEnabled>true</IsBuildFeatureEnabled>
+  <FMs>
+    <FM ID="IOTIMX8M" Path="$(FMDirectory)\NXPEVK_iMX8M_Mini_2GB_DeviceFM.xml" ReleaseType="Production" OwnerName="NXP" OwnerType="OEM" CPUType="ARM64" Critical="true"/>
+ </FMs>
+
+  <SupportedResolutions>
+    <Resolution>1024x768</Resolution>
+  </SupportedResolutions>
+
+  <SupportedLanguages>
+    <Language>en-US</Language>
+  </SupportedLanguages>
+
+  <SupportedLocales>
+    <Locale>en-US</Locale>
+  </SupportedLocales>
+
+</FMCollectionManifest>
