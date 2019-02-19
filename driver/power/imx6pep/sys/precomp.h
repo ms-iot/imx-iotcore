@@ -8,3 +8,4 @@
 #include <initguid.h>
 #include <ntstrsafe.h>
 #include <imxuarthw.h>
+#include <ImxCpuRev.h>
