@@ -16,7 +16,6 @@
 #include "trace.h"
 #include "mx6dpm.tmh"
 
-#include <ImxCpuRev.h>
 #include "mx6powerdef.h"
 #include "mx6peputil.h"
 #include "mx6pepioctl.h"

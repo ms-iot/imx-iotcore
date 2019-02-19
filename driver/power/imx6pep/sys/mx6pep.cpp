@@ -1586,7 +1586,29 @@ NTSTATUS InitializePepDevice ()
     MX6_ASSERT_MAX_IRQL(PASSIVE_LEVEL);
     PAGED_CODE();
 
-    NTSTATUS status = STATUS_UNSUCCESSFUL;
+    NTSTATUS status;
+    UINT32 cpuRev;
+
+    //
+    // The PEP could be loaded on SOC families other than IMX6
+    // because it is included in UpdateOS, and UpdateOS is shared
+    // between IMX6 and 7. Only proceed with initialization
+    // if we're on IMX6.
+    //
+    status = ImxGetCpuRev(&cpuRev);
+    if (!NT_SUCCESS(status)) {
+        MX6_LOG_ERROR("Failed to get CPU rev/type.");
+        return status;
+    }
+
+    if (IMX_SOC_TYPE(cpuRev) != IMX_SOC_MX6) {
+        MX6_LOG_ERROR(
+            "Skipping initialization of PEP on non-IMX6 chip. "
+            "(cpuRev = 0x%x)",
+            cpuRev);
+
+        return STATUS_NOT_SUPPORTED;
+    }
 
     auto deviceContextPtr = static_cast<MX6_PEP*>(
         ExAllocatePoolWithTag(
@@ -1650,7 +1672,13 @@ NTSTATUS DriverEntry (
     DriverObjectPtr->MajorFunction[IRP_MJ_DEVICE_CONTROL] = MX6_PEP::DispatchDeviceIoControl;
 
     // Initialize and Register Pep
-    return InitializePepDevice();
+    NTSTATUS status = InitializePepDevice();
+    if (!NT_SUCCESS(status)) {
+        WPP_CLEANUP(DriverObjectPtr);
+        return status;
+    }
+
+    return STATUS_SUCCESS;
 }
 
 MX6_INIT_SEGMENT_END; //====================================================
