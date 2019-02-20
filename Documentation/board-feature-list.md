@@ -29,4 +29,5 @@ This is an overview of the currently supported features for each of the boards. 
 | Low power standby      | N   | N   | N   | N   | N   | N   | N   |
 | Display power management      | Y   | Y   | Y   | Y   | N   | N   | N   |
 
-If you encounter issues with supported features, please open an issue.
+
+Not all features of a given subsystem maybe fully enabled and/or optimized. If you encounter issues with supported features, please open an issue.
