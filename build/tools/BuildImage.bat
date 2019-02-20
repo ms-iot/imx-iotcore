@@ -94,9 +94,9 @@ if not exist %BSPPKG_DIR% ( mkdir %BSPPKG_DIR% )
 if not exist %REPO_BUILD_ROOT%\..\..\b\%Configuration%\%PLATFORM% (dir /S /B %REPO_BUILD_ROOT%\solution\iMXPlatform\Build\%PLATFORM%\%Configuration%\*.cab > filelist.txt)
 if exist %REPO_BUILD_ROOT%\..\..\b\%Configuration%\%PLATFORM% (dir /S /B %REPO_BUILD_ROOT%\..\..\b\%Configuration%\%PLATFORM%\*.cab > filelist.txt)
 
-REM Append the %BOARD_NAME%Package folder to the end of the scrape list so the correct SV.PlatExtensions.UpdateOS.cab is in bspcabs
-if not exist %REPO_BUILD_ROOT%\..\..\b\%Configuration%\%PLATFORM% (dir /S /B %REPO_BUILD_ROOT%\solution\iMXPlatform\Build\%PLATFORM%\%Configuration%\%BOARD_NAME%Package\*.cab >> filelist.txt)
-if exist %REPO_BUILD_ROOT%\..\..\b\%Configuration%\%PLATFORM% (dir /S /B %REPO_BUILD_ROOT%\..\..\b\%Configuration%\%PLATFORM%\%BOARD_NAME%Package\*.cab >> filelist.txt)
+REM Append the %BOARD_NAME% folder to the end of the scrape list so the correct SV.PlatExtensions.UpdateOS.cab is in bspcabs
+if not exist %REPO_BUILD_ROOT%\..\..\b\%Configuration%\%PLATFORM% (dir /S /B %REPO_BUILD_ROOT%\solution\iMXPlatform\Build\%PLATFORM%\%Configuration%\%BOARD_NAME%\*.cab >> filelist.txt)
+if exist %REPO_BUILD_ROOT%\..\..\b\%Configuration%\%PLATFORM% (dir /S /B %REPO_BUILD_ROOT%\..\..\b\%Configuration%\%PLATFORM%\%BOARD_NAME%\*.cab >> filelist.txt)
 
 for /f "delims=" %%i in (filelist.txt) do (
     echo %%i
