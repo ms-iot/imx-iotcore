@@ -52,7 +52,7 @@
   <Feature>IOT_CRASHCONTROL_SETTINGS</Feature>
   <Feature>IOT_NARRATOR</Feature>
   <Feature>IOT_OCR_EN_US</Feature>
-  <Feature>IOT_NANORDPSERVER</Feature>
+<!--  <Feature>IOT_NANORDPSERVER</Feature> -->
 </Microsoft>
 <OEM>
   <Feature>IMX_DRIVERS</Feature>
