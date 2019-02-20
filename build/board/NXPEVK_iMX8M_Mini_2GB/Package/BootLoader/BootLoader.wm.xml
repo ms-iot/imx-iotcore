@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<identity
+    xmlns="urn:Microsoft.CompPlat/ManifestSchema.v1.00"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    name="BootLoader"
+    namespace="NXPEVKiMX8MM2GB"
+    owner="NXP"
+    legacyName="NXP.NXPEVK_iMX8M_Mini_2GB.BootLoader"
+    >
+    <onecorePackageInfo targetPartition="BOOTLOADER" binaryPartition="true">
+        <binaryPartition imageSource="BootLoader\flash.bin" />
+    </onecorePackageInfo>
+</identity>
