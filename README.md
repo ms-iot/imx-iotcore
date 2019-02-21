@@ -53,6 +53,7 @@ The following tools are required to build the driver packages and IoT Core FFU: 
 #### IoT Core OS Packages
 * Visit the [Windows IoT Core Downloads](https://www.microsoft.com/en-us/software-download/windows10IoTCore#!) page and download "Windows 10 IoT Core Packages – Windows 10 IoT Core, version 1809 (LTSC)".
 * Open the iso and install ```Windows_10_IoT_Core_ARM_Packages.msi```
+* Install ```Windows_10_IoT_Core_ARM64_Packages.msi``` for ARM64 builds.
 
 ### One-Time Environment Setup
 Test certificates must be installed to generate driver packages on a development machine.
