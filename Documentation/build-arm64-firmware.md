@@ -165,8 +165,8 @@ This document describes how to set up a build environment to build the latest fi
 
     # debug
     # python3 NXP/MCIMX8M_EVK_4GB/PlatformBuild.py TOOL_CHAIN_TAG=GCC5 \
-      BUILDREPORTING=TRUE BUILDREPORT_TYPES="PCD" TARGET=DEBUG \
-      MAX_CONCURRENT_THREAD_NUMBER=20 BLD_*_CONFIG_NOT_SECURE_UEFI=1
+    #   BUILDREPORTING=TRUE BUILDREPORT_TYPES="PCD" TARGET=DEBUG \
+    #   MAX_CONCURRENT_THREAD_NUMBER=20 BLD_*_CONFIG_NOT_SECURE_UEFI=1
     
     cd Build/MCIMX8M_EVK_4GB/RELEASE_GCC5/FV
     cp ~/imx-iotcore/build/firmware/its/uefi_imx8_unsigned.its .
