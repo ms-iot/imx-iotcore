@@ -15,7 +15,7 @@ This document describes how to set up a build environment to build the latest fi
     ```bash
     $ sudo apt-get update
     $ sudo apt-get upgrade
-    $ sudo apt-get install build-essential python python-dev python-crypto python-wand device-tree-compiler bison flex swig iasl uuid-dev wget git bc libssl-dev zlib1g-dev  python3-pip
+    $ sudo apt-get install build-essential python python-dev python-crypto python-wand device-tree-compiler bison flex swig iasl uuid-dev wget git bc libssl-dev zlib1g-dev python3-pip
     $ pushd ~
     $ wget https://releases.linaro.org/components/toolchain/binaries/7.2-2017.11/aarch64-linux-gnu/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu.tar.xz
     $ tar xf gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu.tar.xz
@@ -65,118 +65,118 @@ This document describes how to set up a build environment to build the latest fi
 
 1) Build firmware to test the setup. Adding "-j 20" to make will parallelize the build and speed it up significantly on WSL, but since the firmwares build in parallel it will be more difficult to diagnose any build failures. You can customize the number to work best with your system.
 
-```bash
-# u-boot
-
-export CROSS_COMPILE=~/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
-export ARCH=arm64
-
-pushd u-boot
-make imx8mq_evk_nt_defconfig
-make
-popd
-
-
-# Atf
-
-export CROSS_COMPILE=~/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
-export ARCH=arm64
-
-pushd imx-atf
-make PLAT=imx8mq SPD=opteed bl31
-popd
-
-# Optee-OS
-
-export -n CROSS_COMPILE
-export -n ARCH
-export CROSS_COMPILE64=~/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
-pushd optee_os
-
-make PLATFORM=imx PLATFORM_FLAVOR=mx8mqevk \
-  CFG_TEE_CORE_DEBUG=n CFG_TEE_CORE_LOG_LEVEL=2  CFG_UART_BASE=0x30890000 \
-  CFG_RPMB_FS=y CFG_RPMB_TESTKEY=y CFG_RPMB_WRITE_KEY=y CFG_REE_FS=n  \
-  CFG_IMXCRYPT=y CFG_CORE_HEAP_SIZE=98304
-
-# debug
-# make PLATFORM=imx PLATFORM_FLAVOR=mx8mqevk \
-#  CFG_TEE_CORE_DEBUG=y CFG_TEE_CORE_LOG_LEVEL=3  CFG_UART_BASE=0x30890000 \
-#  CFG_RPMB_FS=y CFG_RPMB_TESTKEY=y CFG_RPMB_WRITE_KEY=y CFG_REE_FS=n \
-#  CFG_TA_DEBUG=y CFG_TEE_CORE_TA_TRACE=1 CFG_TEE_TA_LOG_LEVEL=2 \
-#  CFG_IMXCRYPT=y CFG_CORE_HEAP_SIZE=98304
-
-${CROSS_COMPILE64}objcopy -O binary ./out/arm-plat-imx/core/tee.elf ./out/arm-plat-imx/tee.bin
-popd
-
-# OPTEE- Tas
-
-export TA_DEV_KIT_DIR=~/optee_os/out/arm-plat-imx/export-ta_arm64
-export TA_CROSS_COMPILE=~/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
-export TA_CPU=cortex-a53
-
-pushd ~/ms-tpm-20-ref/Samples/ARM32-FirmwareTPM/optee_ta
-
-make -j20
-
-# debug
-# CFG_TEE_TA_LOG_LEVEL=4 CFG_TA_DEBUG=y make -j20
-
-cp ~/ms-tpm-20-ref/Samples/ARM32-FirmwareTPM/optee_ta/out/fTPM/bc50d971-d4c9-42c4-82cb-343fb7f37896.ta ~/mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/fTpmTa/Arm64/Test
-cp ~/ms-tpm-20-ref/Samples/ARM32-FirmwareTPM/optee_ta/out/fTPM/bc50d971-d4c9-42c4-82cb-343fb7f37896.elf ~/mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/fTpmTa/Arm64/Test
-
-popd
-
-# Imx-mkimage
-
-export CROSS_COMPILE=~/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
-export ARCH=arm64
-
-pushd imx-mkimage/iMX8M
-
-cp ../../firmware-imx-7.9/firmware/ddr/synopsys/lpddr4_pmu_train_*.bin .
-cp ../../firmware-imx-7.9/firmware/hdmi/cadence/signed_hdmi_imx8m.bin .
-cp ../../optee_os/out/arm-plat-imx/tee.bin .
-cp ../../imx-atf/build/imx8mq/release/bl31.bin .
-cp ../../u-boot/u-boot-nodtb.bin  .
-cp ../../u-boot/spl/u-boot-spl.bin .
-cp ../../u-boot/arch/arm/dts/fsl-imx8mq-evk.dtb .
-cp ../../u-boot/tools/mkimage .
-
-mv mkimage mkimage_uboot
-
-cd ..
-make SOC=iMX8M flash_hdmi_spl_uboot
-
-popd
-
-# UEFI
-
-pushd ~/mu_platform_nxp
-
-cd MU_BASECORE
-make -C BaseTools
-cd ..
-
-export GCC5_BIN=~/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/
-
-python3 NXP/MCIMX8M_EVK_4GB/PlatformBuild.py TOOL_CHAIN_TAG=GCC5 BUILDREPORTING=TRUE BUILDREPORT_TYPES="PCD" TARGET=RELEASE MAX_CONCURRENT_THREAD_NUMBER=20
-
-# python3 NXP/MCIMX8M_EVK_4GB/PlatformBuild.py TOOL_CHAIN_TAG=GCC5 BUILDREPORTING=TRUE BUILDREPORT_TYPES="PCD" TARGET=DEBUG MAX_CONCURRENT_THREAD_NUMBER=20
-
-cd Build/MCIMX8M_EVK_4GB/RELEASE_GCC5/FV
-cp ~/imx-iotcore/build/firmware/its/uefi_imx8_unsigned.its .
-~/u-boot/tools/mkimage -f uefi_imx8_unsigned.its -r uefi.fit
-
-popd
-```
-
+    ```bash
+    # u-boot
+    
+    export CROSS_COMPILE=~/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
+    export ARCH=arm64
+    
+    pushd u-boot
+    make imx8mq_evk_nt_defconfig
+    make
+    popd
+    
+    
+    # Atf
+    
+    export CROSS_COMPILE=~/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
+    export ARCH=arm64
+    
+    pushd imx-atf
+    make PLAT=imx8mq SPD=opteed bl31
+    popd
+    
+    # Optee-OS
+    
+    export -n CROSS_COMPILE
+    export -n ARCH
+    export CROSS_COMPILE64=~/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
+    pushd optee_os
+    
+    make PLATFORM=imx PLATFORM_FLAVOR=mx8mqevk \
+      CFG_TEE_CORE_DEBUG=n CFG_TEE_CORE_LOG_LEVEL=2  CFG_UART_BASE=0x30890000 \
+      CFG_RPMB_FS=y CFG_RPMB_TESTKEY=y CFG_RPMB_WRITE_KEY=y CFG_REE_FS=n  \
+      CFG_IMXCRYPT=y CFG_CORE_HEAP_SIZE=98304
+    
+    # debug
+    # make PLATFORM=imx PLATFORM_FLAVOR=mx8mqevk \
+    #  CFG_TEE_CORE_DEBUG=y CFG_TEE_CORE_LOG_LEVEL=3  CFG_UART_BASE=0x30890000 \
+    #  CFG_RPMB_FS=y CFG_RPMB_TESTKEY=y CFG_RPMB_WRITE_KEY=y CFG_REE_FS=n \
+    #  CFG_TA_DEBUG=y CFG_TEE_CORE_TA_TRACE=1 CFG_TEE_TA_LOG_LEVEL=2 \
+    #  CFG_IMXCRYPT=y CFG_CORE_HEAP_SIZE=98304
+    
+    ${CROSS_COMPILE64}objcopy -O binary ./out/arm-plat-imx/core/tee.elf ./out/arm-plat-imx/tee.bin
+    popd
+    
+    # OPTEE- Tas
+    
+    export TA_DEV_KIT_DIR=~/optee_os/out/arm-plat-imx/export-ta_arm64
+    export TA_CROSS_COMPILE=~/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
+    export TA_CPU=cortex-a53
+    
+    pushd ~/ms-tpm-20-ref/Samples/ARM32-FirmwareTPM/optee_ta
+    
+    make
+    
+    # debug
+    # CFG_TEE_TA_LOG_LEVEL=4 CFG_TA_DEBUG=y make
+    
+    cp ~/ms-tpm-20-ref/Samples/ARM32-FirmwareTPM/optee_ta/out/fTPM/bc50d971-d4c9-42c4-82cb-343fb7f37896.ta ~/mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/fTpmTa/Arm64/Test
+    cp ~/ms-tpm-20-ref/Samples/ARM32-FirmwareTPM/optee_ta/out/fTPM/bc50d971-d4c9-42c4-82cb-343fb7f37896.elf ~/mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/fTpmTa/Arm64/Test
+    
+    popd
+    
+    # Imx-mkimage
+    
+    export CROSS_COMPILE=~/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
+    export ARCH=arm64
+    
+    pushd imx-mkimage/iMX8M
+    
+    cp ../../firmware-imx-7.9/firmware/ddr/synopsys/lpddr4_pmu_train_*.bin .
+    cp ../../firmware-imx-7.9/firmware/hdmi/cadence/signed_hdmi_imx8m.bin .
+    cp ../../optee_os/out/arm-plat-imx/tee.bin .
+    cp ../../imx-atf/build/imx8mq/release/bl31.bin .
+    cp ../../u-boot/u-boot-nodtb.bin  .
+    cp ../../u-boot/spl/u-boot-spl.bin .
+    cp ../../u-boot/arch/arm/dts/fsl-imx8mq-evk.dtb .
+    cp ../../u-boot/tools/mkimage .
+    
+    mv mkimage mkimage_uboot
+    
+    cd ..
+    make SOC=iMX8M flash_hdmi_spl_uboot
+    
+    popd
+    
+    # UEFI
+    
+    pushd ~/mu_platform_nxp
+    
+    cd MU_BASECORE
+    make -C BaseTools
+    cd ..
+    
+    export GCC5_BIN=~/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/
+    
+    python3 NXP/MCIMX8M_EVK_4GB/PlatformBuild.py TOOL_CHAIN_TAG=GCC5 BUILDREPORTING=TRUE BUILDREPORT_TYPES="PCD" TARGET=RELEASE MAX_CONCURRENT_THREAD_NUMBER=20
+    
+    # python3 NXP/MCIMX8M_EVK_4GB/PlatformBuild.py TOOL_CHAIN_TAG=GCC5 BUILDREPORTING=TRUE BUILDREPORT_TYPES="PCD" TARGET=DEBUG MAX_CONCURRENT_THREAD_NUMBER=20
+    
+    cd Build/MCIMX8M_EVK_4GB/RELEASE_GCC5/FV
+    cp ~/imx-iotcore/build/firmware/its/uefi_imx8_unsigned.its .
+    ~/u-boot/tools/mkimage -f uefi_imx8_unsigned.its -r uefi.fit
+    
+    popd
+    ```
+    
 1) After a successful build you should have several output files:
     ```bash
     imx-mkimage/iMX8M/flash.bin - Contains SPL, ATF, OP-TEE, and U-Boot proper
     mu_platform_nxp/Build/MCIMX8M_EVK_4GB/RELEASE_GCC5/FV/uefi.fit - Contains the UEFI firmware
     ```
 
-## Adding updated firmware to your FFU
+## Adding updated firmware to your ARM64 FFU
 1) To make the updated firmware a part of your FFU build, you must copy the firmwares to your board's Package folder in imx-iotcore.
  * Copy uefi.fit into /board/boardname/Package/BootFirmware
  * Copy flash.bin into /board/boardname/Package/BootLoader
@@ -184,7 +184,7 @@ popd
 ## Deploying firmware to an SD card manually
 
 ### Deploying U-Boot, ATF, OP-TEE (flash.bin) and UEFI (uefi.fit) for development
-  On Windows you can use [DD for Windows](http://www.chrysocome.net/dd) from an administrator command prompt to deploy firmware_fit.merged.
+  On Windows you can use [DD for Windows](http://www.chrysocome.net/dd) from an administrator command prompt to deploy flash.bin and uefi.fit.
   Be careful that you use the correct `of` and `seek`, DD will not ask for confirmation.
 
   ```bash
@@ -200,7 +200,7 @@ You might get the output: `Error reading file: 87 The parameter is incorrect`. T
 
 If you are working on a dedicated Linux machine (not WSL or VM) use:
 ```
-dd if=flast.bin of=/dev/sdX bs=512 seek=66
+dd if=flash.bin of=/dev/sdX bs=512 seek=66
 
 dd if=uefi.fit of=/dev/sdX bs=1024 seek=2176
 ```
