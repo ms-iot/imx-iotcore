@@ -76,11 +76,11 @@ Test certificates must be installed to generate driver packages on a development
 3. Change the build type from Debug to Release. Change the build flavor from ARM to ARM64 if building for iMX8.
 4. To build press Ctrl-Shift-B or choose Build -> Build Solution from menu. This will compile all driver packages then generate the FFU.
 5. Depending on the speed of the build machine FFU generation may take around 10-20 minutes.
-6. After a successful build the new FFU will be located in `imx-iotcore\build\solution\iMXPlatform\Build\FFU\HummingBoardEdge_iMX6Q_2GB\` for ARM builds and `imx-iotcore\build\solution\iMXPlatform\Build\FFU\NXPEVK_iMX8M_4GB` for ARM64 builds..
+6. After a successful build the new FFU will be located in `imx-iotcore\build\solution\iMXPlatform\Build\FFU\HummingBoardEdge_iMX6Q_2GB\` for ARM builds and `imx-iotcore\build\solution\iMXPlatform\Build\FFU\NXPEVK_iMX8M_4GB` for ARM64 builds.
 7. The FFU contains firmware components for the HummingBoard Edge with the Quad Core SOM or NXP IMX8M EVK with i.MX8M Quad Core SOM depending on build flavor. This firmware is automatically applied to the SD Card during the FFU imaging process.
 
 #### Building the FFU for other boards
-In order to build an FFU for another board you'll need to modify GenerateFFU.bat in the Build Scripts folder of the Solution Explorer. Comment out the default HummingBoardEdge_iMX6Q_2GB NXPEVK_iMX8M_4GB build with REM and uncomment any other boards you want to build.
+In order to build an FFU for another board you'll need to modify GenerateFFU.bat in the Build Scripts folder of the Solution Explorer. Comment out the default HummingBoardEdge_iMX6Q_2GB or NXPEVK_iMX8M_4GB builds with REM and uncomment any other boards you want to build.
 ```bat
 REM cd /d %BATCH_HOME%
 REM echo "Building HummingBoardEdge_iMX6Q_2GB FFU"
@@ -121,7 +121,8 @@ call BuildImage Sabre_iMX6Q_1GB Sabre_iMX6Q_1GB_TestOEMInput.xml
 
 Building custom firmware into an FFU requires additional steps:
 
-* [Building and Updating Firmware](Documentation/build-firmware.md)
+* [Building and Updating Firmware for ARM](Documentation/build-firmware.md)
+* [Building and Updating Firmware for ARM64](Documentation/build-arm64-firmware.md)
 * [Firmware Boot Documentation](Documentation/boot.md)
 * [Testing your BSP](Documentation/tests.md)
 * [Creating Windows PE images and booting from eMMC](Documentation/winpe-mmc.md)
@@ -130,7 +131,7 @@ The firmware code can be found in the following repos:
 
 * U-Boot: https://github.com/ms-iot/u-boot.git
 * OP-TEE: https://github.com/ms-iot/optee_os.git
-* UEFI for ARM32:
+* UEFI for ARM:
   * https://github.com/tianocore/edk2.git
   * https://github.com/ms-iot/imx-edk2-platforms.git
 * UEFI for ARM64:
