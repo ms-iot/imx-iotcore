@@ -66,7 +66,7 @@ This document describes how to set up a build environment to build the latest fi
 1) Build firmware to test the setup. Adding "-j 20" to make will parallelize the build and speed it up significantly on WSL, but since the firmwares build in parallel it will be more difficult to diagnose any build failures. You can customize the number to work best with your system.
 
     ```bash
-    # u-boot
+    # U-Boot
     
     export CROSS_COMPILE=~/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
     export ARCH=arm64
@@ -77,7 +77,7 @@ This document describes how to set up a build environment to build the latest fi
     popd
     
     
-    # Atf
+    # Arm Trusted Firmware
     
     export CROSS_COMPILE=~/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
     export ARCH=arm64
@@ -86,7 +86,7 @@ This document describes how to set up a build environment to build the latest fi
     make PLAT=imx8mq SPD=opteed bl31
     popd
     
-    # Optee-OS
+    # OP-TEE OS
     
     export -n CROSS_COMPILE
     export -n ARCH
@@ -108,7 +108,7 @@ This document describes how to set up a build environment to build the latest fi
     ${CROSS_COMPILE64}objcopy -O binary ./out/arm-plat-imx/core/tee.elf ./out/arm-plat-imx/tee.bin
     popd
     
-    # OPTEE- Tas
+    # OP-TEE Trusted Applications
     
     export TA_DEV_KIT_DIR=~/optee_os/out/arm-plat-imx/export-ta_arm64
     export TA_CROSS_COMPILE=~/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
