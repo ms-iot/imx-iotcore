@@ -21,6 +21,8 @@ Windows 10 IoT Core for NXP i.MX Processors
 |i.MX 6SoloX | UDOO | Neo Full | UdooNeo_iMX6SX_1GB |
 |i.MX 7Dual | CompuLab | IoT Gateway, CL-SOM-iMX7+SBC-iMX7 | ClSomImx7_iMX7D_1GB |
 |i.MX 7Dual | NXP | i.MX 7Dual SABRE | Sabre_iMX7D_1GB |
+|i.MX 8M | NXP | i.MX 8M EVK | NXPEVK_IMX8M_4GB |
+|i.MX 8M Mini | NXP | i.MX 8M Mini EVK | NXPEVK_IMX8M_Mini_2GB |
 
 A table of the currently enabled features for each board can be found [here](Documentation/board-feature-list.md). For hardware issues, please contact the hardware vendor.
 
@@ -71,14 +73,14 @@ Test certificates must be installed to generate driver packages on a development
 
 1. Launch Visual Studio 2017 as Administrator.
 2. Open the solution iMXPlatform.sln (imx-iotcore\build\solution\iMXPlatform).
-3. Change the build type from Debug to Release.
+3. Change the build type from Debug to Release. Change the build flavor from ARM to ARM64 if building for iMX8.
 4. To build press Ctrl-Shift-B or choose Build -> Build Solution from menu. This will compile all driver packages then generate the FFU.
 5. Depending on the speed of the build machine FFU generation may take around 10-20 minutes.
-6. After a successful build the new FFU will be located in `imx-iotcore\build\solution\iMXPlatform\Build\FFU\HummingBoardEdge_iMX6Q_2GB\`.
-7. The FFU contains firmware components for the HummingBoard Edge with the Quad Core SOM. This firmware is automatically applied to the SD Card during the FFU imaging process.
+6. After a successful build the new FFU will be located in `imx-iotcore\build\solution\iMXPlatform\Build\FFU\HummingBoardEdge_iMX6Q_2GB\` for ARM builds and `imx-iotcore\build\solution\iMXPlatform\Build\FFU\NXPEVK_iMX8M_4GB` for ARM64 builds..
+7. The FFU contains firmware components for the HummingBoard Edge with the Quad Core SOM or NXP IMX8M EVK with i.MX8M Quad Core SOM depending on build flavor. This firmware is automatically applied to the SD Card during the FFU imaging process.
 
 #### Building the FFU for other boards
-In order to build an FFU for another board you'll need to modify GenerateFFU.bat in the Build Scripts folder of the Solution Explorer. Comment out the default HummingBoardEdge_iMX6Q_2GB build with REM and uncomment any other boards you want to build.
+In order to build an FFU for another board you'll need to modify GenerateFFU.bat in the Build Scripts folder of the Solution Explorer. Comment out the default HummingBoardEdge_iMX6Q_2GB NXPEVK_iMX8M_4GB build with REM and uncomment any other boards you want to build.
 ```bat
 REM cd /d %BATCH_HOME%
 REM echo "Building HummingBoardEdge_iMX6Q_2GB FFU"
@@ -128,9 +130,21 @@ The firmware code can be found in the following repos:
 
 * U-Boot: https://github.com/ms-iot/u-boot.git
 * OP-TEE: https://github.com/ms-iot/optee_os.git
-* UEFI:
+* UEFI for ARM32:
   * https://github.com/tianocore/edk2.git
   * https://github.com/ms-iot/imx-edk2-platforms.git
+* UEFI for ARM64:
+  * https://github.com/ms-iot/MU_PLATFORM_NXP.git
+  * https://github.com/ms-iot/MU_SILICON_NXP.git
+  * https://github.com/Microsoft/mu_basecore.git
+  * https://github.com/Microsoft/mu_plus.git
+  * https://github.com/Microsoft/mu_silicon_arm_tiano.git
+  * https://github.com/Microsoft/mu_tiano_plus.git
+  * https://github.com/openssl/openssl
+* Arm Trusted Firmware for ARM64:
+  * https://source.codeaurora.org/external/imx/imx-atf
+* IMX MkImage for ARM64:
+  * https://source.codeaurora.org/external/imx/imx-mkimage
 * Firmware TPM2.0:
   * https://github.com/Microsoft/ms-tpm-20-ref
 
