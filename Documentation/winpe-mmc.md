@@ -82,5 +82,5 @@ make-winpe.cmd /apply 7
 
 It will format the SD card, copy the WinPE image contents, and write the firmware to the reserved sector at the beginning of the card.
 
-You can now insert the SD card in your HummingBoard and boot. It will boot into WinPE, then flash the FFU to MMC, then reboot. Before rebooting, it renames the `EFI` folder at the root of the SD card to `_efi`, which causes UEFI to skip the SD card when it's looking for a filesystem to boot from. It will find the `EFI` directory on MMC instead, and boot from there. If you wish to boot into WinPE again, you can rename `_efi` back to `EFI`.
+You can now insert the SD card in your HummingBoard and boot. It will boot into WinPE, then flash the FFU to eMMC, then reboot. Before rebooting, it renames the `EFI` folder at the root of the SD card to `_efi`, which causes UEFI to skip the SD card when it's looking for a filesystem to boot from. It will find the `EFI` directory on eMMC instead, and boot from there. If you wish to boot into WinPE again, you can rename `_efi` back to `EFI`.
 
