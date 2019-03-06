@@ -30,9 +30,13 @@ This document describes how to set up a build environment to build the latest fi
     $ git clone --recursive -b imx_v2018.03_4.14.62_1.0.0_beta https://github.com/ms-iot/u-boot.git
     $ git clone -b codeaurora/imx_4.14.62_1.0.0_beta https://github.com/ms-iot/optee_os.git
     $ git clone --recursive https://github.com/ms-iot/mu_platform_nxp
-    $ git clone --recursive https://github.com/Microsoft/ms-tpm-20-ref
     $ git clone -b imx_4.14.62_1.0.0_beta https://source.codeaurora.org/external/imx/imx-atf
     $ git clone -b imx_4.14.62_1.0.0_beta https://source.codeaurora.org/external/imx/imx-mkimage
+    ```
+    Optionally, clone the TPM reference implementation (`mu_platform_nxp` includes a precompiled TPM binary)
+    ```bash
+    $ git clone --recursive https://github.com/Microsoft/ms-tpm-20-ref
+    $ pushd ms-tpm-20-ref; git checkout 65b65354c6cce3212d9c512ec3ae2e23fe37c94d; popd
     ```
 
 1) Download and extract the [Code Signing Tools (CST)](https://www.nxp.com/webapp/sps/download/license.jsp?colCode=IMX_CST_TOOL) from NXP's website. You will need to create an account on NXP's website to access this tool. Extract the tool to the same directory as all the above repositories, and rename the folder to cst:
