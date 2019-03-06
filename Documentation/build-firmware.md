@@ -32,7 +32,7 @@ This document describes how to set up a build environment to build the latest fi
     $ git clone -b imx https://github.com/ms-iot/imx-edk2-platforms.git
     $ git clone --recursive https://github.com/tianocore/edk2
     ```
-    Optionally, clone the TPM reference implementation (`imx-edk2-platforms` includes a copy of the TPM already)
+    Optionally, clone the TPM reference implementation (`imx-edk2-platforms` includes a precompiled TPM binary)
     ```bash
     $ git clone --recursive https://github.com/Microsoft/ms-tpm-20-ref
     $ pushd .; cd .\ms-tpm-20-ref; git checkout 65b65354c6cce3212d9c512ec3ae2e23fe37c94d; popd
