@@ -43,6 +43,7 @@ typedef enum _IMX_CPU {
     IMX_CPU_MX7S = 0x71,
     IMX_CPU_MX7D = 0x72,
     IMX_CPU_MX8MQ = 0x82,
+    IMX_CPU_MX8MM = 0x85,
     IMX_CPU_MX7ULP = 0xE1, // dummy value
 } IMX_CPU;
 
@@ -233,10 +234,11 @@ end:
     return status;
 }
 
-static inline UINT32 _Imx8GetCpuRevHelper(void *AnatopBase)
+static inline UINT32 _Imx8GetCpuRevHelper (void *AnatopBase)
 {
     enum {
         ANATOP_DIGPROG = 0x06C,
+        ANATOP_DIGPROGMM = 0x800,
     };
 
     UINT32 reg = READ_REGISTER_NOFENCE_ULONG(
@@ -244,12 +246,22 @@ static inline UINT32 _Imx8GetCpuRevHelper(void *AnatopBase)
 
     UINT32 type = (reg >> 16) & 0xff;
 
+    // unrecognized SOC type, check alternate DIGPROC register on mini variant
+    if (type != 0x82) {
+        UINT32 reg2 = READ_REGISTER_NOFENCE_ULONG(
+                      (ULONG *)Add2Ptr(AnatopBase, ANATOP_DIGPROGMM));
+        if ((reg2 & 0x00ffff00) == 0x00824100) {
+            type = IMX_CPU_MX8MM;
+            reg = reg2;
+        }
+    }
+
     reg &= 0xff;  /* silicon revision */
     return (type << 12) | reg;
 }
 
 _IRQL_requires_max_(PASSIVE_LEVEL)
-static inline NTSTATUS _Imx8GetCpuRev(_Out_ UINT32 *Rev)
+static inline NTSTATUS _Imx8GetCpuRev (_Out_ UINT32 *Rev)
 {
     enum {
         ANATOP_BASE_ADDR = 0x30360000,
@@ -277,49 +289,49 @@ end:
 }
 
 #ifdef _ARM64_
-static inline UINT32 _ImxReadMIDR()
+static inline UINT32 _ImxReadMIDR (void)
 {
     return (UINT32)_ReadStatusReg(ARM64_MIDR_EL1);
 }
 
-static inline UINT32 _ImxReadCSSELR()
+static inline UINT32 _ImxReadCSSELR (void)
 {
     return (UINT32)_ReadStatusReg(ARM64_CSSELR_EL1);
 }
 
-static inline UINT32 _ImxReadCCSIDR()
+static inline UINT32 _ImxReadCCSIDR (void)
 {
     return (UINT32)_ReadStatusReg(ARM64_CCSIDR_EL1);
 }
 
-static inline void _ImxWriteCSSELR(UINT32 value)
+static inline void _ImxWriteCSSELR (UINT32 value)
 {
     _WriteStatusReg(ARM64_CSSELR_EL1, value);
 }
 #else
-static inline UINT32 _ImxReadMIDR()
+static inline UINT32 _ImxReadMIDR (void)
 {
-	return _MoveFromCoprocessor(IMX_CP15_MIDR);
+    return _MoveFromCoprocessor(IMX_CP15_MIDR);
 }
 
-static inline UINT32 _ImxReadCSSELR()
+static inline UINT32 _ImxReadCSSELR (void)
 {
-	return _MoveFromCoprocessor(IMX_CP15_CSSELR);
+    return _MoveFromCoprocessor(IMX_CP15_CSSELR);
 }
 
-static inline UINT32 _ImxReadCCSIDR()
+static inline UINT32 _ImxReadCCSIDR (void)
 {
-	return _MoveFromCoprocessor(IMX_CP15_CCSIDR);
+    return _MoveFromCoprocessor(IMX_CP15_CCSIDR);
 }
 
-static inline void _ImxWriteCSSELR(UINT32 value)
+static inline void _ImxWriteCSSELR (UINT32 value)
 {
-	_MoveToCoprocessor(value, IMX_CP15_CSSELR);
+    _MoveToCoprocessor(value, IMX_CP15_CSSELR);
 }
 #endif
 
 
-static inline UINT32 _ImxGetPrimaryPartNum ()
+static inline UINT32 _ImxGetPrimaryPartNum (void)
 {
     UINT32 midr;
 
@@ -381,7 +393,7 @@ static NTSTATUS _ImxGetCacheSize (UINT32 Level, _Out_ UINT32 *CacheSize)
 }
 __pragma(code_seg(pop))
 
-static inline IMX_SOC ImxGetSocType ()
+static inline IMX_SOC ImxGetSocType (void)
 {
     NTSTATUS status;
     UINT32 partNum;
