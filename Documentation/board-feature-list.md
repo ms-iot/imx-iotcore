@@ -14,7 +14,7 @@ This is an overview of the currently supported features for each of the boards. 
 |-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|
 | Audio    | Y   | N   | Y   | Y   | N   | Y   | N   | Y   | N   |
 | GPIO     | Y   | Y   | Y   | Y   | Y   | Y   | Y   | Y   | I/P |
-| I2C      | Y   | Y   | Y   | Y   | Y   | Y   | N   | Y   | I/P |
+| I2C      | Y   | Y   | Y   | Y   | Y   | Y   | N   | Y   | Y |
 | Ethernet | Y   | Y   | Y   | Y   | Y   | Y   | N   | Y   | N   |
 | PWM      | Y   | Y   | Y   | Y   | Y   | Y   | N   | N   | N   |
 | SDHC     | Y   | Y   | Y   | Y   | Y   | Y   | Y   | Y   | Y   |
