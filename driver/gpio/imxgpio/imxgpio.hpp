@@ -107,7 +107,8 @@ enum IMX_GPIO_PULL {
     IMX8M_GPIO_PULL_UP = 0x1,  // 0b001 PUE=1 (no pull down implemented for iMX8M)
     IMX8MM_GPIO_PULL_UP = 0x5,   // 0b101 PE=1 (Pull enabled) PUE=1 (Pull up)
     IMX8MM_GPIO_PULL_DOWN = 0x4, // 0b100 PE=1 (Pull enabled) PUE=0 (Pull down)
-    IMX_GPIO_PULL_DEFAULT = 0xFFFFFFFF
+    IMX_GPIO_PULL_INVALID = 0xFFFFFFFE,
+    IMX_GPIO_PULL_DEFAULT = 0xFFFFFFFF  // Set to HW default
 };
 
 enum IMX_GPIO_INTERRUPT_CONFIG {

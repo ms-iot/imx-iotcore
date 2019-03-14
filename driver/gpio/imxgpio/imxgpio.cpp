@@ -163,14 +163,14 @@ NTSTATUS IMX_GPIO::GpioPullModeToImxPullMode(
 {
     switch (pullConfiguration) {
     case GPIO_PIN_PULL_CONFIGURATION_PULLUP:
-        if (pullUp == (UINT32)-1) {
+        if (pullUp == IMX_GPIO_PULL_INVALID) {
             NT_ASSERT(!"Soc doesn't support GPIO pull up");
             return STATUS_NOT_SUPPORTED;
         }
         *pullMode = (IMX_GPIO_PULL)pullUp;
         break;
     case GPIO_PIN_PULL_CONFIGURATION_PULLDOWN:
-        if (pullDown == (UINT32)-1) {
+        if (pullDown == IMX_GPIO_PULL_INVALID) {
             NT_ASSERT(!"Soc doesn't support GPIO pull down");
             return STATUS_NOT_SUPPORTED;
         }
@@ -1914,7 +1914,7 @@ NTSTATUS IMX_GPIO::configureCPUType (
         pullShift = IMX8M_GPIO_PULL_SHIFT;
         pullMask = IMX8M_GPIO_PULL_MASK;
         pullUp = IMX8M_GPIO_PULL_UP;
-        pullDown = (UINT32)-1;  // Force invalid value. iMX8M doesn't implement pull-down
+        pullDown = (UINT32)IMX_GPIO_PULL_INVALID;  // Force invalid value. iMX8M doesn't implement pull-down
         sparsePinMap = Imx8MGpioPinDataSparseMap;
         sparsePinMapLength = ARRAYSIZE(Imx8MGpioPinDataSparseMap);
         inputSelectMap = Imx8MGpioPinInputSelectTable;
