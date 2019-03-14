@@ -52,6 +52,7 @@ namespace {
                 return "PullDown";
             case IMX_GPIO_PULL_DISABLE:
                 return "PullNone";
+			case IMX_GPIO_PULL_INVALID:
             default:
                 NT_ASSERT(!"Invalid pull mode");
                 return "Invalid";
@@ -71,7 +72,8 @@ namespace {
                 return "PullDown";
             case IMX_GPIO_PULL_DISABLE:
                 return "PullNone";
-            default:
+			case IMX_GPIO_PULL_INVALID:
+			default:
                 NT_ASSERT(!"Invalid pull mode");
                 return "Invalid";
             }
