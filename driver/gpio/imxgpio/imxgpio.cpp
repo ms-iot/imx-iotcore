@@ -29,6 +29,7 @@
 #include "imx7d.hpp"
 #include "imx6ull.hpp"
 #include "imx8m.hpp"
+#include "imx8m-mini.hpp"
 
 IMX_NONPAGED_SEGMENT_BEGIN; //====================================================
 
@@ -45,9 +46,13 @@ namespace {
             case IMX_GPIO_PULL_DEFAULT:
                 return "PullDefault";
             case IMX8M_GPIO_PULL_UP:
+            case IMX8MM_GPIO_PULL_UP:
                 return "PullUp";
+            case IMX8MM_GPIO_PULL_DOWN:
+                return "PullDown";
             case IMX_GPIO_PULL_DISABLE:
                 return "PullNone";
+            case IMX_GPIO_PULL_INVALID:
             default:
                 NT_ASSERT(!"Invalid pull mode");
                 return "Invalid";
@@ -67,6 +72,7 @@ namespace {
                 return "PullDown";
             case IMX_GPIO_PULL_DISABLE:
                 return "PullNone";
+            case IMX_GPIO_PULL_INVALID:
             default:
                 NT_ASSERT(!"Invalid pull mode");
                 return "Invalid";
@@ -145,6 +151,8 @@ UINT32 IMX_GPIO::bankCount;
 USHORT IMX_GPIO::pinCount;
 UINT32 IMX_GPIO::pullShift;
 UINT32 IMX_GPIO::pullMask;
+UINT32 IMX_GPIO::pullUp;
+UINT32 IMX_GPIO::pullDown;
 const IMX_PIN_DATA* IMX_GPIO::sparsePinMap;
 UINT32 IMX_GPIO::sparsePinMapLength;
 const IMX_PIN_INPUT_DATA* IMX_GPIO::inputSelectMap;
@@ -157,36 +165,18 @@ NTSTATUS IMX_GPIO::GpioPullModeToImxPullMode(
 {
     switch (pullConfiguration) {
     case GPIO_PIN_PULL_CONFIGURATION_PULLUP:
-        switch (pullShift) {
-        case IMX6_GPIO_PULL_SHIFT:
-            *pullMode = IMX6_GPIO_PULL_UP;
-            break;
-        case IMX7_GPIO_PULL_SHIFT:
-            *pullMode = IMX7_GPIO_PULL_UP;
-            break;
-        case IMX8M_GPIO_PULL_SHIFT:
-            *pullMode = IMX8M_GPIO_PULL_UP;
-            break;
-        default:
-            NT_ASSERT(!"Invalid pullShift");
-            return STATUS_DEVICE_CONFIGURATION_ERROR;
+        if (pullUp == IMX_GPIO_PULL_INVALID) {
+            NT_ASSERT(!"Soc doesn't support GPIO pull up");
+            return STATUS_NOT_SUPPORTED;
         }
+        *pullMode = (IMX_GPIO_PULL)pullUp;
         break;
     case GPIO_PIN_PULL_CONFIGURATION_PULLDOWN:
-        switch (pullShift) {
-        case IMX6_GPIO_PULL_SHIFT:
-            *pullMode = IMX6_GPIO_PULL_DOWN;
-            break;
-        case IMX7_GPIO_PULL_SHIFT:
-            *pullMode = IMX7_GPIO_PULL_DOWN;
-            break;
-        // IMX8M doesn't implement pull down.
-        case IMX8M_GPIO_PULL_SHIFT:
+        if (pullDown == IMX_GPIO_PULL_INVALID) {
+            NT_ASSERT(!"Soc doesn't support GPIO pull down");
             return STATUS_NOT_SUPPORTED;
-        default:
-            NT_ASSERT(!"Invalid pullShift");
-            return STATUS_DEVICE_CONFIGURATION_ERROR;
         }
+        *pullMode = (IMX_GPIO_PULL)pullDown;
         break;
     case GPIO_PIN_PULL_CONFIGURATION_NONE:
         *pullMode = IMX_GPIO_PULL_DISABLE;
@@ -1851,6 +1841,8 @@ NTSTATUS IMX_GPIO::configureCPUType (
         pinCount = IMX6ULL_GPIO_PIN_COUNT;
         pullShift = IMX6ULL_GPIO_PULL_SHIFT;
         pullMask = IMX6ULL_GPIO_PULL_MASK;
+        pullUp = IMX6_GPIO_PULL_UP;
+        pullDown = IMX6_GPIO_PULL_DOWN;
         sparsePinMap = Imx6ULLGpioPinDataSparseMap;
         sparsePinMapLength = ARRAYSIZE(Imx6ULLGpioPinDataSparseMap);
         inputSelectMap = Imx6ULLGpioPinInputSelectTable;
@@ -1866,6 +1858,8 @@ NTSTATUS IMX_GPIO::configureCPUType (
         pinCount = IMX6_GPIO_PIN_COUNT;
         pullShift = IMX6_GPIO_PULL_SHIFT;
         pullMask = IMX6_GPIO_PULL_MASK;
+        pullUp = IMX6_GPIO_PULL_UP;
+        pullDown = IMX6_GPIO_PULL_DOWN;
         sparsePinMap = Imx6DQGpioPinDataSparseMap;
         sparsePinMapLength = ARRAYSIZE(Imx6DQGpioPinDataSparseMap);
         inputSelectMap = Imx6DQGpioPinInputSelectTable;
@@ -1878,6 +1872,8 @@ NTSTATUS IMX_GPIO::configureCPUType (
         pinCount = IMX6_GPIO_PIN_COUNT;
         pullShift = IMX6_GPIO_PULL_SHIFT;
         pullMask = IMX6_GPIO_PULL_MASK;
+        pullUp = IMX6_GPIO_PULL_UP;
+        pullDown = IMX6_GPIO_PULL_DOWN;
         sparsePinMap = Imx6SXGpioPinDataSparseMap;
         sparsePinMapLength = ARRAYSIZE(Imx6SXGpioPinDataSparseMap);
         inputSelectMap = Imx6SXGpioPinInputSelectTable;
@@ -1891,6 +1887,8 @@ NTSTATUS IMX_GPIO::configureCPUType (
         pinCount = IMX6_GPIO_PIN_COUNT;
         pullShift = IMX6_GPIO_PULL_SHIFT;
         pullMask = IMX6_GPIO_PULL_MASK;
+        pullUp = IMX6_GPIO_PULL_UP;
+        pullDown = IMX6_GPIO_PULL_DOWN;
         sparsePinMap = Imx6SDLGpioPinDataSparseMap;
         sparsePinMapLength = ARRAYSIZE(Imx6SDLGpioPinDataSparseMap);
         inputSelectMap = Imx6SDLGpioPinInputSelectTable;
@@ -1903,6 +1901,8 @@ NTSTATUS IMX_GPIO::configureCPUType (
         pinCount = IMX7_GPIO_PIN_COUNT;
         pullShift = IMX7_GPIO_PULL_SHIFT;
         pullMask = IMX7_GPIO_PULL_MASK;
+        pullUp = IMX7_GPIO_PULL_UP;
+        pullDown = IMX7_GPIO_PULL_DOWN;
         sparsePinMap = Imx7DGpioPinDataSparseMap;
         sparsePinMapLength = ARRAYSIZE(Imx7DGpioPinDataSparseMap);
         inputSelectMap = Imx7DGpioPinInputSelectTable;
@@ -1915,10 +1915,26 @@ NTSTATUS IMX_GPIO::configureCPUType (
         pinCount = IMX8M_GPIO_PIN_COUNT;
         pullShift = IMX8M_GPIO_PULL_SHIFT;
         pullMask = IMX8M_GPIO_PULL_MASK;
+        pullUp = IMX8M_GPIO_PULL_UP;
+        pullDown = (UINT32)IMX_GPIO_PULL_INVALID;  // Force invalid value. iMX8M doesn't implement pull-down
         sparsePinMap = Imx8MGpioPinDataSparseMap;
         sparsePinMapLength = ARRAYSIZE(Imx8MGpioPinDataSparseMap);
         inputSelectMap = Imx8MGpioPinInputSelectTable;
         inputSelectMapLength = ARRAYSIZE(Imx8MGpioPinInputSelectTable);
+        break;
+
+    case IMX_CPU_MX8MM:
+        bankStride = IMX8MM_GPIO_BANK_STRIDE;
+        bankCount = IMX8MM_GPIO_BANK_COUNT;
+        pinCount = IMX8MM_GPIO_PIN_COUNT;
+        pullShift = IMX8MM_GPIO_PULL_SHIFT;
+        pullMask = IMX8MM_GPIO_PULL_MASK;
+        pullUp = IMX8MM_GPIO_PULL_UP;
+        pullDown = IMX8MM_GPIO_PULL_DOWN;
+        sparsePinMap = Imx8MMiniGpioPinDataSparseMap;
+        sparsePinMapLength = ARRAYSIZE(Imx8MMiniGpioPinDataSparseMap);
+        inputSelectMap = Imx8MMiniGpioPinInputSelectTable;
+        inputSelectMapLength = ARRAYSIZE(Imx8MMiniGpioPinInputSelectTable);
         break;
 
     default:

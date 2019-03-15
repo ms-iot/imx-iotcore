@@ -41,7 +41,7 @@ enum {
     IMX6_GPIO_PIN_COUNT = IMX_MAKE_PIN_1(7, 13) + 1, // 206 pins
     IMX6_GPIO_BANK_STRIDE = 0x4000, 
     IMX6_GPIO_PULL_SHIFT = 12, 
-    IMX6_GPIO_PULL_MASK = (0b1111<<IMX6_GPIO_PULL_SHIFT)
+    IMX6_GPIO_PULL_MASK = (0b1111 << IMX6_GPIO_PULL_SHIFT)
 };
 
 enum {
@@ -61,7 +61,7 @@ enum {
     IMX7_GPIO_PIN_COUNT = IMX_MAKE_PIN_1(7, 15) + 1, // 208 pins
     IMX7_GPIO_BANK_STRIDE = 0x10000,
     IMX7_GPIO_PULL_SHIFT = 4,
-    IMX7_GPIO_PULL_MASK = (0b111<<IMX7_GPIO_PULL_SHIFT)
+    IMX7_GPIO_PULL_MASK = (0b111 << IMX7_GPIO_PULL_SHIFT)
 };
 
 enum {
@@ -72,6 +72,16 @@ enum {
     IMX8M_GPIO_BANK_STRIDE = 0x10000,
     IMX8M_GPIO_PULL_SHIFT = 6,
     IMX8M_GPIO_PULL_MASK = (0b1 << IMX8M_GPIO_PULL_SHIFT)
+};
+
+enum {
+    // i.MX8MM specifics
+    IMX8MM_GPIO_PINS_PER_BANK = 32,
+    IMX8MM_GPIO_BANK_COUNT = 5,
+    IMX8MM_GPIO_PIN_COUNT = IMX_MAKE_PIN_1(5, 29) + 1, // 157 pins
+    IMX8MM_GPIO_BANK_STRIDE = 0x10000,
+    IMX8MM_GPIO_PULL_SHIFT = 6,
+    IMX8MM_GPIO_PULL_MASK = (0b101 << IMX8MM_GPIO_PULL_SHIFT)
 };
 
 // Determine the maximum size of pin count and bank count for structure creation at compile time.
@@ -85,26 +95,20 @@ static_assert(
     "Driver supports max of 32 pins per bank");
 
 //
-//   PUS [15:14] - Pull Up / Down Config. Field Reset: 100K_OHM_PU
-//     100K_OHM_PD (0) - 100K Ohm Pull Down
-//     47K_OHM_PU (1) - 47K Ohm Pull Up
-//     100K_OHM_PU (2) - 100K Ohm Pull Up
-//     22K_OHM_PU (3) - 22K Ohm Pull Up
-//   PUE [13] - Pull / Keep Select Field Reset: PULL
-//     KEEP (0) - Keeper Enabled
-//     PULL (1) - Pull Enabled
-//   PKE [12] - Pull / Keep Enable Field Reset: ENABLED
-//     DISABLED (0) - Pull/Keeper Disabled
-//     ENABLED (1) - Pull/Keeper Enabled
+// GPIO PULL Up/Down defines
+//   All bits = 0 - Pull up/down off
 //
 enum IMX_GPIO_PULL {
     IMX_GPIO_PULL_DISABLE = 0x0, // 0b0000
-    IMX6_GPIO_PULL_DOWN = 0x3, // 0b0011
-    IMX6_GPIO_PULL_UP = 0xB, // 0b1011
-    IMX7_GPIO_PULL_DOWN = 0x1, // 0b001
-    IMX7_GPIO_PULL_UP = 0x7, // 0b111
-    IMX8M_GPIO_PULL_UP = 0x1, // 0b001
-    IMX_GPIO_PULL_DEFAULT = 0xFFFFFFFF
+    IMX6_GPIO_PULL_DOWN = 0x3, // 0b0011 PUS=00 (100K PD), PUE=1, PKE=1
+    IMX6_GPIO_PULL_UP = 0xB,   // 0b1011 PUS=10 (100K PU), PUE=1, PKE=1
+    IMX7_GPIO_PULL_DOWN = 0x1, // 0b001 PS=00 (100K PD), PE=1
+    IMX7_GPIO_PULL_UP = 0x7,   // 0b111 PS=11 (100K PU), PE=1
+    IMX8M_GPIO_PULL_UP = 0x1,  // 0b001 PUE=1 (no pull down implemented for iMX8M)
+    IMX8MM_GPIO_PULL_UP = 0x5,   // 0b101 PE=1 (Pull enabled) PUE=1 (Pull up)
+    IMX8MM_GPIO_PULL_DOWN = 0x4, // 0b100 PE=1 (Pull enabled) PUE=0 (Pull down)
+    IMX_GPIO_PULL_INVALID = 0xFFFFFFFE,
+    IMX_GPIO_PULL_DEFAULT = 0xFFFFFFFF  // Set to HW default
 };
 
 enum IMX_GPIO_INTERRUPT_CONFIG {
@@ -332,6 +336,8 @@ private: // NONPAGED
     static USHORT pinCount;
     static UINT32 pullShift;
     static UINT32 pullMask;
+    static UINT32 pullUp;
+    static UINT32 pullDown;
     static const IMX_PIN_DATA* sparsePinMap;
     static UINT32 sparsePinMapLength;
     static const IMX_PIN_INPUT_DATA* inputSelectMap;
