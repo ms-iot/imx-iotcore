@@ -81,7 +81,7 @@
       call ..\..\..\tools\BuildBSP.bat iMX6 Sabre_iMX6QP_1GB
       REM call ..\..\..\tools\BuildBSP.bat iMX6 SabreLite_iMX6Q_1GB
       call ..\..\..\tools\BuildBSP.bat iMX6 UdooNeo_iMX6SX_1GB
-      REM call ..\..\..\tools\BuildBSP.bat iMX6 VAB820_iMX6Q_1GB
+      call ..\..\..\tools\BuildBSP.bat iMX6 VAB820_iMX6Q_1GB
       call ..\..\..\tools\BuildBSP.bat iMX7 ClSomImx7_iMX7D_1GB
       call ..\..\..\tools\BuildBSP.bat iMX7 Sabre_iMX7D_1GB
     </NMakeBuildCommandLine>
@@ -99,7 +99,7 @@
       call ..\..\..\tools\BuildBSP.bat iMX6 Sabre_iMX6QP_1GB
       REM call ..\..\..\tools\BuildBSP.bat iMX6 SabreLite_iMX6Q_1GB
       call ..\..\..\tools\BuildBSP.bat iMX6 UdooNeo_iMX6SX_1GB
-      REM call ..\..\..\tools\BuildBSP.bat iMX6 VAB820_iMX6Q_1GB
+      call ..\..\..\tools\BuildBSP.bat iMX6 VAB820_iMX6Q_1GB
       call ..\..\..\tools\BuildBSP.bat iMX7 ClSomImx7_iMX7D_1GB
       call ..\..\..\tools\BuildBSP.bat iMX7 Sabre_iMX7D_1GB
     </NMakeReBuildCommandLine>
