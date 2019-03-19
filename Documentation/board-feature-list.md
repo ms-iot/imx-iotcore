@@ -13,7 +13,7 @@ This is an overview of the currently supported features for each of the boards. 
 | Feature | i.MX6Q HMB Edge | i.MX6Q/ i.MX6QP Sabre | i.MX6DL HMB Edge | i.MX6S HMB Edge | i.MX6SX UDOO Neo Full | i.MX7D CL IoT Gate | i.MX7D Sabre | i.MX8M EVK | i.MX8M Mini EVK |
 |-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|
 | Audio    | Y   | N   | Y   | Y   | N   | Y   | N   | Y   | N   |
-| GPIO     | Y   | Y   | Y   | Y   | Y   | Y   | Y   | Y   | I/P |
+| GPIO     | Y   | Y   | Y   | Y   | Y   | Y   | Y   | Y   | Y |
 | I2C      | Y   | Y   | Y   | Y   | Y   | Y   | N   | Y   | Y |
 | Ethernet | Y   | Y   | Y   | Y   | Y   | Y   | N   | Y   | N   |
 | PWM      | Y   | Y   | Y   | Y   | Y   | Y   | N   | N   | N   |
