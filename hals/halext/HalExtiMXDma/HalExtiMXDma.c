@@ -1,4 +1,4 @@
-/* Copyright (c) Microsoft Corporation. All rights reserved.
+﻿/* Copyright (c) Microsoft Corporation. All rights reserved.
    Licensed under the MIT License.
 
 Module Name:
@@ -32,6 +32,7 @@ Abstract:
 //
 #include "IMX6QdDmaHw.h"
 #include "IMX6SxDmaHw.h"
+#include "IMX6UlldmaHw.h"
 #include "IMX8MDmaHw.h"
 
 //
@@ -1250,6 +1251,7 @@ Return Value:
 
     // check range of Instance
     switch (CpuType) {
+    case IMX_CPU_MX6ULL:
     case IMX_CPU_MX6Q:
     case IMX_CPU_MX6QP:
     case IMX_CPU_MX6D:
@@ -1277,6 +1279,15 @@ Return Value:
     case IMX_CPU_MX6DP:
         SdmaControllerPtr->SdmaReqToChannelConfigPtr = Imx6QdDmaReqToChannelConfig;
         SdmaControllerPtr->SdmaReqMaxId = Imx6QdDmaReqMax;
+        SdmaControllerPtr->SdmaCodeBlock = imx6_sdma_code;
+        SdmaControllerPtr->SdmaCodeSize = IMX6_RAM_CODE_SIZE * sizeof(short);
+        SdmaControllerPtr->SdmaAp2ApScript = imx6_ap_2_ap_ADDR;
+        SdmaControllerPtr->SdmaPer2PerScript = imx6_p_2_p_ADDR;
+        break;
+
+    case IMX_CPU_MX6ULL:
+        SdmaControllerPtr->SdmaReqToChannelConfigPtr = Imx6UllDmaReqToChannelConfig;
+        SdmaControllerPtr->SdmaReqMaxId = Imx6UllDmaReqMax;
         SdmaControllerPtr->SdmaCodeBlock = imx6_sdma_code;
         SdmaControllerPtr->SdmaCodeSize = IMX6_RAM_CODE_SIZE * sizeof(short);
         SdmaControllerPtr->SdmaAp2ApScript = imx6_ap_2_ap_ADDR;
