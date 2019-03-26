@@ -871,6 +871,17 @@ ECSPIpHwCalcFreqDivider (
     }
     preDivider = divider;
 
+    if (postDivider > ECSPI_POST_DIVIDER_MAX) {
+        ECSPI_LOG_ERROR(
+            DevExtPtr->IfrLogHandle,
+            "Connection post divider %lu%% is out of range. "
+            "Max post divider value %lu%%",
+            postDivider,
+            ECSPI_POST_DIVIDER_MAX
+            );
+        return STATUS_NOT_SUPPORTED;
+    }
+
     //
     // Verify connection speed error is in range
     //
