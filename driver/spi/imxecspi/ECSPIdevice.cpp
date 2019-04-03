@@ -548,6 +548,13 @@ ECSPIEvtInterruptIsr (
 
     } // Read and ACK current interrupts
 
+    // Assert on RX overflow errors - not handled.
+/*
+    ECSPI_ASSERT(
+        devExtPtr->IfrLogHandle, 
+        statReg.RO != 1
+        );
+*/
     ECSPI_SPB_TRANSFER* transfer1Ptr;
     ECSPI_SPB_TRANSFER* transfer2Ptr;
     ECSPISpbGetActiveTransfers(requestPtr, &transfer1Ptr, &transfer2Ptr);
@@ -559,6 +566,20 @@ ECSPIEvtInterruptIsr (
     { // READ
 
         if (ECSPIHwReadRxFIFO(devExtPtr, transfer1Ptr)) {
+
+            if (transfer1Ptr->IsStartBurst && !ECSPISpbIsAllDataTransferred(transfer1Ptr)) {
+                // Schedule DPC to continue current transfer
+                break;
+            }
+
+            ECSPI_ASSERT(
+                devExtPtr->IfrLogHandle,
+                ECSPISpbIsAllDataTransferred(transfer1Ptr)
+                );
+            ECSPI_ASSERT(
+                devExtPtr->IfrLogHandle,
+                !transfer1Ptr->IsStartBurst
+                );
 
             ECSPIHwDisableTransferInterrupts(devExtPtr, transfer1Ptr);
 
@@ -730,12 +751,42 @@ ECSPIEvtInterruptDpc (
 {
     ECSPI_DEVICE_EXTENSION* devExtPtr =
         ECSPIDeviceGetExtension(WdfInterruptGetDevice(WdfInterrupt));
+    ECSPI_SPB_REQUEST* requestPtr = &devExtPtr->CurrentRequest;
+
+    // See if transfer request isn't finished and needs continuing
+    // before marking request as uncancelable
+    if (requestPtr->Type == ECSPI_REQUEST_TYPE::READ) {
+        ECSPI_SPB_TRANSFER* transfer1Ptr;
+        ECSPI_SPB_TRANSFER* transfer2Ptr;
+
+        ECSPISpbGetActiveTransfers(requestPtr, &transfer1Ptr, &transfer2Ptr);
+
+        // StartBurst delayed, poll XCH and start next burst
+        if (!ECSPISpbIsAllDataTransferred(transfer1Ptr) && transfer1Ptr->IsStartBurst) {
+            BOOLEAN started;
+            KLOCK_QUEUE_HANDLE lockHandle;
+
+            // BREAKPOINT HERE
+            KeAcquireInStackQueuedSpinLock(&devExtPtr->DeviceLock, &lockHandle);
+
+            while (ECSPIHwQueryXCH(devExtPtr->ECSPIRegsPtr) == 1);
+
+            started = ECSPIpHwStartBurstIf(devExtPtr, transfer1Ptr);
+            if (!started) {
+                ECSPI_ASSERT(   // TODO: remove
+                    devExtPtr->IfrLogHandle,
+                    started
+                    );
+            }
+            KeReleaseInStackQueuedSpinLock(&lockHandle);
+            return;
+        }
+    }
 
     //
     // Make sure request has not been already canceled, and 
     // prevent request from going away while request processing continues.
     //
-    ECSPI_SPB_REQUEST* requestPtr = &devExtPtr->CurrentRequest;
     NTSTATUS status = ECSPIDeviceDisableRequestCancellation(requestPtr);
     if (!NT_SUCCESS(status)) {
         //
@@ -774,6 +825,7 @@ ECSPIEvtInterruptDpc (
                 ECSPISpbIsAllDataTransferred(transfer2Ptr)
                 );
         }
+
         break;
 
     } // READ/WRITE/FULL_DUPLEX
@@ -907,7 +959,7 @@ ECSPIDeviceEnableRequestCancellation (
 
     } else {
 
-        RequestPtr->State = ECSPI_REQUEST_STATE::CANCALABLE;
+        RequestPtr->State = ECSPI_REQUEST_STATE::CANCELABLE;
     }
 
     KeReleaseInStackQueuedSpinLock(&lockHandle);
@@ -956,7 +1008,7 @@ ECSPIDeviceDisableRequestCancellation (
         goto done;
     }
 
-    if (RequestPtr->State != ECSPI_REQUEST_STATE::CANCALABLE) {
+    if (RequestPtr->State != ECSPI_REQUEST_STATE::CANCELABLE) {
 
         status = STATUS_NO_WORK_DONE;
         goto done;
@@ -982,7 +1034,7 @@ ECSPIDeviceDisableRequestCancellation (
         goto done;
     }
 
-    RequestPtr->State = ECSPI_REQUEST_STATE::NOT_CANCALABLE;
+    RequestPtr->State = ECSPI_REQUEST_STATE::NOT_CANCELABLE;
     status = STATUS_SUCCESS;
 
 done:

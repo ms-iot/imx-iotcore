@@ -386,6 +386,56 @@ ECSPIHwQueryRxFifoCount (
 //
 // Routine Description:
 //
+//  ECSPIHwQueryTransferComplete returns the status register transfer complete flag
+//
+// Arguments:
+//
+//  ECSPIRegsPtr - ECSPI registers base address
+//
+// Return Value:
+//
+//  Current TC value.
+//
+__forceinline
+ULONG
+ECSPIHwQueryTransferComplete (
+    _In_ volatile ECSPI_REGISTERS* ECSPIRegsPtr
+    )
+{
+    ECSPI_STATREG statReg = {
+        READ_REGISTER_NOFENCE_ULONG(&ECSPIRegsPtr->STATREG)
+    };
+    return statReg.TC;
+}
+
+//
+// Routine Description:
+//
+//  ECSPIHwQueryXCH returns the control register SPI Exchange bit
+//
+// Arguments:
+//
+//  ECSPIRegsPtr - ECSPI registers base address
+//
+// Return Value:
+//
+//  Current XCH value.
+//
+__forceinline
+ULONG
+ECSPIHwQueryXCH (
+    _In_ volatile ECSPI_REGISTERS* ECSPIRegsPtr
+    )
+{
+    ECSPI_CONREG conReg = {
+        READ_REGISTER_NOFENCE_ULONG(&ECSPIRegsPtr->CONREG)
+    };
+    return conReg.XCH;
+}
+
+//
+// Routine Description:
+//
 //  ECSPIHwQueryTxFifoSpace returns the current space in TX FIFO.
 //
 // Arguments:
@@ -472,7 +522,7 @@ ECSPIHwReadRxFIFO (
     _In_ ECSPI_SPB_TRANSFER* TransferPtr
     );
 
-VOID
+BOOLEAN
 ECSPIHwWriteZerosTxFIFO (
     _In_ ECSPI_DEVICE_EXTENSION* DevExtPtr,
     _In_ ECSPI_SPB_TRANSFER* TransferPtr
@@ -487,6 +537,12 @@ VOID
 ECSPIHwDisableTransferInterrupts (
     _In_ ECSPI_DEVICE_EXTENSION* DevExtPtr,
     _In_ const ECSPI_SPB_TRANSFER* TransferPtr
+    );
+
+BOOLEAN
+ECSPIpHwStartBurstIf (
+    _In_ ECSPI_DEVICE_EXTENSION* DevExtPtr,
+    _In_ ECSPI_SPB_TRANSFER* TransferPtr
     );
 
 //
@@ -606,12 +662,6 @@ ECSPIHwDisableTransferInterrupts (
     ECSPIpHwUpdateTransfer (
         _In_ ECSPI_SPB_TRANSFER* TransferPtr,
         _In_ ULONG BytesTransferred
-        );
-
-    static VOID
-    ECSPIpHwStartBurstIf (
-        _In_ ECSPI_DEVICE_EXTENSION* DevExtPtr,
-        _In_ ECSPI_SPB_TRANSFER* TransferPtr
         );
 
     static VOID

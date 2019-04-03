@@ -34,6 +34,9 @@
 #include "ECSPIdevice.h"
 
 
+// TODO: remove
+ULONG gTxWrites = 0;
+
 //
 // Routine Description:
 //
@@ -55,19 +58,19 @@ ECSPIHwInitController (
     ECSPI_DEVICE_EXTENSION* DevExtPtr
     )
 {
-    volatile ECSPI_REGISTERS* ecspiResgPtr = DevExtPtr->ECSPIRegsPtr;
+    volatile ECSPI_REGISTERS* ecspiRegsPtr = DevExtPtr->ECSPIRegsPtr;
 
     //
     // Reset the block
     //
-    WRITE_REGISTER_NOFENCE_ULONG(&ecspiResgPtr->CONREG, 0);
+    WRITE_REGISTER_NOFENCE_ULONG(&ecspiRegsPtr->CONREG, 0);
 
     //
     // Set default configuration
     //
     {
         ECSPI_CONREG ctrlReg = { 
-            READ_REGISTER_NOFENCE_ULONG(&ecspiResgPtr->CONREG) 
+            READ_REGISTER_NOFENCE_ULONG(&ecspiRegsPtr->CONREG) 
             };
         ECSPI_ASSERT(
             DevExtPtr->IfrLogHandle, 
@@ -75,7 +78,7 @@ ECSPIHwInitController (
             );
 
         ctrlReg.CHANNEL_MODE = ECSPI_CHANNEL_MODE::ALL_MASTERS;
-        WRITE_REGISTER_NOFENCE_ULONG(&ecspiResgPtr->CONREG, ctrlReg.AsUlong);
+        WRITE_REGISTER_NOFENCE_ULONG(&ecspiRegsPtr->CONREG, ctrlReg.AsUlong);
     }
 
     return STATUS_SUCCESS;
@@ -241,13 +244,13 @@ ECSPIHwSelectTarget (
     )
 {
     ECSPI_DEVICE_EXTENSION* devExtPtr = TrgCtxPtr->DevExtPtr;
-    volatile ECSPI_REGISTERS* ecspiResgPtr = devExtPtr->ECSPIRegsPtr;
+    volatile ECSPI_REGISTERS* ecspiRegsPtr = devExtPtr->ECSPIRegsPtr;
     const ECSPI_TARGET_SETTINGS* trgSettingsPtr = &TrgCtxPtr->Settings;
 
     //
     // Reset the block
     //
-    WRITE_REGISTER_NOFENCE_ULONG(&ecspiResgPtr->CONREG, 0);
+    WRITE_REGISTER_NOFENCE_ULONG(&ecspiRegsPtr->CONREG, 0);
 
     //
     // Configure the block and select the channel.
@@ -259,7 +262,7 @@ ECSPIHwSelectTarget (
 
         ctrlReg.EN = 1;
         WRITE_REGISTER_NOFENCE_ULONG(
-            &ecspiResgPtr->CONREG, 
+            &ecspiRegsPtr->CONREG, 
             ctrlReg.AsUlong
             );
 
@@ -268,22 +271,22 @@ ECSPIHwSelectTarget (
     //
     // Disable and ACK all ECSPI interrupt
     //
-    WRITE_REGISTER_NOFENCE_ULONG(&ecspiResgPtr->INTREG, 0);
+    WRITE_REGISTER_NOFENCE_ULONG(&ecspiRegsPtr->INTREG, 0);
     WRITE_REGISTER_NOFENCE_ULONG(
-        &ecspiResgPtr->STATREG, 
+        &ecspiRegsPtr->STATREG, 
         ECSPI_INTERRUPT_GROUP::ECSPI_ACKABLE_INTERRUPTS
         );
 
     //
     // Update the delay/wait states register 
     //
-    WRITE_REGISTER_NOFENCE_ULONG(&ecspiResgPtr->PERIODREG, 0);
+    WRITE_REGISTER_NOFENCE_ULONG(&ecspiRegsPtr->PERIODREG, 0);
 
     //
     // Configuration register
     //
     WRITE_REGISTER_NOFENCE_ULONG(
-        &ecspiResgPtr->CONFIGREG,
+        &ecspiRegsPtr->CONFIGREG,
         trgSettingsPtr->ConfigReg.AsUlong
         );
 }
@@ -309,21 +312,21 @@ ECSPIHwUnselectTarget (
     )
 {
     ECSPI_DEVICE_EXTENSION* devExtPtr = TrgCtxPtr->DevExtPtr;
-    volatile ECSPI_REGISTERS* ecspiResgPtr = devExtPtr->ECSPIRegsPtr;
+    volatile ECSPI_REGISTERS* ecspiRegsPtr = devExtPtr->ECSPIRegsPtr;
 
     //
     // Disable and ACK all ECSPI interrupt
     //
-    WRITE_REGISTER_NOFENCE_ULONG(&ecspiResgPtr->INTREG, 0);
+    WRITE_REGISTER_NOFENCE_ULONG(&ecspiRegsPtr->INTREG, 0);
     WRITE_REGISTER_NOFENCE_ULONG(
-        &ecspiResgPtr->STATREG, 
+        &ecspiRegsPtr->STATREG, 
         ECSPI_INTERRUPT_GROUP::ECSPI_ACKABLE_INTERRUPTS
         );
 
     //
     // Reset the block
     //
-    WRITE_REGISTER_NOFENCE_ULONG(&ecspiResgPtr->CONREG, 0);
+    WRITE_REGISTER_NOFENCE_ULONG(&ecspiRegsPtr->CONREG, 0);
 }
 
 
@@ -503,7 +506,8 @@ ECSPIHwConfigureTransfer (
 
             intReg.AsUlong &= ~ECSPI_RX_INTERRUPTS;
             if (wordsLeftToTransfer > ECSPI_FIFO_DEPTH) {
-
+                // Will take more than one burst, enable TX Empty interrupt
+//                intReg.TEEN = 1; 
                 dmaReg.RX_THRESHOLD = ECSPI_FIFO_DEPTH * 3 / 4;
 
             } else {
@@ -511,6 +515,9 @@ ECSPIHwConfigureTransfer (
                 dmaReg.RX_THRESHOLD = wordsLeftToTransfer - 1;
             }
             intReg.RDREN = 1; // RX threshold interrupt
+            if (wordsLeftToTransfer == 1) {
+                intReg.TCEN = 0; // TODO: set Transfer Complete interrupt?
+            }
         }
 
     } // Set RX/TX thresholds
@@ -596,6 +603,7 @@ ECSPIHwWriteTxFIFO (
         ULONG bytesRead = ECSPIpHwReadWordFromMdl(TransferPtr, &txFifoWord);
 
         WRITE_REGISTER_NOFENCE_ULONG(txDataRegPtr, txFifoWord);
+        --TransferPtr->BurstWords;
 
         ECSPIpHwUpdateTransfer(TransferPtr, bytesRead);
 
@@ -667,12 +675,14 @@ ECSPIHwReadRxFIFO (
         return TRUE;
 
     } else {
-
+        if (totalBytesWritten == 0) {   // TODO: remove this.
+            ECSPIpHwUpdateTransfer(TransferPtr, 0);
+        }
         ECSPIHwUpdateTransferConfiguration(DevExtPtr, TransferPtr);
 
         if (requestPtr->Type != ECSPI_REQUEST_TYPE::FULL_DUPLEX) {
 
-            ECSPIHwWriteZerosTxFIFO(DevExtPtr, TransferPtr);
+            return ECSPIHwWriteZerosTxFIFO(DevExtPtr, TransferPtr);
         }
         return FALSE;
     }
@@ -692,9 +702,10 @@ ECSPIHwReadRxFIFO (
 //  TransferPtr - The transfer object
 //
 // Return Value:
+//  TRUE if burst scheduled but not started
 //
 _Use_decl_annotations_
-VOID
+BOOLEAN
 ECSPIHwWriteZerosTxFIFO (
     ECSPI_DEVICE_EXTENSION* DevExtPtr,
     ECSPI_SPB_TRANSFER* TransferPtr
@@ -702,18 +713,37 @@ ECSPIHwWriteZerosTxFIFO (
 {
     volatile ECSPI_REGISTERS* ecspiRegsPtr = DevExtPtr->ECSPIRegsPtr;
     volatile ULONG* txDataRegPtr = &ecspiRegsPtr->TXDATA;
-    size_t wordsToWrite = ECSPISpbWordsLeftToTransfer(TransferPtr);
+    BOOLEAN burstStarted = FALSE;
+    
+    size_t wordsToWrite = TransferPtr->BurstWords;
     ULONG maxWordsToWrite = ECSPIHwQueryTxFifoSpace(ecspiRegsPtr);
 
     wordsToWrite = min(wordsToWrite, maxWordsToWrite);
     while (wordsToWrite != 0) {
-
+        if (ECSPIHwIsTxFifoFull(ecspiRegsPtr)) {
+            break;
+        }
         WRITE_REGISTER_NOFENCE_ULONG(txDataRegPtr, 0);
+        --TransferPtr->BurstWords;
         --wordsToWrite;
+        ++gTxWrites;
 
-        ECSPIpHwStartBurstIf(DevExtPtr, TransferPtr);
+        burstStarted |= ECSPIpHwStartBurstIf(DevExtPtr, TransferPtr);
     }
-    ECSPIpHwStartBurstIf(DevExtPtr, TransferPtr);
+    burstStarted |= ECSPIpHwStartBurstIf(DevExtPtr, TransferPtr);
+
+    if (TransferPtr->IsStartBurst && !burstStarted) {
+        // Need to start a new burst, but still processing current one.
+        ECSPI_CONREG ctrlReg = { 
+            READ_REGISTER_NOFENCE_ULONG(&ecspiRegsPtr->CONREG) 
+            };
+        ECSPI_STATREG statReg = { 
+            READ_REGISTER_NOFENCE_ULONG(&ecspiRegsPtr->STATREG) 
+            };
+        // BREAKPOINT HERE
+        return TRUE;
+    }
+    return FALSE;
 }
 
 
@@ -726,8 +756,6 @@ ECSPIHwWriteZerosTxFIFO (
 // Arguments:
 //
 //  DevExtPtr - The device extension.
-//
-//  IsClearRxFIFO - If to clear RX FIFO
 //
 // Return Value:
 //
@@ -1123,6 +1151,7 @@ ECSPIpHwUpdateTransfer (
         if (TransferPtr->BytesLeftInBurst > 0) {
 
             TransferPtr->BurstLength = TransferPtr->BytesLeftInBurst;
+            TransferPtr->BurstWords = ECSPISpbWordsLeftInBurst(TransferPtr);
             TransferPtr->IsStartBurst = TRUE;
         }
     }
@@ -1146,9 +1175,10 @@ ECSPIpHwUpdateTransfer (
 //  TransferPtr - The transfer to start.
 //
 // Return Value:
+//  Returns TRUE if burst started.
 //
 _Use_decl_annotations_
-VOID
+BOOLEAN
 ECSPIpHwStartBurstIf (
     ECSPI_DEVICE_EXTENSION* DevExtPtr,
     ECSPI_SPB_TRANSFER* TransferPtr
@@ -1165,7 +1195,7 @@ ECSPIpHwStartBurstIf (
             //
             // Controller is still busy with previous burst
             //
-            return;
+            return FALSE;
         }
 
         //
@@ -1177,7 +1207,7 @@ ECSPIpHwStartBurstIf (
             };
         if (statReg.TE != 0) {
 
-            return;
+            return FALSE;
         }
         TransferPtr->IsStartBurst = FALSE;
 
@@ -1186,7 +1216,11 @@ ECSPIpHwStartBurstIf (
 
         ctrlReg.XCH = 1;
         WRITE_REGISTER_NOFENCE_ULONG(&ecspiRegsPtr->CONREG, ctrlReg.AsUlong);
+
+        return TRUE;
     }
+
+    return FALSE;
 }
 
 

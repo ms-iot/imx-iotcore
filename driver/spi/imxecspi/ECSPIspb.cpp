@@ -38,6 +38,7 @@
     #pragma alloc_text(PAGE, ECSPIEvtSpbTargetDisconnect)
 #endif
 
+ECSPI_TARGET_CONTEXT * gTargetContext = NULL;
 
 //
 // Routine Description:
@@ -281,6 +282,8 @@ ECSPIEvtSpbTargetConnect (
         ECSPIDeviceCloseGpioTarget(trgCtxPtr);
         return status;
     }
+
+    gTargetContext = trgCtxPtr;
 
     return STATUS_SUCCESS;
 }
@@ -658,19 +661,19 @@ ECSPISpbPrepareNextTransfer (
     //
     // Calculate how many transfers we can prepare
     //
-    ULONG maxTransferToPreapre = MAX_PREPARED_TRANSFERS_COUNT - 
+    ULONG maxTransferToPrepare = MAX_PREPARED_TRANSFERS_COUNT - 
         ECSPISpbGetReadyTransferCount(RequestPtr);
-    ULONG tansfersToPrepare = 
+    ULONG transfersToPrepare = 
         RequestPtr->TransferCount - RequestPtr->NextTransferIndex;
-    tansfersToPrepare = min(tansfersToPrepare, maxTransferToPreapre);
+    transfersToPrepare = min(transfersToPrepare, maxTransferToPrepare);
 
     //
-    // Prepare the next 'tansfersToPrepare' transfers
+    // Prepare the next 'transfersToPrepare' transfers
     //
     ULONG preparedTransfers = 0;
     ULONG transferIn = RequestPtr->TransferIn;
     for (ULONG xferIndex = 0;
-         xferIndex < tansfersToPrepare;
+         xferIndex < transfersToPrepare;
          ++xferIndex) {
         
         ECSPI_SPB_TRANSFER* reqXferPtr =  &RequestPtr->Transfers[transferIn];
@@ -722,7 +725,7 @@ ECSPISpbPrepareNextTransfer (
             ECSPI_MAX_BURST_LENGTH_BYTES
             );
         reqXferPtr->BytesLeftInBurst = reqXferPtr->BurstLength;
-
+		reqXferPtr->BurstWords = ECSPISpbWordsLeftInBurst(reqXferPtr);
         ECSPI_LOG_INFORMATION(
             devExtPtr->IfrLogHandle,
             "Preparing transfer %p: target %p, request %p ,"
@@ -859,7 +862,15 @@ ECSPISpbStartNextTransfer (
             );
     }
 
-    ECSPIHwClearFIFOs(devExtPtr);
+    ECSPIHwClearFIFOs(devExtPtr);  // only clears Rx fifo
+
+    if (ECSPIHwQueryXCH(devExtPtr->ECSPIRegsPtr)) {
+        // device currently busy
+        // TODO: spin loop?
+        ECSPI_ASSERT(
+           devExtPtr->IfrLogHandle,
+           TRUE);
+    }
 
     //
     // Configure the HW with the transfer(s) parameters
