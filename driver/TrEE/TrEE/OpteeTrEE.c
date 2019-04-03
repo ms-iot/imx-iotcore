@@ -768,25 +768,13 @@ OpteeTreeQueryServiceCallbacks(
 
     UNREFERENCED_PARAMETER(MasterDevice);
 
-    if (IsEqualGUID(ServiceGuid, &GUID_OPTEE_CHECKSUM_SERVICE)) {
-
-        ServiceCallbacks = &CHECKSUM_SERVICE_CALLBACKS;      
-
-    } else if (IsEqualGUID(ServiceGuid, &GUID_OPTEE_RNG_SERVICE)) {
-
-        ServiceCallbacks = &RNG_SERVICE_CALLBACKS;
-
-    } else if (IsEqualGUID(ServiceGuid, &GUID_EFI_VARIABLE_SERVICE)) {
+    if (IsEqualGUID(ServiceGuid, &GUID_EFI_VARIABLE_SERVICE)) {
     
         ServiceCallbacks = &VARIABLE_SERVICE_CALLBACKS;
 
     } else if (IsEqualGUID(ServiceGuid, &GUID_TREE_TPM_SERVICE)) {
 
         ServiceCallbacks = &FTPM_SERVICE_CALLBACKS;
-
-    } else if (IsEqualGUID(ServiceGuid, &GUID_OPTEE_OPM_SERVICE)) {
-
-        ServiceCallbacks = &OPM_SERVICE_CALLBACKS;
 
     } else {
 

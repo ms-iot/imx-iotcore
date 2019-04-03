@@ -14,6 +14,8 @@
 #include "OpteeTrEEService.h"
 #include "OpteeClientLib\OpteeClientLib.h"
 #include "OpteeClientLib\OpteeClientMemory.h"
+#include "OpteeFtpmService.h"
+#include "OpteeVariableService.h"
 #include "trace.h"
 
 #ifdef WPP_TRACING
@@ -21,179 +23,15 @@
 #endif
 
 
-#define TA_FTPM_SUBMIT_COMMAND (0)
-#define TA_FTPM_PPI_COMMAND    (1)
 
 TEEC_UUID TaUuid = { 
-    SWAP_B32(0xBC50D971), SWAP_B16(0xD4C9), SWAP_B16(0x42C4),
-    {0x82, 0xCB, 0x34, 0x3F, 0xB7, 0xF3, 0x78, 0x96}
+    SWAP_B32(0x53BAB89C), SWAP_B16(0xB864), SWAP_B16(0x4D7E),
+    {0xAC, 0xBC, 0x33, 0xC0, 0x7A, 0x9C, 0x1B, 0x8D}
 };
 
 //
-// The preliminary official signature for the static ACPI table
+// Buffers to/from Windows
 //
-#define ACPI_SIGNATURE_TPM20        0x324d5054 // "TPM2"
-#define ACPI_SIGNATURE_TPM12        0x41504354 // "TCPA"
-
-//
-// Supported revisions of the static ACPI table layout
-//
-#define ACPI_TPM2_REVISION_3        3
-#define ACPI_TPM2_REVISION_4        4
-
-enum {
-    TpmStateReady = 0,
-    TpmStateIdle
-};
-
-#define CONTROL_AREA_REQUEST_CMD_READY  (0x00000001)
-#define CONTROL_AREA_REQUEST_GOIDLE     (0x00000002)
-
-#define CONTROL_AREA_STATUS_ERROR       (0x00000001)
-#define CONTROL_AREA_STATUS_IDLE        (0x00000002)
-
-#define CONTROL_AREA_START_START        (0x00000001)
-
-typedef struct _FTPM_CONTROL_AREA
-{
-    //
-    // This used to a Reserved field. This is the Miscellaneous field for the Command/Response interface.
-    // 
-    volatile UINT32  Request;
-    
-    //
-    // The Status field of the Control area.
-    //
-    volatile UINT32  Status;
-    
-    //
-    // The Cancel field of the Control area. TPM does not modify this field, hence it is not declared volatile.
-    //
-    UINT32  Cancel;
-    
-    //
-    // The Start field of the Control area.
-    //
-    volatile UINT32  Start;
-
-    //
-    // The control area is in device memory. Device memory
-    // often only supports word sized access. Split all
-    // 64bit fields into High and Low parts.
-    //
-    UINT32 InterruptControlLow;
-    UINT32 InterruptControlHigh;
-
-    //
-    // Command buffer size.
-    //
-    UINT32 CommandBufferSize;
-
-    //
-    // The control area is in device memory. Device memory
-    // often only supports word sized access. Split all
-    // 64bit fields into High and Low parts.
-    //
-    // Command buffer physical address.
-    //
-    UINT32 CommandPALow;
-    UINT32 CommandPAHigh;
-
-    //
-    // Response Buffer size.
-    //
-    UINT32 ResponseBufferSize;
-
-    //
-    // The control area is in device memory. Device memory
-    // often only supports word sized access. Split all
-    // 64bit fields into High and Low parts.
-    //
-    // Response buffer physical address.
-    //
-    UINT32 ResponsePALow;
-    UINT32 ResponsePAHigh;
-} FTPM_CONTROL_AREA, *PFTPM_CONTROL_AREA;
-
-#define EFI_VARIABLE_NON_VOLATILE                           0x00000001
-#define EFI_VARIABLE_BOOTSERVICE_ACCESS                     0x00000002
-#define EFI_VARIABLE_RUNTIME_ACCESS                         0x00000004
-#define EFI_VARIABLE_HARDWARE_ERROR_RECORD                  0x00000008
-#define EFI_VARIABLE_AUTHENTICATED_WRITE_ACCESS             0x00000010
-#define EFI_VARIABLE_TIME_BASED_AUTHENTICATED_WRITE_ACCESS  0x00000020
-#define EFI_VARIABLE_APPEND_WRITE                           0x00000040
-
-GUID PpiVariableGuid = {
-    0xf24643c2, 0xc622, 0x494e, { 0x8a, 0xd, 0x46, 0x32, 0x57, 0x9c, 0x2d, 0x5b }
-    };
-
-#define PPI_VARIABLE_NAME L"TrEEPhysicalPresence"
-UNICODE_STRING PpiVariableNameUnicode = {
-        40,
-        42,
-        PPI_VARIABLE_NAME
-    };
-
-typedef struct _TREE_PPI_VARIABLE{ 
-  UINT8 Request;
-  UINT8 LastRequest;
-  UINT32 Response;
-} TREE_PPI_VARIABLE, *PTREE_PPI_VARIABLE;
-
-#define PPI_FLAGS_VARIABLE_NAME L"TrEEPhysicalPresenceFlags"
-UNICODE_STRING PpiFlagsVariableNameUnicode = {
-        50,
-        52,
-        PPI_FLAGS_VARIABLE_NAME
-    };
-
-#define PPI_FLAGS_VARIABLE_NO_PP_FOR_CLEAR 0x02
-
-#define PPI_FUNCTION_IDX_GET_VERSION            1
-#define PPI_FUNCTION_IDX_SUBMIT_OPERATION       2
-#define PPI_FUNCTION_IDX_GET_PENDING            3
-#define PPI_FUNCTION_IDX_GET_TRANSITION_ACTION  4
-#define PPI_FUNCTION_IDX_GET_RESPONSE           5
-#define PPI_FUNCTION_IDX_GET_LANGUAGE           6
-#define PPI_FUNCTION_IDX_SUBMIT_OPERATION2      7
-#define PPI_FUNCTION_IDX_GET_USER_CONFIRMATION  8
-
-#define PPI_OPERATION_NOOP           0
-#define PPI_OPERATION_CLEAR1         5
-#define PPI_OPERATION_CLEAR2        14
-#define PPI_OPERATION_CLEAR3        21
-#define PPI_OPERATION_CLEAR4        22
-
-typedef struct _PPI_REQUEST {
-    UINT32  FunctionIndex;
-    UINT32  Param[2];
-} PPI_REQUEST, *PPPI_REQUEST;
-
-#define PPI_SUCCESS 0
-
-#define PPI_PENDING_OPERATION_ERROR             1
-
-#define PPI_SUBMIT_OPERATION_NOT_SUPPORTED      1
-#define PPI_SUBMIT_OPERATION_ERROR              2
-
-#define PPI_TRANSITION_ACTION_NONE              0
-#define PPI_TRANSITION_ACTION_SHUTDOWN          1
-#define PPI_TRANSITION_ACTION_REBOOT            2
-#define PPI_TRANSITION_ACTION_VENDOR            3
-
-#define PPI_OPERATION_RESPONSE_ERROR            1
-
-#define PPI_LANGUAGE_NOT_IMPLEMENTED            3
-
-#define PPI_SUMBIT_OPERATION2_NOT_IMPLEMENTED   1
-#define PPI_SUMBIT_OPERATION2_ERROR             2
-#define PPI_SUMBIT_OPERATION2_BLOCKED           3
-
-#define PPI_USER_CONFIRMATION_NOT_IMPLEMENTED   0
-#define PPI_USER_CONFIRMATION_FIRMWARE          1
-#define PPI_USER_CONFIRMATION_BLOCKED           2
-#define PPI_USER_CONFIRMATION_PP_REQUIRED       3
-#define PPI_USER_CONFIRMATION_PP_NOT_REQUIRED   4
 
 typedef struct _PPI_PENDING_OPERATION {
     UINT32  ReturnCode;
@@ -207,6 +45,11 @@ typedef struct _PPI_OPERATION_RESPONSE {
     UINT32  Response;
 } PPI_OPERATION_RESPONSE;
 
+typedef struct _PPI_REQUEST {
+	UINT32  FunctionIndex;
+	UINT32  Param[2];
+} PPI_REQUEST, *PPPI_REQUEST;
+
 typedef union _PPI__RESPONSE {
     CHAR Version[1];
     PPI_PENDING_OPERATION PendingOperation;
@@ -214,8 +57,6 @@ typedef union _PPI__RESPONSE {
     PPI_OPERATION_RESPONSE OperationResponse;
     UINT32 ReturnCode;
 } PPI_RESPONSE, *PPPI_RESPONSE;
-
-#define PPI_INTERFACE_VERSION "1.3"
 
 typedef struct _TREE_FTPM_SERVICE_CONTEXT {
     POPTEE_TREE_DEVICE_CONTEXT  DeviceContext;
@@ -798,17 +639,17 @@ Return Value:
     UNREFERENCED_PARAMETER(Flags);
 
     switch (Operation) {
-        case PPI_OPERATION_NOOP:
+        case TCG2_PHYSICAL_PRESENCE_NO_ACTION:
             Status = PPI_USER_CONFIRMATION_PP_NOT_REQUIRED;
             break;
 
-        case PPI_OPERATION_CLEAR1:
-        case PPI_OPERATION_CLEAR2:
-        case PPI_OPERATION_CLEAR3:
-        case PPI_OPERATION_CLEAR4: {            
-            Status = (Flags & PPI_FLAGS_VARIABLE_NO_PP_FOR_CLEAR) ?
-                    PPI_USER_CONFIRMATION_PP_NOT_REQUIRED :
-                    PPI_USER_CONFIRMATION_PP_REQUIRED;
+        case TCG2_PHYSICAL_PRESENCE_CLEAR:
+        case TCG2_PHYSICAL_PRESENCE_ENABLE_CLEAR:
+        case TCG2_PHYSICAL_PRESENCE_ENABLE_CLEAR_2:
+        case TCG2_PHYSICAL_PRESENCE_ENABLE_CLEAR_3: {
+            Status = (Flags & TCG2_BIOS_TPM_MANAGEMENT_FLAG_PP_REQUIRED_FOR_CLEAR) ?
+                    PPI_USER_CONFIRMATION_PP_REQUIRED :
+                    PPI_USER_CONFIRMATION_PP_NOT_REQUIRED;
 
             break;
             
@@ -879,8 +720,8 @@ Return Value:
 
 {
     ULONG OperationStatus;
-    UINT8 PpiFlags;
-    TREE_PPI_VARIABLE PpiValue;
+	UINT32 PpiFlags;
+	TCG2_PPI_VARIABLE PpiValue;
     ULONG PpiValueSize;
     UINTN ReturnSize;
     NTSTATUS Status;
@@ -930,7 +771,7 @@ Return Value:
     }
 
     switch(Request->FunctionIndex) {
-        case PPI_FUNCTION_IDX_GET_VERSION: {
+        case TCG_ACPI_FUNCTION_GET_PHYSICAL_PRESENCE_INTERFACE_VERSION: {
             ReturnSize = strlen(PPI_INTERFACE_VERSION) + 1;
             if (ResponseSize < ReturnSize) {
                 Status = STATUS_BUFFER_TOO_SMALL;
@@ -941,8 +782,8 @@ Return Value:
             break;
         }
 
-        case PPI_FUNCTION_IDX_SUBMIT_OPERATION:
-        case PPI_FUNCTION_IDX_SUBMIT_OPERATION2: {
+        case TCG_ACPI_FUNCTION_SUBMIT_REQUEST_TO_BIOS:
+        case TCG_ACPI_FUNCTION_SUBMIT_REQUEST_TO_BIOS_2: {
 
             //
             // Submit Operation 2 supportes an extra argument. However, only
@@ -977,7 +818,7 @@ Return Value:
                 Response->ReturnCode = PPI_SUBMIT_OPERATION_NOT_SUPPORTED;
 
             } else if (OperationStatus < PPI_USER_CONFIRMATION_PP_REQUIRED) {
-                if (Request->FunctionIndex == PPI_FUNCTION_IDX_SUBMIT_OPERATION) {
+                if (Request->FunctionIndex == TCG_ACPI_FUNCTION_SUBMIT_REQUEST_TO_BIOS) {
                     Response->ReturnCode = PPI_SUBMIT_OPERATION_ERROR;
                     
                 } else {
@@ -1013,7 +854,7 @@ Return Value:
             break;
         }
 
-        case PPI_FUNCTION_IDX_GET_PENDING: {
+        case TCG_ACPI_FUNCTION_GET_PENDING_REQUEST_BY_OS: {
 
             //
             // Returns the last requested executed operation.
@@ -1030,7 +871,7 @@ Return Value:
             break;
         }
 
-        case PPI_FUNCTION_IDX_GET_TRANSITION_ACTION: {
+        case TCG_ACPI_FUNCTION_GET_PLATFORM_ACTION_TO_TRANSITION_TO_BIOS: {
 
             //
             // Returns the action required for UEFI to execute the request.
@@ -1046,7 +887,7 @@ Return Value:
             break;
         }
 
-        case PPI_FUNCTION_IDX_GET_RESPONSE: {
+        case TCG_ACPI_FUNCTION_RETURN_REQUEST_RESPONSE_TO_OS: {
 
             //
             // Returns the response of the last executed request.
@@ -1064,7 +905,7 @@ Return Value:
             break;
         }
 
-        case PPI_FUNCTION_IDX_GET_LANGUAGE: {
+        case TCG_ACPI_FUNCTION_SUBMIT_PREFERRED_USER_LANGUAGE: {
 
             //
             // Deprecated.
@@ -1080,7 +921,7 @@ Return Value:
             break;
         }
 
-        case PPI_FUNCTION_IDX_GET_USER_CONFIRMATION: {
+        case TCG_ACPI_FUNCTION_GET_USER_CONFIRMATION_STATUS_FOR_REQUEST: {
 
             //
             // Returns validation for a given operation.

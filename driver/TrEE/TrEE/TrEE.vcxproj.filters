@@ -85,18 +85,15 @@
     <ClInclude Include="..\OpteeCalls\OpteeCalls\inc\TrEEGenService.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="inc\efidef.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OpteeFtpmService.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ChecksumService.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="OPMService.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="OpteeTrEE.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="RNGService.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="VariableService.c">

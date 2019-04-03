@@ -25,8 +25,8 @@
 // Variable Service TA GUID.
 //
 #define TA_AUTH_VAR_UUID { \
-    SWAP_B32(0xa5ea3394), SWAP_B16(0x5303), SWAP_B16(0x4ed3), \
-    { 0x9f, 0x31, 0x71, 0x1d, 0xff, 0x3a, 0x33, 0x09} \
+    SWAP_B32(0x2d57c0f7), SWAP_B16(0xbddf), SWAP_B16(0x48ea), \
+    { 0x83, 0x2f, 0xd8, 0x4a, 0x1a, 0x21, 0x93, 0x01 } \
 }
 
 typedef struct _TREE_TEST_SESSION_CONTEXT {
@@ -598,7 +598,7 @@ OpteeRuntimeVariableInvokeCommand(
     _In_ UINT32 VariableResultSize,
     _In_ TEEC_SharedMemory *VariableResult,
     _Out_ UINT32 *ResultSize,
-    _Out_ UINT32 *WtrStatus
+    _Out_ UINT32 *AuthVarStatus
     )
 
 /*++
@@ -615,7 +615,7 @@ Arguments:
     VariableResultSize Size of the result buffer.
     VariableResult     GP buffer describing the variable results.
     ResultSize         The actual size of the data in the result buffer.
-    WtrStatus          The actual WTR status result of the executed command.
+    AuthVarStatus      The actual OP-TEE status result of the executed command.
 
 Return Value:
 
@@ -653,6 +653,9 @@ Return Value:
         &TeecOperation,
         &ErrorOrigin);
 
+    *ResultSize = (UINT32)TeecOperation.params[2].value.a;
+    *AuthVarStatus = (UINT32)TeecOperation.params[2].value.b;
+
     if (TeecResult != TEEC_SUCCESS) {
 
         //
@@ -660,8 +663,12 @@ Return Value:
         //
         switch (TeecResult) {
 
-        case TEE_RESULT_FROM_NT(STATUS_NOT_FOUND):
+        case TEEC_ERROR_ITEM_NOT_FOUND:
             Status = EFI_NOT_FOUND;
+            break;
+
+        case TEEC_ERROR_SHORT_BUFFER:
+            Status = EFI_BUFFER_TOO_SMALL;
             break;
 
         default:
@@ -672,9 +679,6 @@ Return Value:
 
         goto Exit;
     }
-
-    *ResultSize = (UINT32)TeecOperation.params[2].value.a;
-    *WtrStatus = (UINT32)TeecOperation.params[2].value.b;
 
 Exit:
     return Status;
@@ -737,7 +741,7 @@ VariableServiceGetVariable(
     UINT32 VariableParamSize;
     UINT32 VariableResultSize;
     UINT32 ResultSize = 0;
-    UINT32 WtrStatus = 0;
+    UINT32 AuthVarStatus = 0;
 
     //
     // Validate that the buffers will fit.
@@ -804,29 +808,25 @@ VariableServiceGetVariable(
         VariableResultSize,
         &mVariableResultMem,
         &ResultSize,
-        &WtrStatus);
+        &AuthVarStatus);
 
     TraceDebug("    EFI Status: 0x%IX\n", EFIStatus);
 
-    if (EFIStatus == EFI_SUCCESS) {
-        if (WtrStatus == STATUS_BUFFER_TOO_SMALL) {
+    if (EFIStatus == EFI_BUFFER_TOO_SMALL) {
 
-            //
-            // In this case the Auth. Var. TA returns the size of the *buffer* required
-            // so in order to turn this into the size of the *data* required we need
-            // to subtract header.
-            //
-            ASSERT(ResultSize >= sizeof(VARIABLE_GET_RESULT));
-            *BytesWritten += ResultSize - sizeof(VARIABLE_GET_RESULT);
-            Output->DataSize = ResultSize - sizeof(VARIABLE_GET_RESULT);
-            EFIStatus = EFI_BUFFER_TOO_SMALL;
-            goto Exit;
-        }
-        else {
-            *BytesWritten += VariableResult->GetResult.DataSize;
-        }
-    }
-    if (EFI_ERROR(EFIStatus)) {
+        //
+        // In this case the Auth. Var. TA returns the size of the *buffer* required
+        // so in order to turn this into the size of the *data* required we need
+        // to subtract header.
+        //
+        ASSERT(ResultSize >= sizeof(VARIABLE_GET_RESULT));
+        *BytesWritten += ResultSize - sizeof(VARIABLE_GET_RESULT);
+        Output->DataSize = ResultSize - sizeof(VARIABLE_GET_RESULT);
+        goto Exit;
+
+    } else if (EFIStatus == EFI_SUCCESS) {
+        *BytesWritten += VariableResult->GetResult.DataSize;
+    } else if (EFI_ERROR(EFIStatus)) {
         goto Exit;
     }
 
@@ -912,7 +912,7 @@ VariableServiceGetNextVariableName(
     UINT32 VariableParamSize;
     UINT32 VariableResultSize;
     UINT32 ResultSize = 0;
-    UINT32 WtrStatus = 0;
+    UINT32 AuthVarStatus = 0;
 
     //
     // Validate that the buffers will fit.
@@ -976,34 +976,28 @@ VariableServiceGetNextVariableName(
         VariableResultSize,
         &mVariableResultMem,
         &ResultSize,
-        &WtrStatus);
+        &AuthVarStatus);
 
     WCSTOMBS(variableName, VariableResult->GetNextResult.VariableName);
     TraceDebug("GET NEXT Variable %s\n", variableName);
     TraceDebug("    EFI Status: 0x%IX\n", EFIStatus);
 
-    if (EFIStatus == EFI_SUCCESS) {
+    if (EFIStatus == EFI_BUFFER_TOO_SMALL) {
 
-        if (WtrStatus == STATUS_BUFFER_TOO_SMALL) {
+        //
+        // In this case the Auth. Var. TA returns the size of the *buffer* required
+        // so in order to turn this into the size of the *name* required we need
+        // to subtract header.
+        //
 
-            //
-            // In this case the Auth. Var. TA returns the size of the *buffer* required
-            // so in order to turn this into the size of the *name* required we need
-            // to subtract header.
-            //
-
-            ASSERT(ResultSize >= sizeof(VARIABLE_GET_NEXT_RESULT));
-            *BytesWritten += ResultSize - sizeof(VARIABLE_GET_NEXT_RESULT);
-            Output->NameLength = VariableResult->GetNextResult.VariableNameSize;
-            EFIStatus = EFI_BUFFER_TOO_SMALL;
-            goto Exit;
-        }
-        else {
-            *BytesWritten += VariableResult->GetNextResult.VariableNameSize;
-        }
+        ASSERT(ResultSize >= sizeof(VARIABLE_GET_NEXT_RESULT));
+        *BytesWritten += ResultSize - sizeof(VARIABLE_GET_NEXT_RESULT);
+        Output->NameLength = VariableResult->GetNextResult.VariableNameSize;
+        goto Exit;
     }
-
-    if (EFI_ERROR(EFIStatus)) {
+    else if (EFIStatus == EFI_SUCCESS) {
+        *BytesWritten += VariableResult->GetNextResult.VariableNameSize;
+    } else if (EFI_ERROR(EFIStatus)) {
         goto Exit;
     }
 
@@ -1169,7 +1163,7 @@ VariableServiceQueryInformation(
     UINT32 VariableParamSize;
     UINT32 VariableResultSize;
     UINT32 ResultSize = 0;
-    UINT32 WtrStatus = 0;
+    UINT32 AuthVarStatus = 0;
 
     VariableParamSize = sizeof(VARIABLE_QUERY_PARAM);
     VariableResultSize = sizeof(VARIABLE_QUERY_RESULT);
@@ -1203,7 +1197,7 @@ VariableServiceQueryInformation(
         VariableResultSize,
         &mVariableResultMem,
         &ResultSize,
-        &WtrStatus);
+        &AuthVarStatus);
 
     TraceDebug("    EFI Status: 0x%IX", EFIStatus);
 

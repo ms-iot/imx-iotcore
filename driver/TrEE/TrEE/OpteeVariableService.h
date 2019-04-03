@@ -23,12 +23,10 @@ UEFI Variable Services definitions for accessing operations.
 typedef enum _VARIABLE_SERVICE_OPS
 {
     VSGetOp = 0,
+    VSGetNextVarOp,
     VSSetOp,
     VSQueryInfoOp,
-    VSGetNextVarOp,
     VSSignalExitBootServicesOp,
-    VSResetStateOp,
-    VSGetFragStatsOp,
 } VARIABLE_SERVICE_OPS;
 
 //
