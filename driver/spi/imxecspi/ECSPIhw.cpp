@@ -34,9 +34,6 @@
 #include "ECSPIdevice.h"
 
 
-// TODO: remove
-ULONG gTxWrites = 0;
-
 //
 // Routine Description:
 //
@@ -506,8 +503,6 @@ ECSPIHwConfigureTransfer (
 
             intReg.AsUlong &= ~ECSPI_RX_INTERRUPTS;
             if (wordsLeftToTransfer > ECSPI_FIFO_DEPTH) {
-                // Will take more than one burst, enable TX Empty interrupt
-//                intReg.TEEN = 1; 
                 dmaReg.RX_THRESHOLD = ECSPI_FIFO_DEPTH * 3 / 4;
 
             } else {
@@ -515,9 +510,6 @@ ECSPIHwConfigureTransfer (
                 dmaReg.RX_THRESHOLD = wordsLeftToTransfer - 1;
             }
             intReg.RDREN = 1; // RX threshold interrupt
-            if (wordsLeftToTransfer == 1) {
-                intReg.TCEN = 0; // TODO: set Transfer Complete interrupt?
-            }
         }
 
     } // Set RX/TX thresholds
@@ -675,9 +667,6 @@ ECSPIHwReadRxFIFO (
         return TRUE;
 
     } else {
-        if (totalBytesWritten == 0) {   // TODO: remove this.
-            ECSPIpHwUpdateTransfer(TransferPtr, 0);
-        }
         ECSPIHwUpdateTransferConfiguration(DevExtPtr, TransferPtr);
 
         if (requestPtr->Type != ECSPI_REQUEST_TYPE::FULL_DUPLEX) {
@@ -726,7 +715,6 @@ ECSPIHwWriteZerosTxFIFO (
         WRITE_REGISTER_NOFENCE_ULONG(txDataRegPtr, 0);
         --TransferPtr->BurstWords;
         --wordsToWrite;
-        ++gTxWrites;
 
         burstStarted |= ECSPIpHwStartBurstIf(DevExtPtr, TransferPtr);
     }
@@ -734,13 +722,6 @@ ECSPIHwWriteZerosTxFIFO (
 
     if (TransferPtr->IsStartBurst && !burstStarted) {
         // Need to start a new burst, but still processing current one.
-        ECSPI_CONREG ctrlReg = { 
-            READ_REGISTER_NOFENCE_ULONG(&ecspiRegsPtr->CONREG) 
-            };
-        ECSPI_STATREG statReg = { 
-            READ_REGISTER_NOFENCE_ULONG(&ecspiRegsPtr->STATREG) 
-            };
-        // BREAKPOINT HERE
         return TRUE;
     }
     return FALSE;

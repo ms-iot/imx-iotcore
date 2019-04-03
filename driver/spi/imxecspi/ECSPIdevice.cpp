@@ -548,13 +548,6 @@ ECSPIEvtInterruptIsr (
 
     } // Read and ACK current interrupts
 
-    // Assert on RX overflow errors - not handled.
-/*
-    ECSPI_ASSERT(
-        devExtPtr->IfrLogHandle, 
-        statReg.RO != 1
-        );
-*/
     ECSPI_SPB_TRANSFER* transfer1Ptr;
     ECSPI_SPB_TRANSFER* transfer2Ptr;
     ECSPISpbGetActiveTransfers(requestPtr, &transfer1Ptr, &transfer2Ptr);
@@ -763,21 +756,14 @@ ECSPIEvtInterruptDpc (
 
         // StartBurst delayed, poll XCH and start next burst
         if (!ECSPISpbIsAllDataTransferred(transfer1Ptr) && transfer1Ptr->IsStartBurst) {
-            BOOLEAN started;
             KLOCK_QUEUE_HANDLE lockHandle;
 
-            // BREAKPOINT HERE
             KeAcquireInStackQueuedSpinLock(&devExtPtr->DeviceLock, &lockHandle);
 
             while (ECSPIHwQueryXCH(devExtPtr->ECSPIRegsPtr) == 1);
 
-            started = ECSPIpHwStartBurstIf(devExtPtr, transfer1Ptr);
-            if (!started) {
-                ECSPI_ASSERT(   // TODO: remove
-                    devExtPtr->IfrLogHandle,
-                    started
-                    );
-            }
+            ECSPIpHwStartBurstIf(devExtPtr, transfer1Ptr);
+            
             KeReleaseInStackQueuedSpinLock(&lockHandle);
             return;
         }

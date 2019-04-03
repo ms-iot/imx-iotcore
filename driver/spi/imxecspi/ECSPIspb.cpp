@@ -38,7 +38,6 @@
     #pragma alloc_text(PAGE, ECSPIEvtSpbTargetDisconnect)
 #endif
 
-ECSPI_TARGET_CONTEXT * gTargetContext = NULL;
 
 //
 // Routine Description:
@@ -282,8 +281,6 @@ ECSPIEvtSpbTargetConnect (
         ECSPIDeviceCloseGpioTarget(trgCtxPtr);
         return status;
     }
-
-    gTargetContext = trgCtxPtr;
 
     return STATUS_SUCCESS;
 }
@@ -863,14 +860,6 @@ ECSPISpbStartNextTransfer (
     }
 
     ECSPIHwClearFIFOs(devExtPtr);  // only clears Rx fifo
-
-    if (ECSPIHwQueryXCH(devExtPtr->ECSPIRegsPtr)) {
-        // device currently busy
-        // TODO: spin loop?
-        ECSPI_ASSERT(
-           devExtPtr->IfrLogHandle,
-           TRUE);
-    }
 
     //
     // Configure the HW with the transfer(s) parameters
