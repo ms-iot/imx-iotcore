@@ -63,20 +63,7 @@ ServiceBinary  = %13%\OpteeTrEE.sys
 Dependencies   = WindowsTrustedRT
 AddReg         = OpteeTrEE_Service_AddReg
 
-;
-; During bring-up all services but the Test Service are disabled.
-; TODO: Enable services when supported.
-;
 [OpteeTrEE_Service_AddReg]
-;
-; Checksum Service
-;
-;HKR,Parameters\SecureServices\{af6127a7-86de-4822-a815-b5f5cc2bdc46},,
-
-;
-; RNG service
-;
-;HKR,Parameters\SecureServices\{967734EF-2421-45B3-85C0-78F537F2EF88},, 
 
 ;
 ; Test Service
@@ -96,16 +83,6 @@ HKR,Parameters\SecureServices\{36deaa79-c5dd-447c-95e6-b3859589291a},MajorVersio
 HKR,Parameters\SecureServices\{36deaa79-c5dd-447c-95e6-b3859589291a},MinorVersion,%REG_DWORD%,1
 HKR,Parameters\SecureServices\{36deaa79-c5dd-447c-95e6-b3859589291a},OSDependencies,%REG_MULTI_SZ%,%RpmbOsService%
 
-;
-; OPM Service
-;
-;HKR,Parameters\SecureServices\{20779E63-433C-4E7A-AFA6-7B8E71CE2208},, 
-
-;
-; Cyrep Test Service
-;
-;HKR,Parameters\SecureServices\{EF484CBB-E6B5-4667-95A3-173D2C883FF5},, 
-
 [SourceDisksNames]
 1 = %DiskId1%,,,""
 
@@ -120,9 +97,6 @@ ClassName = "OpteeTrEE"
 DiskId1 = "OpteeTrEE Installation Disk #1"
 OpteeTrEE.DeviceDesc = "Microsoft Optee TrEE Device"
 OpteeTrEE.SVCDESC = "Microsoft Optee TrEE Device Driver"
-ChecksumService.DeviceDesc = "Microsoft Optee Secure Checksum Service"
-RNGService.DeviceDesc = "Microsoft Optee Secure RNG Service"
-TestService.DeviceDesc = "Microsoft Optee Secure Test Service"
 RpmbOsService = "{27447C21-BCC3-4D07-A05B-A3395BB4EEE7}"
 REG_DWORD = 0x00010001
 REG_MULTI_SZ = 0x00010000

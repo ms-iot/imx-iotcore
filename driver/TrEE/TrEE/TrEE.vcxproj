@@ -190,22 +190,20 @@
     <ClInclude Include="OpteeClientLib\tee_rpc.h" />
     <ClInclude Include="OpteeClientLib\tee_rpc_types.h" />
     <ClInclude Include="OpteeClientLib\types.h" />
+    <ClInclude Include="OpteeFtpmService.h" />
     <ClInclude Include="OpteeTrEE.h" />
     <ClInclude Include="OpteeTrEEService.h" />
     <ClInclude Include="OpteeVariableService.h" />
     <ClInclude Include="trace.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ChecksumService.c" />
     <ClCompile Include="enum.c" />
     <ClCompile Include="FtpmService.c" />
-    <ClCompile Include="OPMService.c" />
     <ClCompile Include="OpteeClientLib\OpteeClientLib.c" />
     <ClCompile Include="OpteeClientLib\OpteeClientMemory.c" />
     <ClCompile Include="OpteeClientLib\OpteeClientRPC.c" />
     <ClCompile Include="OpteeClientLib\OpteeClientSMC.c" />
     <ClCompile Include="OpteeTrEE.c" />
-    <ClCompile Include="RNGService.c" />
     <ClCompile Include="GenService.c" />
     <ClCompile Include="VariableService.c" />
   </ItemGroup>
