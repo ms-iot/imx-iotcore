@@ -10,7 +10,7 @@ UBOOT_ROOT ?= $(REPO_ROOT)/../u-boot
 OPTEE_ROOT ?= $(REPO_ROOT)/../optee_os
 EDK2_PLATFORMS_ROOT ?= $(REPO_ROOT)/../imx-edk2-platforms
 EDK2_ROOT ?= $(REPO_ROOT)/../edk2
-FTPM_ROOT ?= $(REPO_ROOT)/../ms-tpm-20-ref/Samples/ARM32-FirmwareTPM/optee_ta/fTPM
+TA_ROOT ?= $(REPO_ROOT)/../MSRSec/TAs/optee_ta
 CST_ROOT ?= $(REPO_ROOT)/../cst
 KEY_ROOT = ../test_keys_no_security
 
@@ -18,6 +18,7 @@ KEY_ROOT = ../test_keys_no_security
 UBOOT_OUT=$(CURDIR)/u-boot
 OPTEE_OUT=$(CURDIR)/optee_os
 FTPM_OUT=$(CURDIR)/fTPM
+AUTHVARS_OUT=$(CURDIR)/authvars
 RIOT_OUT=$(CURDIR)/RIoT
 EDK2_OUT=$(REPO_ROOT)/../Build/$(EDK2_DSC)
 
@@ -28,11 +29,16 @@ OPTEE=$(OPTEE_OUT)/core/tee.bin
 SPL_HAB=spl_HAB.imx
 EDK2=$(EDK2_OUT)/$(EDK2_DEBUG_RELEASE)_GCC5/FV/IMXBOARD_EFI.fd
 
+# Paths to TA binary final locations
+AUTHVARS_BIN_PLACE=$(EDK2_PLATFORMS_ROOT)/Platform/Microsoft/OpteeClientPkg/Bin/AuthvarsTa/Arm/Test
+FTPM_BIN_PLACE=$(EDK2_PLATFORMS_ROOT)/Platform/Microsoft/OpteeClientPkg/Bin/fTpmTa/Arm/Test
+
 # Flat Image Trees
 UBOOT_OPTEE_FIT=image.fit
 UEFI_FIT=uefi.fit
 
 VERSIONS=firmwareversions.log
+TA_VERSIONS=$(AUTHVARS_BIN_PLACE)/firmwareversions.log $(FTPM_BIN_PLACE)/firmwareversions.log 
 
 # Toolchain checks to see if EDK2 Basetools or U-Boot need to build
 EDK2BASETOOLS=$(REPO_ROOT)/../edk2/Conf/BuildEnv.sh
@@ -44,7 +50,13 @@ UEFI_KEY_PARAMS = -k $(KEY_ROOT) -r -K dt.dtb
 
 FTPM_FLAGS= \
 	CFG_TEE_TA_LOG_LEVEL=2 \
-	CFG_TA_DEBUG=y \
+	CFG_TA_DEBUG=n \
+	CFG_FTPM_USE_WOLF=n \
+
+AUTHVAR_FLAGS= \
+	CFG_TEE_TA_LOG_LEVEL=2 \
+	CFG_TA_DEBUG=n \
+	CFG_AUTHVARS_USE_WOLF=y \
 
 OPTEE_FLAGS= \
 	CFG_PSCI_ARM32=y \
@@ -66,6 +78,10 @@ OPTEE_FLAGS= \
 	CFG_SCTLR_ALIGNMENT_CHECK=n \
 	CFG_DT=n \
 	CFG_NS_ENTRY_ADDR= \
+	CFG_RPMB_RESET_FAT=n \
+	CFG_CORE_HEAP_SIZE=131072 \
+	platform-cflags="-fshort-wchar" \
+	CFLAGS="-fshort-wchar" \
 
 OPTEE_FLAGS_IMX6= \
 	$(OPTEE_FLAGS) \
@@ -107,7 +123,7 @@ OPTEE_FLAGS_IMX7= \
 
 export CROSS_COMPILE ?= $(HOME)/gcc-linaro-6.4.1-2017.11-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-
 
-export TA_CROSS_COMPILE=$$CROSS_COMPILE
+export TA_CROSS_COMPILE=$(CROSS_COMPILE)
 export TA_DEV_KIT_DIR=$(OPTEE_OUT)/export-ta_arm32
 
 # Capture the sector offset where SPL looks for the U-Boot/OPTEE Flat Image Tree
@@ -143,6 +159,7 @@ $(UBOOT_OPTEE_FIT): $(UBOOT) $(OPTEE) uefi ../its/$(UBOOT_OPTEE_ITS) ../its/$(UE
 	cp -f ../its/$(UEFI_ITS) $(UEFI_ITS)
 	$(UBOOT_OUT)/tools/mkimage -f $(UEFI_ITS) $(UEFI_KEY_PARAMS) -r uefi.fit
 	rm -f $(UEFI_ITS)
+	rm -f $(EDK2)
 	cat $(UBOOT_OUT)/u-boot-nodtb.bin dt.dtb > $(UBOOT_OUT)/u-boot-keyed.bin
 	rm -f dt.dtb
 	rm -f $@
@@ -209,6 +226,7 @@ uefi_fit: uefi | $(MKIMAGE)
 	cp -f ../its/$(UEFI_ITS) $(UEFI_ITS)
 	$(UBOOT_OUT)/tools/mkimage -f $(UEFI_ITS) -r $(UEFI_FIT)
 	rm -f $(UEFI_ITS)
+	rm -f $(EDK2)
 
 # Ensure that mkimage is available to build UEFI fits in isolation.
 $(MKIMAGE):
@@ -228,23 +246,30 @@ $(EDK2BASETOOLS) edk2_basetools:
 	. edk2/edksetup.sh --reconfig
 	$(MAKE) -C edk2/BaseTools -j 1
 
-.PHONY: u-boot optee fTPM uefi edk2_basetools
+.PHONY: u-boot optee update_tas ftpm authvars uefi edk2_basetools
 u-boot: $(UBOOT)
 optee: $(OPTEE)
+update_tas: ftpm authvars $(TA_VERSIONS) place_ftpm_notice place_authvars_notice
 
-fTPM: optee
-	@if [ ! -d $(FTPM_ROOT) ] ; \
+ftpm: optee
+	@if [ ! -d $(TA_ROOT) ] ; \
+	then \
+	echo "fTPM directory $(abspath $(TA_ROOT)) not found" ; \
+	exit 1 ; \
+	fi
+	$(MAKE) -C $(TA_ROOT) TA_CPU=cortex-a9 O=$(FTPM_OUT) $(FTPM_FLAGS) ftpm
+	cp -f $(FTPM_OUT)/53bab89c-b864-4d7e-acbc-33c07a9c1b8d.elf $(FTPM_BIN_PLACE)
+	cp -f $(FTPM_OUT)/53bab89c-b864-4d7e-acbc-33c07a9c1b8d.ta $(FTPM_BIN_PLACE)
+
+authvars: optee
+	@if [ ! -d $(TA_ROOT) ] ; \
 	then \
 	echo "fTPM directory $(abspath $(FTPM_ROOT)) not found" ; \
 	exit 1 ; \
 	fi
-	@if [ ! -d $(FTPM_ROOT)/../../../../external/wolfssl/wolfcrypt ] ; \
-	then \
-	echo "fTPM is missing WolfSSL at $(abspath $(FTPM_ROOT)/../../../../external/wolfssl/wolfcrypt), did you initialize the git submodules?" ; \
-	exit 1 ; \
-	fi
-	$(MAKE) -C $(FTPM_ROOT) TA_CPU=cortex-a9 O=$(FTPM_OUT) $(FTPM_FLAGS)
-	cp -f $(FTPM_OUT)/bc50d971-d4c9-42c4-82cb-343fb7f37896.* $(EDK2_PLATFORMS_ROOT)/Platform/Microsoft/OpteeClientPkg/Bin/fTpmTa/Arm/Test
+	$(MAKE) -C $(TA_ROOT) TA_CPU=cortex-a9 O=$(AUTHVARS_OUT) $(AUTHVAR_FLAGS) authvars
+	cp -f $(AUTHVARS_OUT)/2d57c0f7-bddf-48ea-832f-d84a1a219301.elf $(AUTHVARS_BIN_PLACE)
+	cp -f $(AUTHVARS_OUT)/2d57c0f7-bddf-48ea-832f-d84a1a219301.ta $(AUTHVARS_BIN_PLACE)
 
 # Copy binaries from build output to package location and 'git add' them
 .PHONY: update-ffu
@@ -264,7 +289,7 @@ update-ffu: $(VERSIONS)
 	git add ../../board/$$board/export-ta_arm32.tar.bz2
 	@echo "Successfully copied files to package and staged for commit"
 
-.PHONY: $(VERSIONS)
+.PHONY: $(VERSIONS) $(TA_VERSIONS) place_ftpm_notice place_authvars_notice
 $(VERSIONS):
 	@echo Logging version information of firmware repositories
 	rm -f $@
@@ -301,6 +326,26 @@ $(VERSIONS):
 	  git diff HEAD >> $(CURDIR)/$@ && \
 	  echo EDK2-Platforms diff end >> $(CURDIR)/$@
 	popd
+
+$(TA_VERSIONS):
+	@echo Logging version information of TA repositories
+	rm -f $@
+	echo TA commit information: >> $@
+	pushd $(TA_ROOT) && \
+	  git config --get remote.origin.url >> $(CURDIR)/$@ && \
+	  git rev-parse HEAD >> $(CURDIR)/$@ && \
+	  echo TA diff information: >> $(CURDIR)/$@ && \
+	  git diff HEAD >> $(CURDIR)/$@ && \
+	  echo TA diff end >> $(CURDIR)/$@
+	popd
+
+place_authvars_notice:
+	rm -f $(AUTHVARS_BIN_PLACE)/NOTICE
+	echo "PUT AUTHVARS NOTICE HERE!" >> $(AUTHVARS_BIN_PLACE)/NOTICE
+
+place_ftpm_notice:
+	rm -f $(FTPM_BIN_PLACE)/NOTICE
+	echo "PUT FTPM NOTICE HERE!" >> $(AUTHVARS_BIN_PLACE)/NOTICE
 
 # Make sure that dirs have case sensitivity on in Windows Subsystem for Linux.
 $(UBOOT): verify_case_sensitivity_$(UBOOT_OUT)
@@ -348,7 +393,7 @@ endif
 
 .PHONY: clean
 clean:
-	rm -rf $(UBOOT_OUT) $(OPTEE_OUT) $(RIOT_OUT) $(FTPM_OUT) $(EDK2_OUT) \
+	rm -rf $(UBOOT_OUT) $(OPTEE_OUT) $(RIOT_OUT) $(FTPM_OUT) $(AUTHVARS_OUT) $(EDK2_OUT) \
 	  $(UBOOT_OPTEE_FIT) $(UBOOT_OPTEE_FIT) firmware_fit.merged \
 	  $(SPL_HAB) spl_csf.bin u-boot_sign.csf \
 	  IMXBOARD_EFI.fd $(UEFI_FIT) \
