@@ -274,7 +274,7 @@ ta_crypto_check:
 ftpm: optee
 	@if [ ! -d $(TA_ROOT) ] ; \
 	then \
-	echo "fTPM directory $(abspath $(TA_ROOT)) not found" ; \
+	echo "TA directory $(abspath $(TA_ROOT)) not found" ; \
 	exit 1 ; \
 	fi
 	$(MAKE) -C $(TA_ROOT) TA_CPU=cortex-a9 O=$(FTPM_OUT) $(FTPM_FLAGS) ftpm
@@ -284,7 +284,7 @@ ftpm: optee
 authvars: optee
 	@if [ ! -d $(TA_ROOT) ] ; \
 	then \
-	echo "fTPM directory $(abspath $(FTPM_ROOT)) not found" ; \
+	echo "TA directory $(abspath $(FTPM_ROOT)) not found" ; \
 	exit 1 ; \
 	fi
 	$(MAKE) -C $(TA_ROOT) TA_CPU=cortex-a9 O=$(AUTHVARS_OUT) $(AUTHVAR_FLAGS) authvars
