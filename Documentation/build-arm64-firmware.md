@@ -37,10 +37,9 @@ Note: The UEFI build environment has changed for 1903 and any existing build env
     git clone -b imx_4.14.62_1.0.0_beta https://source.codeaurora.org/external/imx/imx-atf
     git clone -b imx_4.14.62_1.0.0_beta https://source.codeaurora.org/external/imx/imx-mkimage
     ```
-    Optionally, clone the TPM reference implementation (`mu_platform_nxp` includes a precompiled TPM binary)
+    Optionally, clone the security TA repo (`mu_platform_nxp` includes precompiled TA binaries)
     ```bash
-    git clone --recursive https://github.com/Microsoft/ms-tpm-20-ref
-    pushd ms-tpm-20-ref; git checkout 65b65354c6cce3212d9c512ec3ae2e23fe37c94d; popd
+    git clone  https://github.com/Microsoft/MSRSec
     ```
 
 1) Download and extract the [Code Signing Tools (CST)](https://www.nxp.com/webapp/sps/download/license.jsp?colCode=IMX_CST_TOOL) from NXP's website. You will need to create an account on NXP's website to access this tool. Extract the tool to the same directory as all the above repositories, and rename the folder to cst:
@@ -66,7 +65,7 @@ Note: The UEFI build environment has changed for 1903 and any existing build env
        |- imx-atf
        |- imx-iotcore
        |- imx-mkimage
-       |- ms-tpm-20-ref
+       |- MSRSec
        |- mu_platform_nxp
        |- optee_os
        |- u-boot
@@ -123,19 +122,16 @@ Note: The UEFI build environment has changed for 1903 and any existing build env
    export TA_DEV_KIT_DIR=../../../../../optee_os/out/arm-plat-imx/export-ta_arm64
    export TA_CROSS_COMPILE=~/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
    export TA_CPU=cortex-a53
-
-   pushd ms-tpm-20-ref/Samples/ARM32-FirmwareTPM/optee_ta
-
-   make
+   pushd /MSRSec/TAs/optee_ta
+   make CFG_ARM64_ta_arm64=y CFG_FTPM_USE_WOLF=n CFG_AUTHVARS_USE_WOLF=n
 
    # debug
    # CFG_TEE_TA_LOG_LEVEL=4 CFG_TA_DEBUG=y make
-
+   cp ~/MSRSec/TAs/optee_ta/out/fTPM/53bab89c-b864-4d7e-acbc-33c07a9c1b8d.ta ~/mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/fTpmTa/Arm64/Test
+   cp ~/MSRSec/TAs/optee_ta/out/fTPM/53bab89c-b864-4d7e-acbc-33c07a9c1b8d.elf ~/mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/fTpmTa/Arm64/Test
+   cp ~/MSRSec/TAs/optee_ta/out/AuthVars/2d57c0f7-bddf-48ea-832f-d84a1a219301.ta ~/mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/AuthVarsTa/Arm64/Test
+   cp ~/MSRSec/TAs/optee_ta/out/AuthVars/2d57c0f7-bddf-48ea-832f-d84a1a219301.elf ~/mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/AuthVarsTa/Arm64/Test
    popd
-
-   cp ms-tpm-20-ref/Samples/ARM32-FirmwareTPM/optee_ta/out/fTPM/bc50d971-d4c9-42c4-82cb-343fb7f37896.ta mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/fTpmTa/Arm64/Test
-   cp ms-tpm-20-ref/Samples/ARM32-FirmwareTPM/optee_ta/out/fTPM/bc50d971-d4c9-42c4-82cb-343fb7f37896.elf mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/fTpmTa/Arm64/Test
-
 
    # Imx-mkimage
 
