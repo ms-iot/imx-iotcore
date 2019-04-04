@@ -49,14 +49,14 @@ UBOOT_OPTEE_KEY_PARAMS = -k $(KEY_ROOT) -r -K dt-spl.dtb
 UEFI_KEY_PARAMS = -k $(KEY_ROOT) -r -K dt.dtb
 
 FTPM_FLAGS= \
+	$(FTPM_CRYPTO_PROVIDER) \
 	CFG_TEE_TA_LOG_LEVEL=2 \
 	CFG_TA_DEBUG=n \
-	CFG_FTPM_USE_WOLF=n \
 
 AUTHVAR_FLAGS= \
+	$(AUTHVAR_CRYPTO_PROVIDER) \
 	CFG_TEE_TA_LOG_LEVEL=2 \
 	CFG_TA_DEBUG=n \
-	CFG_AUTHVARS_USE_WOLF=y \
 
 OPTEE_FLAGS= \
 	CFG_PSCI_ARM32=y \
@@ -246,10 +246,30 @@ $(EDK2BASETOOLS) edk2_basetools:
 	. edk2/edksetup.sh --reconfig
 	$(MAKE) -C edk2/BaseTools -j 1
 
-.PHONY: u-boot optee update_tas ftpm authvars uefi edk2_basetools
+.PHONY: u-boot optee update_tas ftpm authvars uefi edk2_basetools ta_crypto_check
 u-boot: $(UBOOT)
 optee: $(OPTEE)
-update_tas: ftpm authvars $(TA_VERSIONS) place_ftpm_notice place_authvars_notice
+update_tas: ta_crypto_check ftpm authvars $(TA_VERSIONS) place_ftpm_notice place_authvars_notice
+
+ta_crypto_check:
+	@echo Checking TA crypto providers
+	TA_CRYPTO_CHECK_FAILED=n
+	if test -z "$(FTPM_CRYPTO_PROVIDER)"
+	then
+	  echo 'Please decide between OpenSSL or WolfSSL for the fTPM TA by adding: "FTPM_CRYPTO_PROVIDER= CFG_FTPM_USE_WOLF=<y/n>" to your boards makefile'
+	  TA_CRYPTO_CHECK_FAILED=y
+	fi
+	if test -z "$(AUTHVARS_CRYPTO_PROVIDER)"
+	then
+	  echo 'Please decide between OpenSSL or WolfSSL for the Authvars TA by adding: "AUTHVARS_CRYPTO_PROVIDER= CFG_AUTHVARS_USE_WOLF=<y/n>" to your boards makefile'
+	  TA_CRYPTO_CHECK_FAILED=y
+	fi
+	if test $$TA_CRYPTO_CHECK_FAILED == y
+	then
+	  false
+	fi
+	true
+
 
 ftpm: optee
 	@if [ ! -d $(TA_ROOT) ] ; \
