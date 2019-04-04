@@ -139,3 +139,5 @@ They can be rebuilt using:
 make update_tas
 ```
 This updates the binaries included in the imx-edk2-platforms repo.
+#### Clearing RPMB
+If the TAs are changed significantly, or the storage becomes otherwise corrupted, it may be necessary to clear the OP-TEE secure filesystem in RPMB. This can be done by building OP-TEE with the `CFG_RPMB_RESET_FAT=y` flag set. This flag will cause OP-TEE to erase its FAT metadata when it first accesses RPMB during a boot. This effectively clears all the data stored by the TAs.
