@@ -433,7 +433,7 @@ They are included in UEFI by default but can be omitted with the CONFIG_NOT_SECU
 
 ## Building UEFI
 
-For a detailed guide on how to build the iMX UEFI firmware image, please refer to [Building and Updating Firmware](./build-firmware.md).
+For a detailed guide on how to build the i.MX UEFI firmware image, please refer to [Building and Updating Firmware](./build-firmware.md).
 
 ## Testing UEFI
 
