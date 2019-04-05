@@ -46,8 +46,8 @@ typedef struct _PPI_OPERATION_RESPONSE {
 } PPI_OPERATION_RESPONSE;
 
 typedef struct _PPI_REQUEST {
-	UINT32  FunctionIndex;
-	UINT32  Param[2];
+    UINT32  FunctionIndex;
+    UINT32  Param[2];
 } PPI_REQUEST, *PPPI_REQUEST;
 
 typedef union _PPI__RESPONSE {
@@ -720,8 +720,8 @@ Return Value:
 
 {
     ULONG OperationStatus;
-	UINT32 PpiFlags;
-	TCG2_PPI_VARIABLE PpiValue;
+    UINT32 PpiFlags;
+    TCG2_PPI_VARIABLE PpiValue;
     ULONG PpiValueSize;
     UINTN ReturnSize;
     NTSTATUS Status;
@@ -1083,7 +1083,7 @@ FtpmServiceProcessSecureServiceRequest(
             InvokeOutput->Status = Status;
             *BytesWritten = sizeof(TPM_INVOKE_GENERIC_OUT);
             break;
-	    }
+        }
 
         case TPM_FUNCTION_PPI: {
             TraceDebug("TPM_FUNCTION_PPI received\n");
@@ -1093,8 +1093,8 @@ FtpmServiceProcessSecureServiceRequest(
                                           (ULONG)Request->OutputBufferSize,
                                           BytesWritten);
 
-	        break;
-	    }
+            break;
+        }
 
         default: {
             Status = STATUS_INVALID_PARAMETER;
