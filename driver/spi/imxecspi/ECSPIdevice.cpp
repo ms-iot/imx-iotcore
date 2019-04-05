@@ -560,6 +560,20 @@ ECSPIEvtInterruptIsr (
 
         if (ECSPIHwReadRxFIFO(devExtPtr, transfer1Ptr)) {
 
+            if (transfer1Ptr->IsStartBurst && !ECSPISpbIsAllDataTransferred(transfer1Ptr)) {
+                // Schedule DPC to continue current transfer
+                break;
+            }
+
+            ECSPI_ASSERT(
+                devExtPtr->IfrLogHandle,
+                ECSPISpbIsAllDataTransferred(transfer1Ptr)
+                );
+            ECSPI_ASSERT(
+                devExtPtr->IfrLogHandle,
+                !transfer1Ptr->IsStartBurst
+                );
+
             ECSPIHwDisableTransferInterrupts(devExtPtr, transfer1Ptr);
 
             //
@@ -730,12 +744,57 @@ ECSPIEvtInterruptDpc (
 {
     ECSPI_DEVICE_EXTENSION* devExtPtr =
         ECSPIDeviceGetExtension(WdfInterruptGetDevice(WdfInterrupt));
+    ECSPI_SPB_REQUEST* requestPtr = &devExtPtr->CurrentRequest;
+    BOOLEAN hwTimeOut = FALSE;
+
+    // See if transfer request isn't finished and needs continuing
+    // before marking request as uncancelable
+    if (requestPtr->Type == ECSPI_REQUEST_TYPE::READ) {
+        ECSPI_SPB_TRANSFER* transfer1Ptr;
+        ECSPI_SPB_TRANSFER* transfer2Ptr;
+
+        ECSPISpbGetActiveTransfers(requestPtr, &transfer1Ptr, &transfer2Ptr);
+
+        // StartBurst delayed, poll XCH and start next burst
+        if (!ECSPISpbIsAllDataTransferred(transfer1Ptr) && transfer1Ptr->IsStartBurst) {
+            KLOCK_QUEUE_HANDLE lockHandle;
+
+            LARGE_INTEGER freq;
+            LARGE_INTEGER start;
+            LARGE_INTEGER finish;
+            LONGLONG timeout;
+
+            KeAcquireInStackQueuedSpinLock(&devExtPtr->DeviceLock, &lockHandle);
+
+            // wait up to 1 SPI clock cycle for XCH status change
+            start = KeQueryPerformanceCounter(&freq);
+            timeout = freq.QuadPart / requestPtr->SpbTargetPtr->Settings.ConnectionSpeed;
+
+            do {
+                if (ECSPIHwQueryXCH(devExtPtr->ECSPIRegsPtr) == 0) {
+
+                    ECSPIpHwStartBurstIf(devExtPtr, transfer1Ptr);
+                    KeReleaseInStackQueuedSpinLock(&lockHandle);
+                    return;
+                }
+
+                finish = KeQueryPerformanceCounter(NULL);
+            }
+            while ((finish.QuadPart - start.QuadPart) < timeout);
+
+            KeReleaseInStackQueuedSpinLock(&lockHandle);
+
+            ECSPI_LOG_ERROR(
+                devExtPtr->IfrLogHandle,
+                "Timeout error waiting for XCH state change.");
+            hwTimeOut = TRUE;
+        }
+    }
 
     //
     // Make sure request has not been already canceled, and 
     // prevent request from going away while request processing continues.
     //
-    ECSPI_SPB_REQUEST* requestPtr = &devExtPtr->CurrentRequest;
     NTSTATUS status = ECSPIDeviceDisableRequestCancellation(requestPtr);
     if (!NT_SUCCESS(status)) {
         //
@@ -751,6 +810,15 @@ ECSPIEvtInterruptDpc (
                 "SPB request already canceled or completed!"
                 );
         }
+        return;
+    }
+
+    if (hwTimeOut) {
+        ECSPISpbCompleteTransferRequest(
+            requestPtr,
+            STATUS_IO_TIMEOUT,
+            requestPtr->TotalBytesTransferred
+            );
         return;
     }
 
@@ -774,6 +842,7 @@ ECSPIEvtInterruptDpc (
                 ECSPISpbIsAllDataTransferred(transfer2Ptr)
                 );
         }
+
         break;
 
     } // READ/WRITE/FULL_DUPLEX
@@ -907,7 +976,7 @@ ECSPIDeviceEnableRequestCancellation (
 
     } else {
 
-        RequestPtr->State = ECSPI_REQUEST_STATE::CANCALABLE;
+        RequestPtr->State = ECSPI_REQUEST_STATE::CANCELABLE;
     }
 
     KeReleaseInStackQueuedSpinLock(&lockHandle);
@@ -956,7 +1025,7 @@ ECSPIDeviceDisableRequestCancellation (
         goto done;
     }
 
-    if (RequestPtr->State != ECSPI_REQUEST_STATE::CANCALABLE) {
+    if (RequestPtr->State != ECSPI_REQUEST_STATE::CANCELABLE) {
 
         status = STATUS_NO_WORK_DONE;
         goto done;
@@ -982,7 +1051,7 @@ ECSPIDeviceDisableRequestCancellation (
         goto done;
     }
 
-    RequestPtr->State = ECSPI_REQUEST_STATE::NOT_CANCALABLE;
+    RequestPtr->State = ECSPI_REQUEST_STATE::NOT_CANCELABLE;
     status = STATUS_SUCCESS;
 
 done:
