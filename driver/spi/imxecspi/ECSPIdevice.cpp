@@ -745,6 +745,7 @@ ECSPIEvtInterruptDpc (
     ECSPI_DEVICE_EXTENSION* devExtPtr =
         ECSPIDeviceGetExtension(WdfInterruptGetDevice(WdfInterrupt));
     ECSPI_SPB_REQUEST* requestPtr = &devExtPtr->CurrentRequest;
+    BOOLEAN hwTimeOut = FALSE;
 
     // See if transfer request isn't finished and needs continuing
     // before marking request as uncancelable
@@ -758,14 +759,35 @@ ECSPIEvtInterruptDpc (
         if (!ECSPISpbIsAllDataTransferred(transfer1Ptr) && transfer1Ptr->IsStartBurst) {
             KLOCK_QUEUE_HANDLE lockHandle;
 
+            LARGE_INTEGER freq;
+            LARGE_INTEGER start;
+            LARGE_INTEGER finish;
+            LONGLONG timeout;
+
             KeAcquireInStackQueuedSpinLock(&devExtPtr->DeviceLock, &lockHandle);
 
-            while (ECSPIHwQueryXCH(devExtPtr->ECSPIRegsPtr) == 1);
+            // wait up to 1 SPI clock cycle for XCH status change
+            start = KeQueryPerformanceCounter(&freq);
+            timeout = freq.QuadPart / requestPtr->SpbTargetPtr->Settings.ConnectionSpeed;
 
-            ECSPIpHwStartBurstIf(devExtPtr, transfer1Ptr);
-            
+            do {
+                if (ECSPIHwQueryXCH(devExtPtr->ECSPIRegsPtr) == 0) {
+
+                    ECSPIpHwStartBurstIf(devExtPtr, transfer1Ptr);
+                    KeReleaseInStackQueuedSpinLock(&lockHandle);
+                    return;
+                }
+
+                finish = KeQueryPerformanceCounter(NULL);
+            }
+            while ((finish.QuadPart - start.QuadPart) < timeout);
+
             KeReleaseInStackQueuedSpinLock(&lockHandle);
-            return;
+
+            ECSPI_LOG_ERROR(
+                devExtPtr->IfrLogHandle,
+                "Timeout error waiting for XCH state change.");
+            hwTimeOut = TRUE;
         }
     }
 
@@ -788,6 +810,15 @@ ECSPIEvtInterruptDpc (
                 "SPB request already canceled or completed!"
                 );
         }
+        return;
+    }
+
+    if (hwTimeOut) {
+        ECSPISpbCompleteTransferRequest(
+            requestPtr,
+            STATUS_IO_TIMEOUT,
+            requestPtr->TotalBytesTransferred
+            );
         return;
     }
 
