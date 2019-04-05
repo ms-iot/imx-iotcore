@@ -267,7 +267,7 @@ The reference implementation of UEFI
   2. Does hardware initialization
   3. Unless `CONFIG_NOT_SECURE_UEFI=1` is set, the authenticated variable store Trusted Application (TA) is loaded by `imx-edk2-platforms/Platform/Microsoft/OpteeClientPkg/Drivers/AuthVarsDxe.c`. This TA is responsible for storing non-volatile variables in eMMC RPMB.
   4. The Authvar TA may also contain Secure Boot keys. If the keys are pressent UEFI will enable Secure Boot and verify the signatures on all subsequent components as they are loaded.
-  5. Unless `CONFIG_NOT_SECURE_UEFI=1` is set a firmware TPM TA is also loaded by `imx-edk2-platforms/Platform/Microsoft/OpteeClientPkg/Library/Tpm2DeviceLibOptee/Tpm2DeviceLibOptee.c`. The TPM also uses RPMB for non-volatile secure storage. UEFI measures each subsequent component as it is loaded and saves these values in Platform Configuration Registers (PCRs) in the TPM. Windows will use these measurements to verify the system is secure and unlock Bitlocker encrypted drives.
+  5. Unless `CONFIG_NOT_SECURE_UEFI=1` is set a firmware TPM TA is also loaded by `imx-edk2-platforms/Platform/Microsoft/OpteeClientPkg/Library/Tpm2DeviceLibOptee/Tpm2DeviceLibOptee.c`. The TPM also uses RPMB for non-volatile secure storage. UEFI measures each subsequent component as it is loaded and saves these values in Platform Configuration Registers (PCRs) in the TPM. Windows will use these measurements to verify the system is secure and unlock BitLocker encrypted drives.
   6. Sets up structures for handoff to Windows
   7. Loads and runs bootmgr
 
