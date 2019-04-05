@@ -128,7 +128,7 @@ dd if=firmware_fit.merged of=/dev/sdX bs=512 seek=2
 Copy `uefi.fit` over to the EFI partition on your SD card.
 
 ### Updating the TAs in UEFI
-A firmware TPM TA, and UEFI authenticated variable TA, are included with EDK2. Generally, these TAs should work on any ARM32 system where OP-TEE is running, and RPMB is available.
+A firmware TPM TA, and UEFI authenticated variable TA, are included with EDK2. Generally, these TAs should work on any ARM32 system where OP-TEE is running, and eMMC RPMB is available.
 
 These binaries are built using OpenSSL by default but can also be built using WolfSSL (See `FTPM_FLAGS` and `AUTHVAR_FLAGS` in `common.mk`).
 
@@ -139,3 +139,5 @@ They can be rebuilt using:
 make update_tas
 ```
 This updates the binaries included in the imx-edk2-platforms repo.
+#### Clearing RPMB
+If the TAs are changed significantly, or the storage becomes corrupted, it may be necessary to clear the OP-TEE secure filesystem in RPMB. This can be done by building OP-TEE with the `CFG_RPMB_RESET_FAT=y` flag set. This flag will cause OP-TEE to erase its FAT metadata when it first accesses RPMB during every boot. This effectively clears all the data stored by the TAs. After clearing the RPMB OP-TEE should be switched back to `CFG_RPMB_RESET_FAT=n` to allow variables to persist again.

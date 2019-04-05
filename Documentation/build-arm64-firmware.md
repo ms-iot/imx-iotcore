@@ -119,7 +119,7 @@ This document describes how to set up a build environment to build the latest fi
     
     pushd ~/MSRSec/TAs/optee_ta
     
-    make CFG_ARM64_ta_arm64=y CFG_FTPM_USE_WOLF=y CFG_AUTHVARS_USE_WOLF=y
+    make ftpm authvars CFG_FTPM_USE_WOLF=y CFG_AUTHVARS_USE_WOLF=y
     
     # debug
     # CFG_TEE_TA_LOG_LEVEL=4 CFG_TA_DEBUG=y make
