@@ -114,28 +114,28 @@ typedef struct _FTPM_CONTROL_AREA
 // Non-volatile varaibles used to pass PPI data to UEFI
 //
 GUID PpiVariableGuid = {
-	0xaeb9c5c1, 0x94f1, 0x4d02, { 0xbf, 0xd9, 0x46, 0x2, 0xdb, 0x2d, 0x3c, 0x54 }
+    0xaeb9c5c1, 0x94f1, 0x4d02, { 0xbf, 0xd9, 0x46, 0x2, 0xdb, 0x2d, 0x3c, 0x54 }
 };
 
 #define PPI_VARIABLE_NAME L"Tcg2PhysicalPresence"
 UNICODE_STRING PpiVariableNameUnicode = {
-		40,
-		42,
-		PPI_VARIABLE_NAME
+        40,
+        42,
+        PPI_VARIABLE_NAME
 };
 
 typedef struct _TCG2_PPI_VARIABLE {
-	UINT8   Request;
-	UINT32  RequestParameter;
-	UINT8   LastRequest;
-	UINT32  Response;
+    UINT8   Request;
+    UINT32  RequestParameter;
+    UINT8   LastRequest;
+    UINT32  Response;
 } TCG2_PPI_VARIABLE, *PTCG2_PPI_VARIABLE;
 
 #define PPI_FLAGS_VARIABLE_NAME L"Tcg2PhysicalPresenceFlags"
 UNICODE_STRING PpiFlagsVariableNameUnicode = {
-		50,
-		52,
-		PPI_FLAGS_VARIABLE_NAME
+        50,
+        52,
+        PPI_FLAGS_VARIABLE_NAME
 };
 
 //
@@ -154,14 +154,14 @@ UNICODE_STRING PpiFlagsVariableNameUnicode = {
 //
 // TCG PP definition for physical presence ACPI function
 //
-#define TCG_ACPI_FUNCTION_GET_PHYSICAL_PRESENCE_INTERFACE_VERSION		1
-#define TCG_ACPI_FUNCTION_SUBMIT_REQUEST_TO_BIOS						2
-#define TCG_ACPI_FUNCTION_GET_PENDING_REQUEST_BY_OS						3
-#define TCG_ACPI_FUNCTION_GET_PLATFORM_ACTION_TO_TRANSITION_TO_BIOS		4
-#define TCG_ACPI_FUNCTION_RETURN_REQUEST_RESPONSE_TO_OS					5
-#define TCG_ACPI_FUNCTION_SUBMIT_PREFERRED_USER_LANGUAGE				6
-#define TCG_ACPI_FUNCTION_SUBMIT_REQUEST_TO_BIOS_2						7
-#define TCG_ACPI_FUNCTION_GET_USER_CONFIRMATION_STATUS_FOR_REQUEST		8
+#define TCG_ACPI_FUNCTION_GET_PHYSICAL_PRESENCE_INTERFACE_VERSION       1
+#define TCG_ACPI_FUNCTION_SUBMIT_REQUEST_TO_BIOS                        2
+#define TCG_ACPI_FUNCTION_GET_PENDING_REQUEST_BY_OS                     3
+#define TCG_ACPI_FUNCTION_GET_PLATFORM_ACTION_TO_TRANSITION_TO_BIOS     4
+#define TCG_ACPI_FUNCTION_RETURN_REQUEST_RESPONSE_TO_OS                 5
+#define TCG_ACPI_FUNCTION_SUBMIT_PREFERRED_USER_LANGUAGE                6
+#define TCG_ACPI_FUNCTION_SUBMIT_REQUEST_TO_BIOS_2                      7
+#define TCG_ACPI_FUNCTION_GET_USER_CONFIRMATION_STATUS_FOR_REQUEST      8
 
 //
 // TCG PP definition of physical presence operation actions for TPM2
