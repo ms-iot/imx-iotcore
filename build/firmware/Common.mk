@@ -79,7 +79,7 @@ OPTEE_FLAGS= \
 	CFG_DT=n \
 	CFG_NS_ENTRY_ADDR= \
 	CFG_RPMB_RESET_FAT=n \
-	CFG_CORE_HEAP_SIZE=131072 \
+	CFG_CORE_HEAP_SIZE=327680 \
 	platform-cflags="-fshort-wchar" \
 	CFLAGS="-fshort-wchar" \
 
