@@ -43,6 +43,11 @@ In order to connect your IoT Core device to your HLK server, it will need to con
    ```cmd
    KitsDeviceDetector.exe /rundevicediscovery
    REM example output: Name: 000EC687A555 | UniqueId: 00000000-0000-0000-0000-000ec687a555 | Address: 10.123.123.46 | Connection: SirepBroadcast2 | Location:
+   REM Note: If you have multiple matching results and the first doesn't work, try the UniqueID that is mostly zeroes.
+   ```
+   ```powershell
+   # You can also run the following in PowerShell to search for just your IP address
+   ./KitsDeviceDetector.exe /rundevicediscovery | Select-String "10.123.123.46"
    ```
    + 	Modify the DeviceName, DeviceID, and machinepool values and run the following command to onboard the device. DeviceID = UniqueId from above, machinepool should match the name from step 2, DeviceName is a unique name of your choice.
    ```cmd
@@ -67,6 +72,7 @@ In order to connect your IoT Core device to your HLK server, it will need to con
 
 
 ## Recommended devices to select in HLK device manager
+  - Resource Hub proxy device
   - i.MX UART Device
   - i.MX I2C Device
   - i.MX GPIO Controller
@@ -87,6 +93,27 @@ In order to connect your IoT Core device to your HLK server, it will need to con
     - [I2C WinRT tests](https://docs.microsoft.com/en-us/windows-hardware/test/hlk/testref/a60f5a94-12b2-4905-8416-e9774f539f1d)
     - [SPI WinRT tests](https://docs.microsoft.com/en-us/windows-hardware/test/hlk/testref/50cf9ccc-bbd3-4514-979f-b0499cb18ed8)
 
+# Running TAEF Tests Manually
+Many of the tests run through the HLK are built on the [Test Authoring and Execution Framework (TAEF)](https://docs.microsoft.com/en-us/windows-hardware/drivers/taef/). Depending on their complexity some of these tests can easily be run directly using TE.exe.
+
+Copy the following two folders from your HLK server to your IoT Core device:
+```
+C:\Program Files (x86)\Windows Kits\10\Hardware Lab Kit\Tests\arm\iot
+C:\Program Files (x86)\Windows Kits\10\Testing\Runtimes\TAEF\arm\MinTe
+```
+
+SSH into your IoT Core device and run the following:
+```bash
+cd <Parent directory of MinTE and iot>
+# List all the tests in the DLL
+MinTE\TE.exe iot\windows.devices.lowlevel.unittests.dll -list
+# List just the PWM tests
+MinTE\TE.exe iot\windows.devices.lowlevel.unittests.dll /name:Pwm* -list
+# Run just the PwmTests namespace
+MinTE\TE.exe iot\windows.devices.lowlevel.unittests.dll /name:PwmTests::*
+# Run a specific test
+MinTE\TE.exe iot\windows.devices.lowlevel.unittests.dll /name:PwmTests::VerifyControllerAndPinCreationConcurrent
+```
 
 # Test Tools
 
