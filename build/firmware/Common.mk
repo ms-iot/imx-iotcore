@@ -79,7 +79,7 @@ OPTEE_FLAGS= \
 	CFG_DT=n \
 	CFG_NS_ENTRY_ADDR= \
 	CFG_RPMB_RESET_FAT=n \
-	CFG_CORE_HEAP_SIZE=327680 \
+	CFG_CORE_HEAP_SIZE=131072 \
 	platform-cflags="-fshort-wchar" \
 	CFLAGS="-fshort-wchar" \
 
@@ -365,7 +365,7 @@ place_authvars_notice:
 
 place_ftpm_notice:
 	rm -f $(FTPM_BIN_PLACE)/NOTICE
-	echo "PUT FTPM NOTICE HERE!" >> $(AUTHVARS_BIN_PLACE)/NOTICE
+	echo "PUT FTPM NOTICE HERE!" >> $(FTPM_BIN_PLACE)/NOTICE
 
 # Make sure that dirs have case sensitivity on in Windows Subsystem for Linux.
 $(UBOOT): verify_case_sensitivity_$(UBOOT_OUT)
