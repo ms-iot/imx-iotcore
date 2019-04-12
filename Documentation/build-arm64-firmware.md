@@ -158,7 +158,8 @@ Note: The UEFI build environment has changed for 1903 and any existing build env
     popd
     
     # UEFI
-    # note: ignore any errors during build like "ERROR - Please upgrade Python! Current version is 3.6.7. Recommended minimum is 3.7."
+    # note: On Windows Ubuntu, ignore any Python errors during build specifically like 
+    # "ERROR - Please upgrade Python! Current version is 3.6.7. Recommended minimum is 3.7."
 
     # setup
     pushd ~/mu_platform_nxp
@@ -178,7 +179,7 @@ Note: The UEFI build environment has changed for 1903 and any existing build env
     # clean
     pushd ~/mu_platform_nxp
     rm -r Build
-    rm -r Confg
+    rm -r Config
     popd
 
     # build
