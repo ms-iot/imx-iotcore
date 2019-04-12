@@ -335,13 +335,13 @@ else
 	fi;
 
 	echo Directory does not have case sensitivity enabled. Attempting to enable it.
-	cd $(UBOOT_OUT) > /dev/null
+	cd $(CASE_DIR) > /dev/null
 	if test "`$(IS_ADMIN_CMD) "Access is denied"`"
 	then
 	  echo WSL not running as Administrator, launching an escalated PowerShell session to set case sensitivity!
 	  powershell.exe "Start-Process powershell -ArgumentList 'cd $(CASE_DIR_WIN);fsutil.exe file setCaseSensitiveInfo . enable;' -Verb RunAs"
 	else
-	  echo Setting case sensitivity enabled on $(UBOOT_OUT)
+	  echo Setting case sensitivity enabled on $(CASE_DIR)
 	  fsutil.exe file setCaseSensitiveInfo . enable
 	fi
 endif
