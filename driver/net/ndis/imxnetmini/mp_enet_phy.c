@@ -337,6 +337,34 @@ MP_PHY_INFO AR8035Info = {
     NULL
 };
 
+// KSZ8081 PHY
+ENET_PHY_CMD KSZ8081Config[] = {
+    {MII_WRITE_COMMAND(0x00, 0x3140), NULL},
+    {MII_WRITE_COMMAND(0x00, 0x3340), NULL},
+    {MII_WRITE_COMMAND(0x1F, 0x8190), NULL},
+    {ENET_MII_END,                    NULL}
+};
+
+ENET_PHY_CMD KSZ8081Startup[] = {
+    {MII_WRITE_COMMAND(MII_REG_CR, 0x1200), EnetParse_MII_C},       /* 100 Base T, Full Duplex */
+    {ENET_MII_END,                          NULL}
+};
+
+ENET_PHY_CMD KSZ8081Actint[] = {
+    {MII_READ_COMMAND(MII_REG_SR),            EnetParse_MII_S},
+    {MII_READ_COMMAND(MII_REG_ANLPAR),        EnetParse_MII_LPA},
+    {ENET_MII_END,                            NULL}
+};
+
+MP_PHY_INFO KSZ8081Info = {
+    ENET_PHY_KSZ8081,
+    TEXT("KSZ8081"),
+    KSZ8081Config,
+    KSZ8081Startup,
+    KSZ8081Actint,
+    NULL
+};
+
 // KSZ8091 PHY
 ENET_PHY_CMD KSZ8091Config[] = {
     {MII_WRITE_COMMAND(0x00, 0x3140), NULL},
@@ -513,6 +541,7 @@ MP_PHY_INFO *PhyInfo[] = {
     &AR8035Info,
     &RTL8211EInfo,
     &RTL8211FInfo,
+    &KSZ8081Info,
     &KSZ8091Info,
     &KSZ9021Info,
     &KSZ9031Info,
