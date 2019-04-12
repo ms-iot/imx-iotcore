@@ -3,6 +3,8 @@ Building and Updating ARM64 Firmware
 
 This document describes how to set up a build environment to build the latest firmware, update the firmware on the SD Card for testing and development, and include the new firmware in the FFU builds.
 
+Note: The UEFI build environment has changed for 1903 and any existing build environment must be updated.
+
 ## Setting up your build environment
 
 1) Set up a Linux environment.
@@ -16,11 +18,13 @@ This document describes how to set up a build environment to build the latest fi
     $ sudo apt-get update
     $ sudo apt-get upgrade
     $ sudo apt-get install build-essential python python-dev python-crypto python-wand device-tree-compiler bison flex swig iasl uuid-dev wget git bc libssl-dev zlib1g-dev python3-pip
+    *** new for 1903 UEFI
+    $ sudo apt-get install gcc g++ make python3 mono-devel
+    ***
     $ pushd ~
     $ wget https://releases.linaro.org/components/toolchain/binaries/7.2-2017.11/aarch64-linux-gnu/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu.tar.xz
     $ tar xf gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu.tar.xz
     $ rm gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu.tar.xz
-    $ pip3 install mu_environment
     $ popd
     ```
 
@@ -154,14 +158,34 @@ This document describes how to set up a build environment to build the latest fi
     popd
     
     # UEFI
-    
+    # note: On Windows Ubuntu, ignore any Python errors during build specifically like 
+    # "ERROR - Please upgrade Python! Current version is 3.6.7. Recommended minimum is 3.7."
+
+    # setup
     pushd ~/mu_platform_nxp
-    
+    export GCC5_AARCH64_PREFIX=~/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
+    pip3 install -r requirements.txt --upgrade
+
+    python3 NXP/MCIMX8M_EVK_4GB/PlatformBuild.py --setup
+    # if error here about NugetDependency.global_cache_path, then make sure mono-devel package is installed
+    # using apt-get as listed in "Update and install build tools" above.
+
     cd MU_BASECORE
     make -C BaseTools
     cd ..
-    
-    export GCC5_BIN=~/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/
+
+    popd
+
+    # clean
+    pushd ~/mu_platform_nxp
+    rm -r Build
+    rm -r Config
+    popd
+
+    # build
+    pushd ~/mu_platform_nxp
+
+    export GCC5_AARCH64_PREFIX=~/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
     
     python3 NXP/MCIMX8M_EVK_4GB/PlatformBuild.py TOOL_CHAIN_TAG=GCC5 \
       BUILDREPORTING=TRUE BUILDREPORT_TYPES="PCD" TARGET=RELEASE \
