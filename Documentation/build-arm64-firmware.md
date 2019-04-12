@@ -166,7 +166,8 @@ Note: The UEFI build environment has changed for 1903 and any existing build env
     pip3 install -r requirements.txt --upgrade
 
     python3 NXP/MCIMX8M_EVK_4GB/PlatformBuild.py --setup
-    # if error here about NugetDependency.global_cache_path, then make sure mono-devel package is installed using apt-get as listed in Update and Install Build Tools above.
+    # if error here about NugetDependency.global_cache_path, then make sure mono-devel package is installed
+    # using apt-get as listed in "Update and install build tools" above.
 
     cd MU_BASECORE
     make -C BaseTools
