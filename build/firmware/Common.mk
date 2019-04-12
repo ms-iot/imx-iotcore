@@ -196,7 +196,7 @@ uefi: $(EDK2BASETOOLS)
 	export WORKSPACE=$$PWD
 	export PACKAGES_PATH=$$PWD/edk2:$$PWD/imx-edk2-platforms
 	export GCC5_ARM_PREFIX=arm-linux-gnueabihf-
-	export PATH=~/gcc-linaro-6.4.1-2017.11-x86_64_arm-linux-gnueabihf/bin:$$PATH
+	export PATH=$(dir $(CROSS_COMPILE)):$$PATH
 	. edk2/edksetup.sh --reconfig
 	build -a ARM -t GCC5 -p Platform/$(EDK2_PLATFORM)/$(EDK2_DSC).dsc -b $(EDK2_DEBUG_RELEASE) $(EDK2_FLAGS)
 	popd
@@ -207,7 +207,7 @@ uefi: $(EDK2BASETOOLS)
 # Generate an unsigned UEFI FIT
 uefi_fit: uefi | $(MKIMAGE)
 	cp -f ../its/$(UEFI_ITS) $(UEFI_ITS)
-	$(UBOOT_OUT)/tools/mkimage -f $(UEFI_ITS) -r uefi.fit
+	$(UBOOT_OUT)/tools/mkimage -f $(UEFI_ITS) -r $(UEFI_FIT)
 	rm -f $(UEFI_ITS)
 
 # Ensure that mkimage is available to build UEFI fits in isolation.
@@ -221,7 +221,7 @@ $(EDK2BASETOOLS) edk2_basetools:
 	export WORKSPACE=$$PWD
 	export PACKAGES_PATH=$$PWD/edk2:$$PWD/imx-edk2-platforms
 	export GCC5_ARM_PREFIX=arm-linux-gnueabihf-
-	export PATH=~/gcc-linaro-6.4.1-2017.11-x86_64_arm-linux-gnueabihf/bin:$$PATH
+	export PATH=$(dir $(CROSS_COMPILE)):$$PATH
 	pushd edk2
 	git clean -fdx
 	popd
