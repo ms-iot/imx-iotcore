@@ -1,4 +1,7 @@
-#pip install pySerial
+# Copyright (c) Microsoft Corporation. All rights reserved.
+# Licensed under the MIT License.
+
+# pip install pySerial
 import serial
 import sys
 import codecs
@@ -8,6 +11,8 @@ import struct
 ser = serial.Serial('COM4', 115200)
 crosscert = "c:\\temp\\cert.cer"
 ekcertlog = "c:\\temp\\mfgek.txt"
+mac0 = 0xDEADBEEF
+mac1 = 0x0000BAD0
 
 def sendfile( filepath ):
     with open(filepath, "rb") as f:
@@ -42,12 +47,13 @@ while 1:
         print("exception during decode")
         continue
     if line == "MFG:reqmac":
-        # Write MAC0 (Placeholder)
-        ser.write(b'0xDEADBEEF\n')
-        # Write MAC1 (Placeholder)
-        ser.write(b'0x0000BEEF\n')
+        # Write MAC0 and MAC1 (Placeholder)
+        ser.write((mac0).to_bytes(4, byteorder='little'))
+        ser.write((mac1).to_bytes(4, byteorder='little'))
+        # Send a simple checksum truncated to 32-bytes
+        ser.write(((mac0 + mac1)&0xFFFFFFFF).to_bytes(4, byteorder='little'))
     if line == "MFG:hostcheck":
-        ser.write(bytes([0x48, 0x47, 0x46, 0x4D])) #HGFM
+        ser.write((0x4D464748).to_bytes(4, byteorder='little')) # MFGH in Ascii
     if line == "MFG:devicecert":
         # Send a cross-signed certificate (Placeholder)
         sendfile(crosscert)
@@ -56,18 +62,18 @@ while 1:
         sendstring(b'RealSerialNumber123456789\n')
     if line == "MFG:ekcert":
         data = ser.read(4)
-        length = data[0] + (data[1] << 8) + (data[2] << 16) + (data[3] << 24)
+        length = struct.unpack_from("i", data)[0]
 
         ekbytes = ser.read(length)
 
         data = ser.read(4)
-        devicesum = data[0] + (data[1] << 8) + (data[2] << 16) + (data[3] << 24)
+        devicesum = struct.unpack_from("i", data)[0]
 
         hostsum = 0
         for i in ekbytes:
             hostsum = hostsum + i
         if hostsum != devicesum:
-            fatalerror("Invalid EK certificate recieved!")
+            fatalerror("Invalid EK certificate received!")
             continue
         # ekcert should be passed through limpet to confirm an actual length
         # the properties of the ftpm may change the length.

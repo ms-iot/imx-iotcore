@@ -24,9 +24,9 @@ Missing features required for a complete provisioning implementation:
   3) Requests a MAC address from the provisioning host and fuses it onto the SoC (if MAC not already fused).
   4) SPL resets the platform.
   5) After the reset *spl_board_provision( )* senses that the system is in Trusted state so boot continues.
-* Early UEFI (fTPM Initialization)
+* Early UEFI (Secure Firmware TAs)
   1) The system boots all the way through to UEFI.
-  2) UEFI starts the fTPM TA and then the fTPM attempts to access the eMMC RPMB.
+  2) UEFI starts the secure firmware TAs (AuthVars & fTPM) which attempt to access the eMMC RPMB.
 * OP-TEE (RPMB Provisioning)
   1) OP-TEE detects that the RPMB has not been provisioned with a secret RPMB key and prepares to write it.
   2) The *tee_otp_check_rpmb_key_write_lock( )* function checks one of the SoC general purpose fuses to make sure the SoC has not written an RPMB key before.
@@ -73,8 +73,8 @@ The changes in UEFI are responsible for the following:
 * Loading SMBIOS values from UEFI variables.
 * Create an fTPM Endorsement Key Certificate using the default RSA template.
 * Loading the Endorsement Key Certificate from the fTPM and saving it to a host computer.
-* Receiving  a cross-signed EK Certificate to save into UEFI variables on the device for easy access.
-* Receiving  per-device SMBIOS values to save into UEFI variables to be recalled on future boots.
+* Receiving a cross-signed EK Certificate to save into UEFI variables on the device for easy access.
+* Receiving per-device SMBIOS values to save into UEFI variables to be recalled on future boots.
 * Set the DeviceProvisioned variable so subsequent boots will not run this driver.
 
 1) Open `Silicon\NXP\iMX6Pkg\Drivers\PlatformSmbiosDxe\PlatformSmbiosDxe.c` and note where RetrieveSmbiosVariable is called. This function tries to open a UEFI variable and returns an allocated buffer with the value if successful. The table creation functions can be updated to retrieve additional values from UEFI variables. (*FakeSMBIOSDataInVolatileStorage( )* and *StoreSmbiosVariable( )* are used to prepare these values for retrieval until non-volatile UEFI variables are ready.)
@@ -205,11 +205,11 @@ The default weak implementations return TEE_SUCCESS so they're no-ops on platfor
 
 ### fTPM Endorsement Key Certificate
 
-The fTPM Endorsement Key Certificate is the public key that can be used verify the identity of a TPM. In order to trust this EK Cert it must be extracted in the factory and must be stored by the OEM. The OEM then cross-signs the EK Cert to establish a chain to a well-known root of trust. These cross-signed certificates should be saved back onto the platform for convenience, but must be also hosted externally by the OEM in-case the non-volatile storage on the device is reset. Further reading on Endorsement Keys is available from the Trusted Computing Group [here](https://www.trustedcomputinggroup.org/wp-content/uploads/Credential_Profile_EK_V2.0_R14_published.pdf)
+The fTPM Endorsement Key Certificate is the public key that can be used to verify the identity of a TPM. In order to trust this EK Cert it must be extracted in the factory and must be stored by the OEM. The OEM then cross-signs the EK Cert to establish a chain to a well-known root of trust. These cross-signed certificates should be saved back onto the platform for convenience, but must be also hosted externally by the OEM in-case the non-volatile storage on the device is reset. Further reading on Endorsement Keys is available from the Trusted Computing Group [here](https://www.trustedcomputinggroup.org/wp-content/uploads/Credential_Profile_EK_V2.0_R14_published.pdf)
 
 The UEFI provisioning DXE driver defined in Provisioning.c opens a handle to the fTPM driver and requests the Endorsement Key Certificate. If the TPM does not return the Endorsement Key Certificate, the provisioning driver submits two more commands, CreatePrimary to generate an EK Cert using the default template, then EvictControl  to store it under a well-known persistent TPM handle. The driver then requests the certificate again. Once the certificate is retrieved it signals the provisioning host that it's about to send the EK Cert by sending the string "MFG:ekcert\n" over serial it then sends the EK Cert over serial along with a length and checksum. The provisioning host then saves the certificate.
 
-Next the device sends "MFG:devicecert\n" to the provisioning host to retrieve the cross-signed version of the certificate. It then receives a length, the buffer, and a checksum from the host device, and if everything succeeded  it writes the certificate into the "ManufacturerDeviceCert" UEFI variable.
+Next the device sends "MFG:devicecert\n" to the provisioning host to retrieve the cross-signed version of the certificate. It then receives a length, the buffer, and a checksum from the host device, and if everything succeeded it writes the certificate into the "ManufacturerDeviceCert" UEFI variable.
 
 ### SMBIOS Customizations
 
