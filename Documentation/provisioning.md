@@ -115,6 +115,7 @@ The imx-iotcore repository contains the makefile changes required to support SPL
 * MFG:reqmac
   * The device is ready to receive a unique MAC address from the provisioning host.
   * The provisioning host sends over two 4-byte integers, which get fused into OCOTP_MAC0 and OCOTP_MAC1 respectively, which form a complete MAC address when combined.
+  * The provisioning host sends over a 4-byte checksum that's the sum of MAC0 and MAC1.
   * The host must ensure that each device receives a unique MAC address from the OEM's assigned MAC addresses.
 * MFG:hostcheck
   * The device wants to check if a provisioning host is accessible. If there's no response then boot will continue in 5 seconds.
@@ -143,6 +144,8 @@ The imx-iotcore repository contains the makefile changes required to support SPL
 * MFG:success
   * The device successfully made it to the end of provisioning and is ready for the provisioning host to move to the next device.
   * The provisioning host may power off the device immediately and begin provisioning the next one.
+* MFGF:mac
+  * The device failed to receive a proper MAC address to fuse.
 * MFGF:remotehost
   * The device failed to get the correct response when checking that the provisioning host was connected.
 * MFGF:ekcert
@@ -169,7 +172,7 @@ The flow additionally sets the SEC_CONFIG fuse to 1, putting the platform into C
 ### MAC address fusing
 On the i.MX6 Quad the MAC address is split between two fuses: OCOTP_MAC0 and OCOTP_MAC1
 
-*spl_board_provision( )* sends the string "MFG:reqmac\n" out the serial line then awaits a response from a remote host. The host must respond to the MFG:reqmac request by sending the value to be fused into OCOTP_MAC0, then the value for OCOTP_MAC1 in sequence.
+*spl_board_provision( )* sends the string "MFG:reqmac\n" out the serial line then awaits a response from a remote host. The host must respond to the MFG:reqmac request by sending the value to be fused into OCOTP_MAC0, the value for OCOTP_MAC1, then a 32-bit sum of both values.
 
 ### U-Boot Configuration
 The following two settings must be added to your U-Boot config to blow SRKH and MAC address fuses during provisioning. These also require a board specific version of *spl_board_provision( )*.
@@ -223,7 +226,6 @@ These UEFI variables can be populated by a provisioning host over serial from th
 A provisioning GUID has been defined as the namespace for UEFI variables used in this flow.
 ```C
 // {72096f5b-2ac7-4e6d-a7bb-bf947d673415}
-EFI_GUID ProvisioningGuid =
-{ 0x72096f5b, 0x2ac7, 0x4e6d, { 0xa7, 0xbb, 0xbf, 0x94, 0x7d, 0x67, 0x34, 0x15 } };
+giMXPlatformProvisioningGuid = { 0x72096f5b, 0x2ac7, 0x4e6d, { 0xa7, 0xbb, 0xbf, 0x94, 0x7d, 0x67, 0x34, 0x15} }
 ```
 This is a shared value between the UEFI provisioning driver, the UEFI SMBIOS driver, and any OS services that need to pull values out such as the cross-signed EK Certificate.
