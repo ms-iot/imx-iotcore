@@ -1,5 +1,6 @@
 Windows 10 IoT Core for NXP i.MX Processors
 ==============
+<PUT PIPELINE STATUS BADGE HERE!>
 
 **Important! Please read this section first.**
 

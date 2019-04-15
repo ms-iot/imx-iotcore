@@ -1,0 +1,209 @@
+trigger:
+- master
+
+jobs:
+  - job: Build8
+    displayName: Build iMX 8
+    pool:
+      vmImage: 'Ubuntu-16.04'
+    strategy:
+      matrix:
+        NXPEVK_iMX8M_4GB:
+          Target: NXPEVK_iMX8M_4GB
+
+    steps:
+    - script: |
+        sudo apt-get update
+        sudo apt-get install build-essential device-tree-compiler bison flex swig iasl uuid-dev wget git bc libssl-dev zlib1g-dev gcc g++ make python3 mono-devel
+      displayName: Download tools
+
+    - script: |
+        sudo apt-get install python python-dev python-crypto python-wand python3-pip python3-setuptools
+        sudo apt-get install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev wget libsqlite3-dev
+        pushd ..
+        wget https://www.python.org/ftp/python/3.7.3/Python-3.7.3.tar.xz
+        tar -xf Python-3.7.3.tar.xz
+
+        python3 --version
+        cd Python-3.7.3
+        ./configure
+        make build_all -j8
+        sudo make altinstall
+        popd
+        python3.7 --version
+
+        sudo python3.7 -m pip install --upgrade pip
+        sudo python3.7 -m pip install --upgrade setuptools
+        sudo python3.7 -m pip install mu_environment
+      displayName: Install Python components
+
+    - script: |
+        wget https://releases.linaro.org/components/toolchain/binaries/7.2-2017.11/aarch64-linux-gnu/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu.tar.xz
+        tar xf gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu.tar.xz
+      displayName: Download gcc
+
+    - script: |
+        pushd ..
+        git clone --recursive -b imx_v2018.03_4.14.62_1.0.0_beta https://github.com/ms-iot/u-boot.git
+        git clone -b codeaurora/imx_4.14.62_1.0.0_beta https://github.com/ms-iot/optee_os.git
+        git clone --recursive https://github.com/ms-iot/mu_platform_nxp
+        git clone -b imx_4.14.62_1.0.0_beta https://source.codeaurora.org/external/imx/imx-atf
+        git clone -b imx_4.14.62_1.0.0_beta https://source.codeaurora.org/external/imx/imx-mkimage
+        git clone https://github.com/Microsoft/MSRsec.git
+        popd
+      displayName: Clone repos
+
+    - script: |
+        pushd ..
+        wget https://www.nxp.com/lgfiles/NMG/MAD/YOCTO/firmware-imx-7.9.bin
+        chmod +x firmware-imx-7.9.bin
+        yes | ./firmware-imx-7.9.bin
+        popd
+      displayName: Install NXP HDMI/DDR firmware
+
+    - script: |
+        pushd ../u-boot
+        export CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
+        export ARCH=arm64
+        make imx8mq_evk_nt_defconfig
+        make
+        popd
+      displayName: Build U-Boot
+
+    - script: |
+        pushd ../imx-atf
+        export CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
+        export ARCH=arm64
+        make PLAT=imx8mq SPD=opteed bl31
+        popd
+      displayName: Build ATF
+
+    - script: |
+        pushd ../optee_os
+        export -n CROSS_COMPILE
+        export -n ARCH
+        export CROSS_COMPILE64=$(Build.SourcesDirectory)/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
+        make PLATFORM=imx PLATFORM_FLAVOR=mx8mqevk CFG_TEE_CORE_DEBUG=n CFG_TEE_CORE_LOG_LEVEL=2  CFG_UART_BASE=0x30890000 CFG_RPMB_FS=y CFG_RPMB_TESTKEY=y CFG_RPMB_WRITE_KEY=y CFG_REE_FS=n CFG_IMXCRYPT=y CFG_CORE_HEAP_SIZE=98304
+        ${CROSS_COMPILE64}objcopy -O binary ./out/arm-plat-imx/core/tee.elf ./out/arm-plat-imx/tee.bin
+        popd
+      displayName: Build OP-TEE
+
+    - script: |
+        # make TAs!
+      displayName: Build TAs
+
+    - script: |
+        pushd ../imx-mkimage/iMX8M
+        export CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
+        export ARCH=arm64
+        cp ../../firmware-imx-7.9/firmware/ddr/synopsys/lpddr4_pmu_train_*.bin .
+        cp ../../firmware-imx-7.9/firmware/hdmi/cadence/signed_hdmi_imx8m.bin .
+        cp ../../optee_os/out/arm-plat-imx/tee.bin .
+        cp ../../imx-atf/build/imx8mq/release/bl31.bin .
+        cp ../../u-boot/u-boot-nodtb.bin  .
+        cp ../../u-boot/spl/u-boot-spl.bin .
+        cp ../../u-boot/arch/arm/dts/fsl-imx8mq-evk.dtb .
+        cp ../../u-boot/tools/mkimage .
+        mv mkimage mkimage_uboot
+        cd ..
+        make SOC=iMX8M flash_hdmi_spl_uboot
+        popd
+      displayName: Build Imx-mkimage_uboot
+
+    - script: |
+        pushd ../mu_platform_nxp
+        export GCC5_AARCH64_PREFIX=$(Build.SourcesDirectory)/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
+        sudo python3.7 -m pip3 install -r requirements.txt --upgrade
+        python3.7 NXP/MCIMX8M_EVK_4GB/PlatformBuild.py --setup
+
+        cd MU_BASECORE
+        make -C BaseTools
+        cd ..
+
+        python3.7 NXP/MCIMX8M_EVK_4GB/PlatformBuild.py TOOL_CHAIN_TAG=GCC5 BUILDREPORTING=TRUE BUILDREPORT_TYPES="PCD" TARGET=RELEASE MAX_CONCURRENT_THREAD_NUMBER=20 BLD_*_CONFIG_NOT_SECURE_UEFI=1
+      displayName: Build UEFI
+
+    - script: |
+        pushd ../mu_platform_nxp/Build/MCIMX8M_EVK_4GB/RELEASE_GCC5/FV
+        cp $(Build.SourcesDirectory)/build/firmware/its/uefi_imx8_unsigned.its .
+        $(Build.SourcesDirectory)/../u-boot/tools/mkimage -f uefi_imx8_unsigned.its -r uefi.fit
+      displayName: Create uefi.fit
+
+
+  - job: Build67
+    displayName: Build iMX 6 & 7
+    pool:
+      vmImage: 'Ubuntu-16.04'
+    strategy:
+      matrix:
+        ClSomImx7_iMX7D_1GB:
+          Target: ClSomImx7_iMX7D_1GB
+        HummingBoardEdge_iMX6DL_1GB:
+          Target: HummingBoardEdge_iMX6DL_1GB
+        HummingBoardEdge_iMX6Q_2GB:
+          Target: HummingBoardEdge_iMX6Q_2GB
+        HummingBoardEdge_iMX6S_512MB:
+          Target: HummingBoardEdge_iMX6S_512MB
+        Sabre_iMX6Q_1GB:
+          Target: Sabre_iMX6Q_1GB
+        Sabre_iMX6QP_1GB:
+          Target: Sabre_iMX6QP_1GB
+        Sabre_iMX7D_1GB:
+          Target: Sabre_iMX7D_1GB
+        SabreLite_iMX6Q_1GB:
+          Target: SabreLite_iMX6Q_1GB
+        UdooNeo_iMX6SX_1GB:
+          Target: UdooNeo_iMX6SX_1GB
+        VAB820_iMX6Q_1GB:
+          TargeT: VAB820_iMX6Q_1GB
+
+    steps:
+    - script: |
+        sudo apt-get install build-essential python python-dev python-crypto python-wand device-tree-compiler bison flex swig iasl uuid-dev wget git bc libssl-dev
+      displayName: Download tools
+
+    - script: |
+        wget https://releases.linaro.org/components/toolchain/binaries/6.4-2017.11/arm-linux-gnueabihf/gcc-linaro-6.4.1-2017.11-x86_64_arm-linux-gnueabihf.tar.xz
+        tar xf gcc-linaro-6.4.1-2017.11-x86_64_arm-linux-gnueabihf.tar.xz
+      displayName: Download gcc
+
+    - script: |
+        pushd ..
+        git clone -b imx https://github.com/ms-iot/imx-edk2-platforms.git
+        git clone --recursive -b u-boot-imx https://github.com/ms-iot/u-boot.git
+        git clone -b ms-iot https://github.com/ms-iot/optee_os.git
+        git clone --recursive -b tcps-feature https://github.com/Microsoft/RIoT.git
+        git clone https://github.com/Microsoft/MSRsec.git
+        git clone --recursive https://github.com/tianocore/edk2
+        popd
+      displayName: Clone repos
+
+
+    # Builds all components except the final HAB signed SPL (Need to find a way to store the NXP code signing tools)
+    - script: |
+        echo build/firmware/$(Target)
+        ls
+        cd build/firmware/$(Target)
+        make u-boot optee CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-6.4.1-2017.11-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-
+      displayName: Build U-Boot + OP-TEE
+
+    - script: |
+        echo build/firmware/$(Target)
+        ls
+        cd build/firmware/$(Target)
+        # echo make update_tas CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-6.4.1-2017.11-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-
+      displayName: Build TAs
+
+    - script: |
+        echo build/firmware/$(Target)
+        ls
+        cd build/firmware/$(Target)
+        make uefi_fit CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-6.4.1-2017.11-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-
+      displayName: Build UEFI
+
+    - script: |
+        echo build/firmware/$(Target)
+        ls
+        cd build/firmware/$(Target)
+        make image.fit CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-6.4.1-2017.11-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-
+      displayName: Initial FIT packaging
