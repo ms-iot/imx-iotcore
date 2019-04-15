@@ -86,6 +86,8 @@ while 1:
     if line == "MFG:success":
         print("Device provisioning successful. Power off device now!")
         continue
+    if line == "MFGF:mac":
+        fatalerror("Device failed to receive MAC address!")
     if line == "MFGF:remotehost":
         fatalerror("Device failed to communicate with host!")
     if line == "MFGF:ekcert":
