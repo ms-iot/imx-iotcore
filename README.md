@@ -1,6 +1,6 @@
 Windows 10 IoT Core for NXP i.MX Processors
 ==============
-<PUT PIPELINE STATUS BADGE HERE!>
+[![Build Status](https://dev.azure.com/microsoft/IOT/_apis/build/status/NXP/Firmware%20CI?branchName=public_preview)](https://dev.azure.com/microsoft/IOT/_build/latest?definitionId=38649&branchName=public_preview)
 
 **Important! Please read this section first.**
 
