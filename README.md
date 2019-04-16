@@ -3,7 +3,7 @@ Windows 10 IoT Core for NXP i.MX Processors
 | Component | Build Status |
 |-----|-----|
 |Firmware| [![Build Status](https://dev.azure.com/microsoft/IOT/_apis/build/status/NXP/Firmware%20CI?branchName=public_preview)](https://dev.azure.com/microsoft/IOT/_build/latest?definitionId=38649&branchName=public_preview)|
-| FFU | TBD |
+| FFU | [![Build Status](https://microsoft.visualstudio.com/OS/_apis/build/status/CET_Self_Enablement/IMX_BSP/kayla_CI_build_RTM?branchName=public_preview)](https://microsoft.visualstudio.com/OS/_build/latest?definitionId=24721&branchName=public_preview) |
 
 
 **Important! Please read this section first.**
