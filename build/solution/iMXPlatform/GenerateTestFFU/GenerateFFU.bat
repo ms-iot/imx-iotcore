@@ -50,6 +50,10 @@ if "%PLATFORM%"=="ARM" (
     REM cd /d %BATCH_HOME%
     REM echo "Building Sabre_iMX7D_1GB FFU"
     REM call BuildImage Sabre_iMX7D_1GB Sabre_iMX7D_1GB_TestOEMInput.xml
+
+    REM cd /d %BATCH_HOME%
+    REM echo "Building EVK_iMX6ULL_512MB FFU"
+    REM call BuildImage EVK_iMX6ULL_512MB EVK_iMX6ULL_512MB_TestOEMInput.xml
 )
 
 if "%PLATFORM%"=="ARM64" (
