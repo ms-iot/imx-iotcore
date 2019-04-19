@@ -162,6 +162,11 @@ typedef struct _ECSPI_SPB_TRANSFER {
     size_t BurstLength;
 
     //
+    // Burst length (ULONGs)
+    //
+    size_t BurstWords;
+
+    //
     // If we need to start the burst
     //
     BOOLEAN IsStartBurst;
@@ -209,8 +214,8 @@ enum ECSPI_REQUEST_TYPE : ULONG {
 //
 enum ECSPI_REQUEST_STATE : ULONG {
     INACTIVE,
-    CANCALABLE,
-    NOT_CANCALABLE,
+    CANCELABLE,
+    NOT_CANCELABLE,
     CANCELED
 };
 
