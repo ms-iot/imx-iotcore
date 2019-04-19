@@ -1,5 +1,5 @@
 trigger:
-- master
+- public_preview
 
 jobs:
   - job: Build8
