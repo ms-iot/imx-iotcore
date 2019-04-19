@@ -1,0 +1,50 @@
+{
+    "Registrations": [
+        {
+            "component": {
+                "type": "git",
+                "git": {
+                    "repositoryUrl": "https://github.com/ms-iot/optee_os",
+                    "branch": "ms-iot"
+                }
+            }
+        },
+        {
+            "component": {
+                "type": "git",
+                "git": {
+                    "repositoryUrl": "https://github.com/ms-iot/u-boot.git",
+                    "branch": "u-boot-imx"
+                }
+            }
+        },
+        {
+            "component": {
+                "type": "git",
+                "git": {
+                    "repositoryUrl": "https://github.com/Microsoft/RIoT.git",
+                    "branch": "tcps-feature"
+                }
+            }
+        },
+        {
+            "component": {
+                "type": "git",
+                "git": {
+                    "repositoryUrl": "https://github.com/ms-iot/imx-edk2-platforms.git",
+                    "branch": "imx"
+                }
+            }
+        },
+        {
+            "component": {
+                "type": "git",
+                "git": {
+                    "repositoryUrl": "https://github.com/tianocore/edk2",
+                    "branch": "master"
+                }
+            }
+        }
+    ],
+    "Version": 1
+}
