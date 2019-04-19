@@ -211,7 +211,7 @@ jobs:
       displayName: Initial FIT packaging
 
     - script: |
-        python3 external/build_cgmanifest.py external/cgmanifest_template.json
+        python3 ci/build_cgmanifest.py ci/cgmanifest_template.json
         cat cgmanifest.json
       displayName: Generate dynamic Component Governance cgmanifest.json
       
