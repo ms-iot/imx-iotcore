@@ -209,3 +209,10 @@ jobs:
         cd build/firmware/$(Target)
         make image.fit CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-6.4.1-2017.11-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-
       displayName: Initial FIT packaging
+
+    - script: |
+        python3 external/build_cgmanifest.py external/cgmanifest_template.json
+        cat cgmanifest.json
+      displayName: Generate dynamic Component Governance cgmanifest.json
+      
+    - task: ComponentGovernanceComponentDetection@0
