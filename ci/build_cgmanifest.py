@@ -35,6 +35,10 @@ def get_submodules():
     repo_root = git_process.stdout.splitlines()[0]
     print("Checking for submodules in ", repo_root)
 
+    if not os.path.isfile(os.path.join(repo_root, ".gitmodules")):
+        print("No .gitmodules file found")
+        return []
+
     # Submodules can have custom names, need to look up the names of submodules by path so we can look up the URL given a path
     cmd = "git config --file .gitmodules --get-regexp submodule.*path"
     git_process = subprocess.run(cmd, cwd=repo_root,shell=True, stdout=subprocess.PIPE,  universal_newlines=True, timeout=10)
