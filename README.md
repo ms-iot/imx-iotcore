@@ -25,6 +25,7 @@ Windows 10 IoT Core for NXP i.MX Processors
 |i.MX 6DualLite | SolidRun | HummingBoard Edge | HummingBoardEdge_iMX6DL_1GB |
 |i.MX 6Solo | SolidRun | HummingBoard Edge | HummingBoardEdge_iMX6S_512MB |
 |i.MX 6SoloX | UDOO | Neo Full | UdooNeo_iMX6SX_1GB |
+|i.MX 6ULL | NXP | i.MX 6ULL EVK | EVK_iMX6ULL_512MB |
 |i.MX 7Dual | CompuLab | IoT Gateway, CL-SOM-iMX7+SBC-iMX7 | ClSomImx7_iMX7D_1GB |
 |i.MX 7Dual | NXP | i.MX 7Dual SABRE | Sabre_iMX7D_1GB |
 |i.MX 8M | NXP | i.MX 8M EVK | NXPEVK_IMX8M_4GB |
