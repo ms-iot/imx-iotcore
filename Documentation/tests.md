@@ -4,7 +4,7 @@ IoT Core Test Methods
 This document walks through various tools available for testing the functionality and stability of new drivers for Windows IoT Core.
 
 # Hardware Lab Kit
-The Windows Hardware Lab kit (Windows HLK) is a test framework used to test hardware devices for Windows 10. A subset of the tests is available for use on Windows IoT Core devices.
+The Windows Hardware Lab Kit (Windows HLK) is a test framework used to test hardware devices for Windows 10. A subset of the tests is available for use on Windows IoT Core devices.
 ## Prerequisites
  - A machine dedicated solely for HLK testing purposes running Windows Server 2008 R2, Windows Server 2012, Windows Server 2012 R2, or Windows Server 2016.
  - Network connectivity with the device under test.
