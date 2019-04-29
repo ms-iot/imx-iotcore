@@ -11,9 +11,20 @@ The Windows Hardware Lab Kit (Windows HLK) is a test framework used to test hard
 
 ## HLK Setup
 
-**1. Set up the HLK server**:
- https://docs.microsoft.com/en-us/windows-hardware/test/hlk/getstarted/step-1-install-controller-and-studio-on-the-test-server 
+**1. (Option A) Download the preconfigured VHLK image and run in Hyper-V**
 
+  This is the preferred method because it's easier to setup. Use the RS5 VHD and follow the instructions in the below links:
+  
+  https://www.microsoft.com/en-us/evalcenter/evaluate-virtual-hardware-lab-kit
+  
+  https://docs.microsoft.com/en-us/windows-hardware/test/hlk/getstarted/getstarted-vhlk
+
+**1. (Option B) Set up the HLK on your own Windows Server install**:
+
+  If you need to use your own Windows Server 2016 machine you can follow this setup. Make sure to use Version 1809 of the HLK:
+  
+  https://docs.microsoft.com/en-us/windows-hardware/test/hlk/getstarted/step-1-install-controller-and-studio-on-the-test-server 
+ 
 **2. Machine Pool Setup**
 
    + Open HLK Studio on the HLK server.
