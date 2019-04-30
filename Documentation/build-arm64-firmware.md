@@ -123,7 +123,7 @@ Note: The UEFI build environment has changed for 1903 and any existing build env
     
     pushd ~/MSRSec/TAs/optee_ta
     
-    make ftpm authvars CFG_FTPM_USE_WOLF=y CFG_AUTHVARS_USE_WOLF=y
+    make ftpm authvars CFG_FTPM_USE_WOLF=n CFG_AUTHVARS_USE_WOLF=n
     
     # debug
     # CFG_TEE_TA_LOG_LEVEL=4 CFG_TA_DEBUG=y make
