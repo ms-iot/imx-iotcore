@@ -17,7 +17,7 @@ Note: The UEFI build environment has changed for 1903 and any existing build env
     ```bash
     sudo apt-get update
     sudo apt-get upgrade
-    sudo apt-get attr install build-essential python python-dev python-crypto python-wand device-tree-compiler bison flex swig iasl uuid-dev wget git bc libssl-dev zlib1g-dev python3-pip
+    sudo apt-get install attr build-essential python python-dev python-crypto python-wand device-tree-compiler bison flex swig iasl uuid-dev wget git bc libssl-dev zlib1g-dev python3-pip
     *** new for 1903 UEFI
     sudo apt-get install gcc g++ make python3 mono-devel
     ***
