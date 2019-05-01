@@ -1,12 +1,12 @@
 Feature List Per Board
 =======
 
-This is an overview of the currently supported features for each of the boards.  As features get enabled and boards are added, please update this table.
+This is an overview of the currently supported features for each of the boards.  As features are enabled and boards are added, please update this table.
 
 |Legend| Meaning|
 |---|---|
-| Y | Supported |
-| N | Not Supported |
+| Y | Enabled |
+| N | Not Enabled |
 | I/P | In Progress |
 | N/A | Feature not applicable |
 
