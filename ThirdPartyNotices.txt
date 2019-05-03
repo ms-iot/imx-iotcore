@@ -31,6 +31,9 @@ Copyright (c) 2013 - 2015, Red Hat, Inc.
 edk2-platforms (https://github.com/ms-iot/imx-edk2-platforms)
 Copyright (c) 2012-2017, Linaro Ltd. All rights reserved.
 
+edk2-libc(https://github.com/tianocore/edk2-libc.git)
+Copyright (c) 2019, TianoCore and contributors.  All rights reserved.
+
 ms-tpm-20-ref (https://github.com/Microsoft/ms-tpm-20-ref)
 Copyright (c) Microsoft Corporation. All rights reserved.
 
