@@ -44,6 +44,15 @@
                     "branch": "master"
                 }
             }
+        },
+        {
+            "component": {
+                "type": "git",
+                "git": {
+                    "repositoryUrl": "https://github.com/tianocore/edk2-libc",
+                    "branch": "master"
+                }
+            }
         }
     ],
     "Version": 1

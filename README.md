@@ -143,6 +143,7 @@ The firmware code can be found in the following repos:
 * UEFI for ARM:
   * https://github.com/tianocore/edk2.git
   * https://github.com/ms-iot/imx-edk2-platforms.git
+  * https://github.com/tianocore/edk2-libc.git
 * UEFI for ARM64:
   * https://github.com/ms-iot/MU_PLATFORM_NXP.git
   * https://github.com/ms-iot/MU_SILICON_NXP.git

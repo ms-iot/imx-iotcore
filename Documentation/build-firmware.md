@@ -31,6 +31,7 @@ This document describes how to set up a build environment to build the latest fi
     $ git clone --recursive -b tcps-feature https://github.com/Microsoft/RIoT.git
     $ git clone -b imx https://github.com/ms-iot/imx-edk2-platforms.git
     $ git clone --recursive https://github.com/tianocore/edk2
+    $ git clone https://github.com/tianocore/edk2-libc.git
     ```
     Optionally, clone the TPM reference implementation (`imx-edk2-platforms` includes a precompiled TPM binary)
     ```bash

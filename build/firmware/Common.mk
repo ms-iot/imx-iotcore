@@ -194,7 +194,7 @@ $(SPL_PUB_KEYED): $(UBOOT_OPTEE_FIT)
 uefi: $(EDK2BASETOOLS)
 	@+pushd $(REPO_ROOT)/..
 	export WORKSPACE=$$PWD
-	export PACKAGES_PATH=$$PWD/edk2:$$PWD/imx-edk2-platforms
+	export PACKAGES_PATH=$$PWD/edk2:$$PWD/imx-edk2-platforms:$$PWD/edk2-libc
 	export GCC5_ARM_PREFIX=arm-linux-gnueabihf-
 	export PATH=$(dir $(CROSS_COMPILE)):$$PATH
 	. edk2/edksetup.sh --reconfig
