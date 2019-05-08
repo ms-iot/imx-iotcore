@@ -131,7 +131,7 @@ Copy `uefi.fit` over to the EFI partition on your SD card.
 ### Updating the TAs in UEFI
 A firmware TPM TA, and UEFI authenticated variable TA, are included with EDK2. Generally, these TAs should work on any ARM32 system where OP-TEE is running, and eMMC RPMB is available.
 
-These binaries are built using OpenSSL by default but can also be built using WolfSSL (See `FTPM_FLAGS` and `AUTHVAR_FLAGS` in `common.mk`).
+These binaries are built using OpenSSL by default but can also be built using WolfSSL (See `FTPM_FLAGS` and `AUTHVARS_FLAGS` in `common.mk`).
 
 They are omitted from the firmware if the `CONFIG_NOT_SECURE_UEFI=1` flag is set. This is useful for early development work if RPMB storage is not functioning yet, or if eMMC is not pressent on the device.
 

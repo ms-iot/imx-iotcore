@@ -53,8 +53,8 @@ FTPM_FLAGS= \
 	CFG_TEE_TA_LOG_LEVEL=2 \
 	CFG_TA_DEBUG=n \
 
-AUTHVAR_FLAGS= \
-	$(AUTHVAR_CRYPTO_PROVIDER) \
+AUTHVARS_FLAGS= \
+	$(AUTHVARS_CRYPTO_PROVIDER) \
 	CFG_TEE_TA_LOG_LEVEL=2 \
 	CFG_TA_DEBUG=n \
 
@@ -287,7 +287,7 @@ authvars: optee
 	echo "TA directory $(abspath $(TA_ROOT)) not found" ; \
 	exit 1 ; \
 	fi
-	$(MAKE) -C $(TA_ROOT) TA_CPU=cortex-a9 O=$(AUTHVARS_OUT) $(AUTHVAR_FLAGS) authvars
+	$(MAKE) -C $(TA_ROOT) TA_CPU=cortex-a9 O=$(AUTHVARS_OUT) $(AUTHVARS_FLAGS) authvars
 	cp -f $(AUTHVARS_OUT)/2d57c0f7-bddf-48ea-832f-d84a1a219301.elf $(AUTHVARS_BIN_PLACE)
 	cp -f $(AUTHVARS_OUT)/2d57c0f7-bddf-48ea-832f-d84a1a219301.ta $(AUTHVARS_BIN_PLACE)
 
