@@ -33,10 +33,9 @@ This document describes how to set up a build environment to build the latest fi
     $ git clone --recursive https://github.com/tianocore/edk2
     $ git clone https://github.com/tianocore/edk2-libc.git
     ```
-    Optionally, clone the TPM reference implementation (`imx-edk2-platforms` includes a precompiled TPM binary)
+    Optionally, clone the security TA repo (`imx-edk2-platforms` includes precompiled TA binaries)
     ```bash
-    $ git clone --recursive https://github.com/Microsoft/ms-tpm-20-ref
-    $ pushd ms-tpm-20-ref; git checkout 65b65354c6cce3212d9c512ec3ae2e23fe37c94d; popd
+    $ git clone  https://github.com/Microsoft/MSRSec
     ```
 
 1) Download and extract the [Code Signing Tools (CST)](https://www.nxp.com/webapp/sps/download/license.jsp?colCode=IMX_CST_TOOL) from NXP's website. You will need to create an account on NXP's website to access this tool. Extract the tool to the same directory as all the above repositories, and rename the folder to cst:
@@ -53,7 +52,7 @@ This document describes how to set up a build environment to build the latest fi
        |- edk2
        |- imx-edk2-platforms
        |- imx-iotcore
-       |- ms-tpm-20-ref
+       |- MSRSec
        |- optee_os
        |- RIoT
        |- u-boot
@@ -128,3 +127,18 @@ dd if=firmware_fit.merged of=/dev/sdX bs=512 seek=2
 
 ### Deploying UEFI (uefi.fit) for development
 Copy `uefi.fit` over to the EFI partition on your SD card.
+
+### Updating the TAs in UEFI
+A firmware TPM TA, and UEFI authenticated variable TA, are included with EDK2. Generally, these TAs should work on any ARM32 system where OP-TEE is running, and eMMC RPMB is available.
+
+These binaries are built using OpenSSL by default but can also be built using WolfSSL (See `FTPM_FLAGS` and `AUTHVAR_FLAGS` in `common.mk`).
+
+They are omitted from the firmware if the `CONFIG_NOT_SECURE_UEFI=1` flag is set. This is useful for early development work if RPMB storage is not functioning yet, or if eMMC is not pressent on the device.
+
+They can be rebuilt using:
+```bash
+make update_tas
+```
+This updates the binaries included in the imx-edk2-platforms repo.
+#### Clearing RPMB
+If the TAs are changed significantly, or the storage becomes corrupted, it may be necessary to clear the OP-TEE secure filesystem in RPMB. This can be done by building OP-TEE with the `CFG_RPMB_RESET_FAT=y` flag set. This flag will cause OP-TEE to erase its FAT metadata when it first accesses RPMB during every boot. This effectively clears all the data stored by the TAs. After clearing the RPMB OP-TEE should be switched back to `CFG_RPMB_RESET_FAT=n` to allow variables to persist again.

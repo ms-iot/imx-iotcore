@@ -425,9 +425,15 @@ For an example on how to read the ACPI _DSD from within a kernel driver, see the
 - [PWM WinRT APIs](https://docs.microsoft.com/en-us/uwp/api/windows.devices.pwm)
 - [Virtual PWM Driver Sample](https://github.com/Microsoft/Windows-iotcore-samples/tree/develop/Drivers)
 
+## Security TAs
+
+UEFI includes a pair of OP-TEE Trusted Applications (TAs) which implement a firmware TPM, and a UEFI authenticated variable store. These binaries should generally not require re-compiling; however, if your OP-TEE has been changed (including build flags) it may introduce incompatibilities. See [Updating the TAs](./build-firmware.md#Updating-the-TAs) for instructions on adding new TAs to your firmware binaries.
+
+They are included in UEFI by default but can be omitted with the CONFIG_NOT_SECURE_UEFI=1 flag. The TAs require OP-TEE to have access to secure storage (eMMC's RPMB). Windows will not support Bitlocker, Secure Boot, or persistent firmware variable storage without these TAs enabled.
+
 ## Building UEFI
 
-For a detailed guide on how to build the iMX UEFI firmware image, please refer to [Building and Updating Firmware](./build-firmware.md) and scroll down to the **Building UEFI** section.
+For a detailed guide on how to build the i.MX UEFI firmware image, please refer to [Building and Updating Firmware](./build-firmware.md).
 
 ## Testing UEFI
 

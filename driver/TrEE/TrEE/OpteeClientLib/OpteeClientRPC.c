@@ -34,6 +34,7 @@
 #include <ntddk.h>
 #include <ntstatus.h>
 #include <ntstrsafe.h>
+#include <initguid.h>
 #include <sffdisk.h>
 #include <sddef.h>
 #include <wdf.h>

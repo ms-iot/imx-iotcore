@@ -1,6 +1,7 @@
 u-boot
 optee_os
 fTPM
+authvars
 RIoT
 spl_csf.bin
 spl_HAB.imx

@@ -1502,9 +1502,8 @@ Return Value:
 
     if (NT_SUCCESS(Status)) {
         if (RpcInputBufferSize > OPTEE_MAXIMUM_RPC_INPUT_SIZE) {
-            TraceError("Request buffer too small %lld, required %lld",
-                RequestContext->OutputBufferSize - sizeof(GENSVC_OUTPUT_BUFFER_HEADER),
-                RpcInputBufferSize);
+            TraceError("Request buffer too large %lld, maximum %lld",
+                RpcInputBufferSize, OPTEE_MAXIMUM_RPC_INPUT_SIZE);
 
             ExReleaseFastMutex(&SessionContext->PendingRequestsLock);
             return TEEC_ERROR_EXCESS_DATA;
