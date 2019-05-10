@@ -31,15 +31,15 @@ Note: The UEFI build environment has changed for 1903 and any existing build env
 1) Clone all repositories into the same directory as the imx-iotcore repo.
     ```bash
     git clone --recursive https://github.com/ms-iot/imx-iotcore.git
-    git clone --recursive -b imx_v2018.03_4.14.62_1.0.0_beta https://github.com/ms-iot/u-boot.git
-    git clone -b codeaurora/imx_4.14.62_1.0.0_beta https://github.com/ms-iot/optee_os.git
     git clone --recursive https://github.com/ms-iot/mu_platform_nxp
-    git clone -b imx_4.14.62_1.0.0_beta https://source.codeaurora.org/external/imx/imx-atf
-    git clone -b imx_4.14.62_1.0.0_beta https://source.codeaurora.org/external/imx/imx-mkimage
+    git clone -b imx_v2018.03_4.14.98_2.0.0_ga https://github.com/ms-iot/u-boot.git
+    git clone -b imx_4.14.98_2.0.0_ga https://github.com/ms-iot/optee_os.git
+    git clone -b imx_4.14.98_2.0.0_ga https://source.codeaurora.org/external/imx/imx-atf
+    git clone -b imx_4.14.98_2.0.0_ga https://source.codeaurora.org/external/imx/imx-mkimage
     ```
     Optionally, clone the security TA repo (`mu_platform_nxp` includes precompiled TA binaries)
     ```bash
-    git clone  https://github.com/Microsoft/MSRSec
+    git clone https://github.com/Microsoft/MSRSec
     ```
 
 1) Download and extract the [Code Signing Tools (CST)](https://www.nxp.com/webapp/sps/download/license.jsp?colCode=IMX_CST_TOOL) from NXP's website. You will need to create an account on NXP's website to access this tool. Extract the tool to the same directory as all the above repositories, and rename the folder to cst:
@@ -51,21 +51,21 @@ Note: The UEFI build environment has changed for 1903 and any existing build env
 
 1) Download and extract the [iMX firmware](https://www.nxp.com/lgfiles/NMG/MAD/YOCTO/firmware-imx-7.9.bin) from NXP's website. This retrieves a self extracting shell script that provides HDMI firmware and DDR training firmware. 
     ```bash
-    wget https://www.nxp.com/lgfiles/NMG/MAD/YOCTO/firmware-imx-7.9.bin
-    chmod +x firmware-imx-7.9.bin
-    ./firmware-imx-7.9.bin
+    wget https://www.nxp.com/lgfiles/NMG/MAD/YOCTO/firmware-imx-8.1.bin
+    chmod +x firmware-imx-8.1.bin
+    ./firmware-imx-8.1.bin
     ````
 
 1) At this point your directory structure should look like the following
     ```
     - %WORKSPACE%
     
+       |- MSRSec
        |- cst
-       |- firmware-imx-7.9
+       |- firmware-imx-8.1
        |- imx-atf
        |- imx-iotcore
        |- imx-mkimage
-       |- MSRSec
        |- mu_platform_nxp
        |- optee_os
        |- u-boot
@@ -119,19 +119,24 @@ Note: The UEFI build environment has changed for 1903 and any existing build env
 
    # OP-TEE Trusted Applications
 
-   export TA_DEV_KIT_DIR=../../../../../optee_os/out/arm-plat-imx/export-ta_arm64
+   export TA_DEV_KIT_DIR=../../../../optee_os/out/arm-plat-imx/export-ta_arm64
    export TA_CROSS_COMPILE=~/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
    export TA_CPU=cortex-a53
-   pushd /MSRSec/TAs/optee_ta
-   make CFG_ARM64_ta_arm64=y CFG_FTPM_USE_WOLF=n CFG_AUTHVARS_USE_WOLF=n
+
+   pushd MSRSec/TAs/optee_ta
+   make CFG_ARM64_ta_arm64=y CFG_FTPM_USE_WOLF=y CFG_AUTHVARS_USE_WOLF=y
 
    # debug
    # CFG_TEE_TA_LOG_LEVEL=4 CFG_TA_DEBUG=y make
-   cp ~/MSRSec/TAs/optee_ta/out/fTPM/53bab89c-b864-4d7e-acbc-33c07a9c1b8d.ta ~/mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/fTpmTa/Arm64/Test
-   cp ~/MSRSec/TAs/optee_ta/out/fTPM/53bab89c-b864-4d7e-acbc-33c07a9c1b8d.elf ~/mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/fTpmTa/Arm64/Test
-   cp ~/MSRSec/TAs/optee_ta/out/AuthVars/2d57c0f7-bddf-48ea-832f-d84a1a219301.ta ~/mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/AuthVarsTa/Arm64/Test
-   cp ~/MSRSec/TAs/optee_ta/out/AuthVars/2d57c0f7-bddf-48ea-832f-d84a1a219301.elf ~/mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/AuthVarsTa/Arm64/Test
+
    popd
+
+   cp MSRSec/TAs/optee_ta/out/AuthVars/2d57c0f7-bddf-48ea-832f-d84a1a219301.ta  mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/AuthvarsTa/Arm64/Test/
+   cp MSRSec/TAs/optee_ta/out/AuthVars/2d57c0f7-bddf-48ea-832f-d84a1a219301.elf mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/AuthvarsTa/Arm64/Test/
+
+   cp MSRSec/TAs/optee_ta/out/fTPM/53bab89c-b864-4d7e-acbc-33c07a9c1b8d.ta mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/fTpmTa/Arm64/Test/
+   cp MSRSec/TAs/optee_ta/out/fTPM/53bab89c-b864-4d7e-acbc-33c07a9c1b8d.elf mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/fTpmTa/Arm64/Test/
+
 
    # Imx-mkimage
 
@@ -140,8 +145,8 @@ Note: The UEFI build environment has changed for 1903 and any existing build env
 
    pushd imx-mkimage/iMX8M
 
-   cp ../../firmware-imx-7.9/firmware/ddr/synopsys/lpddr4_pmu_train_*.bin .
-   cp ../../firmware-imx-7.9/firmware/hdmi/cadence/signed_hdmi_imx8m.bin .
+   cp ../../firmware-imx-8.1/firmware/ddr/synopsys/lpddr4_pmu_train_*.bin .
+   cp ../../firmware-imx-8.1/firmware/hdmi/cadence/signed_hdmi_imx8m.bin .
    cp ../../optee_os/out/arm-plat-imx/tee.bin .
    cp ../../imx-atf/build/imx8mq/release/bl31.bin .
    cp ../../u-boot/u-boot-nodtb.bin  .
@@ -157,7 +162,7 @@ Note: The UEFI build environment has changed for 1903 and any existing build env
    popd
 
    # UEFI
-   # note: On Windows Ubuntu, ignore any Python errors during build specifically like 
+   # note: On Windows Ubuntu, ignore Python errors during build specifically like 
    # "ERROR - Please upgrade Python! Current version is 3.6.7. Recommended minimum is 3.7."
 
    # setup
@@ -213,6 +218,10 @@ Note: The UEFI build environment has changed for 1903 and any existing build env
 1) To make the updated firmware a part of your FFU build, you must copy the firmwares to your board's Package folder in imx-iotcore.
  * Copy uefi.fit into /board/boardname/Package/BootFirmware
  * Copy flash.bin into /board/boardname/Package/BootLoader
+    ```bash
+    cp imx-mkimage/iMX8M/flash.bin imx-iotcore/build/board/NXPEVK_iMX8M_4GB/Package/BootLoader/flash.bin
+    cp mu_platform_nxp/Build/MCIMX8M_EVK_4GB/RELEASE_GCC5/FV/uefi.fit imx-iotcore/build/board/NXPEVK_iMX8M_4GB/Package/BootFirmware/uefi.fit
+    ```
 
 ## Deploying firmware to an SD card manually
 
