@@ -49,7 +49,7 @@ jobs:
         git clone --recursive https://github.com/ms-iot/mu_platform_nxp
         git clone -b imx_4.14.62_1.0.0_beta https://source.codeaurora.org/external/imx/imx-atf
         git clone -b imx_4.14.62_1.0.0_beta https://source.codeaurora.org/external/imx/imx-mkimage
-        git clone https://github.com/Microsoft/MSRsec.git
+        git clone https://github.com/Microsoft/MSRSec.git
         popd
       displayName: Clone repos
 
