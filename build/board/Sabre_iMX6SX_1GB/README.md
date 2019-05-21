@@ -1,0 +1,3 @@
+Sabre_iMX6SX_1GB
+board
+package
