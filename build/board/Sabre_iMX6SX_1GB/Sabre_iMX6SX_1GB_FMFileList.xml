@@ -2,7 +2,7 @@
 <FMCollectionManifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/embedded/2004/10/ImageUpdate" Product="IoTUAP" >
   <IsBuildFeatureEnabled>true</IsBuildFeatureEnabled>
   <FMs>
-    <FM ID="Sabre6Q" Path="$(FMDirectory)\Sabre_iMX6SX_1GB_DeviceFM.xml" ReleaseType="Production" OwnerName="NXP" OwnerType="OEM" CPUType="ARM" Critical="true"/>
+    <FM ID="Sabre6SX" Path="$(FMDirectory)\Sabre_iMX6SX_1GB_DeviceFM.xml" ReleaseType="Production" OwnerName="NXP" OwnerType="OEM" CPUType="ARM" Critical="true"/>
  </FMs>
 
   <SupportedResolutions>
