@@ -4,7 +4,7 @@
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     name="DeviceLayoutMin2GB"
-    namespace="SabreiMX6Q1GB"
+    namespace="SabreiMX6SX1GB"
     owner="NXP"
     legacyName="NXP.Sabre_iMX6SX_1GB.DeviceLayout_Min2GB"
     >
