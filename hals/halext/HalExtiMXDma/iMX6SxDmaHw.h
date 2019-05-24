@@ -195,7 +195,7 @@ SDMA_CHANNEL_CONFIG Imx6SxDmaReqToChannelConfig[] = {
     // (3) SDMA_REQ_HDMI_AUDIO
     {
         SDMA_UNSUPPORTED_REQUEST_ID,    // Script address
-        SDMA_REQ_IPU1,                  // DMA request ID
+        SDMA_REQ_HDMI_AUDIO,            // DMA request ID
     },
 
     // (4) SDMA_REQ_ECSPI1_RX -> Event 3
