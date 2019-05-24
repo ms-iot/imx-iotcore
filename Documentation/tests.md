@@ -136,3 +136,38 @@ The diskspd utility is an open source disk measurement utility that works on IoT
 ## Network
 
 + https://github.com/Microsoft/ctsTraffic
+
+# UEFI SCT
+
+## Build SCT for ARM
+Instructions based on: https://github.com/tianocore/edk2-test/blob/master/uefi-sct/HowToBuild/How%20to%20build%20SCT%20in%20UDK2017.txt
+
+On the Linux system you build your UEFI firmware:
+ ```
+ mkdir sct_workspace
+ cd sct_workspace
+ git clone https://github.com/tianocore/edk2-test
+ git clone https://github.com/tianocore/edk2.git
+ cd edk2
+ git checkout edk2-stable201903
+ ln -s ../edk2-test/uefi-sct/SctPkg SctPkg
+ cd ..
+ mkdir -p "tools/gcc"
+ cd "tools/gcc"
+ wget -nv "https://releases.linaro.org/components/toolchain/binaries/4.9-2016.02/arm-linux-gnueabihf/gcc-linaro-4.9-2016.02-x86_64_arm-linux-gnueabihf.tar.xz"
+ tar -xf gcc-linaro-4.9-2016.02-x86_64_arm-linux-gnueabihf.tar.xz
+ cd ../..
+ export PATH=$PATH:"$PWD/tools/gcc/gcc-linaro-4.9-2016.02-x86_64_arm-linux-gnueabihf/bin"
+ export CROSS_COMPILE="$PWD/tools/gcc/gcc-linaro-4.9-2016.02-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-"
+ cd edk2
+ ./SctPkg/build.sh ARM GCC
+ ```
+
+Once this is complete, you should have SCT binaries in your Build folder.
+
+## Using SCT
+1. Format a separate Storage Media to FAT32. I recommend an 8GB+ USB stick. This is where we will place our tests.
+1. Copy the SCT binaries into your FAT32 USB stick
+1. Move the USB stick to the target device
+1. Boot into UEFI shell
+1. Run Sct.efi to install the test.
