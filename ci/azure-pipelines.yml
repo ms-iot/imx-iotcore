@@ -161,6 +161,7 @@ jobs:
 
     steps:
     - script: |
+        sudo apt-get update
         sudo apt-get install build-essential python python-dev python-crypto python-wand device-tree-compiler bison flex swig iasl uuid-dev wget git bc libssl-dev
       displayName: Download tools
 
