@@ -10,8 +10,8 @@ Assumptions:
 
 Missing features required for a complete provisioning implementation:
 * A connection to an OEM database to assign per-device information such as MAC addresses, serial numbers, and other SMBIOS customizations.
-* A connection to an OEM database to save the TPM Endorsement Key Certificates.
-* Host side cross-signing of the Endorsement Key Certificate to prove that the TPM is trusted by the OEM.
+* A connection to an OEM database to save the TPM Endorsement Key Public Key.
+* Host side creation of the Endorsement Key Certificate to prove that the TPM is trusted by the OEM.
 * Factory integration to power off the device and start provisioning the next on success or to raise an alert on failure.
 * Saving Secure Boot UEFI variables to the device to enable secure boot. The required boot critical drivers are not signed yet.
 * fTPM Endorsement Primary Seed derived from secret unique identity retrieved from a Trusted/Secure CAAM after High Assurance Boot. Currently the secret is randomly generated and will be different if RPMB is cleared.
@@ -32,14 +32,14 @@ Missing features required for a complete provisioning implementation:
   2) The *tee_otp_check_rpmb_key_write_lock( )* function checks one of the SoC general purpose fuses to make sure the SoC has not written an RPMB key before.
   3) OP-TEE sends the RPMB key to the eMMC through UEFI in plain-text, then verifies that it succeeded.
   4) The *tee_otp_set_rpmb_key_write_lock( )* function blows one of the fuse bits in one of the SoC general purpose fuse words so that *tee_otp_check_rpmb_key_write_lock( )* will fail if it's ever called again.
-* Late UEFI (EK Certificate Capture, SMBIOS Provisioning)
+* Late UEFI (EK Certificate Creation, SMBIOS Provisioning)
   1) Once the TPM is finished initializing UEFI loads the provisioning driver which does the following:
   2) Checks UEFI variables to see if "DeviceProvisioned" is already set, but it is not so the driver continues.
   3) Sends a message to the provisioning host over serial to see if it responds correctly.
-  4) Generates an Endorsement Key Certificate in the TPM using CreatePrimary and EvictControl TPM Commands.
-  5) Retrieves the Endorsement Key Certificate from the TPM using a ReadPublic command
-  6) Sends the Endorsement Key Certificate to the provisioning host.
-  7) Requests the cross-signed version of the Endorsement Key Certificate from the provisioning host and saves it into a UEFI variable.
+  4) Generates an Endorsement Public/Private keypair in the TPM using CreatePrimary and EvictControl TPM Commands.
+  5) Retrieves the Endorsement Public Key from the TPM using a ReadPublic command
+  6) Sends the Endorsement Key Public Key to the provisioning host.
+  7) Requests the Signed version of the Endorsement Key Certificate from the provisioning host and saves it into fTPM non-volatile storage.
   8) Requests per-device SMBIOS customizations from the provisioning host and saves each one in its own UEFI variable.
   9) Sets "DeviceProvisioned" so that all subsequent boots will return from this driver immediately.
 
@@ -71,8 +71,8 @@ The changes in OP-TEE are responsible for making sure the SoC will only ever pro
 
 The changes in UEFI are responsible for the following:
 * Loading SMBIOS values from UEFI variables.
-* Create an fTPM Endorsement Key Certificate using the default RSA template.
-* Loading the Endorsement Key Certificate from the fTPM and saving it to a host computer.
+* Create an fTPM Endorsement Keypair using the default RSA template.
+* Loading the Endorsement Public Key from the fTPM and saving it to a host computer.
 * Receiving a cross-signed EK Certificate to save into UEFI variables on the device for easy access.
 * Receiving per-device SMBIOS values to save into UEFI variables to be recalled on future boots.
 * Set the DeviceProvisioned variable so subsequent boots will not run this driver.
@@ -101,8 +101,8 @@ The imx-iotcore repository contains the makefile changes required to support SPL
 
 2) Open `provision.py` and customize the following values:
     * Set `ser = serial.Serial('COM4', 115200)` to match the COM port for your serial connection to the device.
-    * Set `ekcertlog = "c:\\temp\\mfgek.txt"` to point to a new txt file in directory that exists so the EK Cert can be saved.
-    * Set `crosscert = "c:\\temp\\cert.cer"` to point to a file that's about 1KB to simulate a cross-signed cert.
+    * Set `ekpublog = "c:\\temp\\mfgek.txt"` to point to a new txt file in directory that exists so the EK Public can be saved.
+    * Set `crosscert = "c:\\temp\\cert.cer"` to point to a file that's about 1KB to simulate a signed EK cert.
     * Note that the script is hardcoded to send some set values for MAC address and Serial Number.
 
 3) Run `pip install PySerial` in CMD to install the serial library.
@@ -128,12 +128,12 @@ The imx-iotcore repository contains the makefile changes required to support SPL
   * If the host checksum fails the host raises an error.
   * If the host checksum succeeds the EK Certificate is saved on the provisioning host.
 * MFG:devicecert
-  * The device is ready to receive a cross-signed version of the EK Certificate from the provisioning host.
+  * The device is ready to receive a signed version of the EK Certificate from the provisioning host.
   * The host sends the length of the buffer as a 4-byte integer
-  * The host sends the cross-signed certificate buffer.
+  * The host sends the signed certificate buffer.
   * The host sends a 4-byte checksum of all the bytes in the buffer.
   * If the device checksum fails the device sends an error to the host.
-  * If the device checksum succeeds the device saves the certificate in UEFI variables as "ManufacturerDeviceCert"
+  * If the device checksum succeeds the device saves the certificate into fTPM non-volatile storage.
 * MFG:smbiossystemserial
   * The device is ready to receive a unique serial number from the provisioning host.
   * The host sends the length of the string as a 4-byte integer
@@ -151,7 +151,7 @@ The imx-iotcore repository contains the makefile changes required to support SPL
 * MFGF:ekcert
   * The device failed to retrieve the EK Certificate from the fTPM.
 * MFGF:devicecert
-  * The device failed to receive the cross-signed certificate from the host.
+  * The device failed to receive the signed EK certificate from the host.
 * MFGF:smbios
   * The device failed to receive customized SMBIOS values from the host.
 * MFGF:provisioned
@@ -208,9 +208,9 @@ The default weak implementations return TEE_SUCCESS so they're no-ops on platfor
 
 ### fTPM Endorsement Key Certificate
 
-The fTPM Endorsement Key Certificate is the public key that can be used to verify the identity of a TPM. In order to trust this EK Cert it must be extracted in the factory and must be stored by the OEM. The OEM then cross-signs the EK Cert to establish a chain to a well-known root of trust. These cross-signed certificates should be saved back onto the platform for convenience, but must be also hosted externally by the OEM in-case the non-volatile storage on the device is reset. Further reading on Endorsement Keys is available from the Trusted Computing Group [here](https://www.trustedcomputinggroup.org/wp-content/uploads/Credential_Profile_EK_V2.0_R14_published.pdf)
+The fTPM Endorsement Key Certificate is the public key that can be used to verify the identity of a TPM. In order to trust this EK Public it must be extracted in the factory and must be stored by the OEM. The OEM then signs the EK Public into an EK Certificate to establish a chain to a well-known root of trust. These signed certificates are saved back onto the platform for the OS to read, but should also be hosted externally by the OEM so the device can retrieve it in-case the secure non-volatile storage on the device is reset. Further reading on Endorsement Keys is available from the Trusted Computing Group [here](https://www.trustedcomputinggroup.org/wp-content/uploads/Credential_Profile_EK_V2.0_R14_published.pdf)
 
-The UEFI provisioning DXE driver defined in Provisioning.c opens a handle to the fTPM driver and requests the Endorsement Key Certificate. If the TPM does not return the Endorsement Key Certificate, the provisioning driver submits two more commands, CreatePrimary to generate an EK Cert using the default template, then EvictControl  to store it under a well-known persistent TPM handle. The driver then requests the certificate again. Once the certificate is retrieved it signals the provisioning host that it's about to send the EK Cert by sending the string "MFG:ekcert\n" over serial it then sends the EK Cert over serial along with a length and checksum. The provisioning host then saves the certificate.
+The UEFI provisioning DXE driver defined in Provisioning.c opens a handle to the fTPM driver and requests the Endorsement Key Public. If the TPM does not return the Endorsement Key Public, the provisioning driver submits two more commands, CreatePrimary to generate an EK Credential using the default template, then EvictControl  to store it under a well-known persistent TPM handle. The driver then requests the EK Public again. Once the EK Public is retrieved it signals the provisioning host that it's about to send the EK Public by sending the string "MFG:ekcert\n" over serial it then sends the EK Public over serial along with a length and checksum. The provisioning host then saves the EK Public.
 
 Next the device sends "MFG:devicecert\n" to the provisioning host to retrieve the cross-signed version of the certificate. It then receives a length, the buffer, and a checksum from the host device, and if everything succeeded it writes the certificate into the "ManufacturerDeviceCert" UEFI variable.
 

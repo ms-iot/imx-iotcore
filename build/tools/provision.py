@@ -9,8 +9,8 @@ import os
 import struct
 
 ser = serial.Serial('COM4', 115200)
-crosscert = "c:\\temp\\cert.cer"
-ekcertlog = "c:\\temp\\mfgek.txt"
+ekcert = "c:\\temp\\cert.cer"
+ekpublog = "c:\\temp\\mfgek.txt"
 mac0 = 0xDEADBEEF
 mac1 = 0x0000BAD0
 
@@ -38,13 +38,14 @@ def sendstring( string ):
 
 def fatalerror( errormsg ):
     print(errormsg)
-    print("REBOOTING SYSTEM")
+    print("FAILURE: DEVICE NEEDS ATTENTION")
 
 while 1:
     try:
         line = ser.readline().decode('UTF-8')[0:-2]
     except:
-        print("exception during decode")
+        # Silence exceptions from non-printable WinDBG output.
+        #print("exception during decode")
         continue
     if line == "MFG:reqmac":
         # Write MAC0 and MAC1 (Placeholder)
@@ -54,13 +55,13 @@ while 1:
         ser.write(((mac0 + mac1)&0xFFFFFFFF).to_bytes(4, byteorder='little'))
     if line == "MFG:hostcheck":
         ser.write((0x4D464748).to_bytes(4, byteorder='little')) # MFGH in Ascii
-    if line == "MFG:devicecert":
-        # Send a cross-signed certificate (Placeholder)
-        sendfile(crosscert)
+    if line == "MFG:ekcertificate":
+        # Send a signed Endorsement Key Certificate (Placeholder)
+        sendfile(ekcert)
     if line == "MFG:smbiossystemserial":
         # Write Serial Number String (Placeholder)
         sendstring(b'RealSerialNumber123456789\n')
-    if line == "MFG:ekcert":
+    if line == "MFG:ekpublic":
         data = ser.read(4)
         length = struct.unpack_from("i", data)[0]
 
@@ -73,14 +74,13 @@ while 1:
         for i in ekbytes:
             hostsum = hostsum + i
         if hostsum != devicesum:
-            fatalerror("Invalid EK certificate received!")
+            fatalerror("Invalid Endorsement Key Public received!")
             continue
-        # ekcert should be passed through limpet to confirm an actual length
-        # the properties of the ftpm may change the length.
-        ekbase64 = codecs.encode(ekbytes[10:326], 'base64').decode()
-        print("fTPM Endorsement Key Certificate:")
+        # Render EK Public into Base64 
+        ekbase64 = codecs.encode(ekbytes, 'base64').decode()
+        print("fTPM Endorsement Key Public:")
         print(ekbase64)
-        with open(ekcertlog, "a") as ekfile:
+        with open(ekpublog, "a") as ekfile:
             ekfile.write(ekbase64)
         continue
     if line == "MFG:success":
@@ -90,9 +90,9 @@ while 1:
         fatalerror("Device failed to receive MAC address!")
     if line == "MFGF:remotehost":
         fatalerror("Device failed to communicate with host!")
-    if line == "MFGF:ekcert":
+    if line == "MFGF:ekpublic":
         fatalerror("Device failed to retrieve EK certificate!")
-    if line == "MFGF:devicecert":
+    if line == "MFGF:ekcertificate":
         fatalerror("Device failed to store device certificate!")
     if line == "MFGF:smbios":
         fatalerror("Device failed to store smbios values!")
