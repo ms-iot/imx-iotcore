@@ -14,7 +14,7 @@
                 "type": "git",
                 "git": {
                     "repositoryUrl": "https://github.com/ms-iot/u-boot.git",
-                    "commitHash": "e71d153de719ee40e38d38ff308e8c0ab4ae441c"
+                    "commitHash": "abec1328dd13df76b19f5fd5ae3a5f3275110c8c"
                 }
             }
         },
@@ -32,7 +32,7 @@
                 "type": "git",
                 "git": {
                     "repositoryUrl": "https://github.com/ms-iot/imx-edk2-platforms.git",
-                    "commitHash": "9249fd6ad62317ae9e6e7218dd70a7699f8bad31"
+                    "commitHash": "5d7cc386e9ed95df3ff10cfc77886281600dfd59"
                 }
             }
         },
@@ -59,7 +59,7 @@
                 "type": "git",
                 "git": {
                     "repositoryUrl": "https://github.com/tianocore/edk2",
-                    "commitHash": "5a9e23ceb991f3bd0eea74d6b67f9102f65ea6bc"
+                    "commitHash": "8594c2073cdb1065e60f01e9b099918c5e839212"
                 }
             }
         },
@@ -78,15 +78,6 @@
                 "git": {
                     "repositoryUrl": "https://github.com/Microsoft/MSRSec",
                     "commitHash": "3c0db43ceaa0da74688b138bf643905c2d374a00"
-                }
-            }
-        },
-        {
-            "component": {
-                "type": "git",
-                "git": {
-                    "repositoryUrl": "https://github.com/openssl/openssl",
-                    "commitHash": "74f2d9c1ec5f5510e1d3da5a9f03c28df0977762"
                 }
             }
         },
