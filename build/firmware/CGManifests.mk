@@ -39,9 +39,6 @@ MSRSec_cgmanifest_deps=
 # Rules and Variables
 #
 
-.PHONY: cg_manifests $(CG_MANIFEST_RULES) $(CG_MANIFEST_RULES_NODEP)
-cg_manifests: $(CG_MANIFEST_RULES)
-
 # Convert a rule to the corresponding repo name (ie. imx-iotcore_cgmanifest -> imx-iotcore)
 rule_to_name=$(subst _cgmanifest,,$(subst _nodep,,$(1)))
 # MSRSec does not have a ci/ folder, instead it uses external/
@@ -81,6 +78,9 @@ CURRENT_DEPENDENT_REPO_NAMES=$(foreach name,$($(CURRENT_REPO_NAME)_cgmanifest_de
 CURRENT_DEPENDENT_RULES=$(foreach name,$(CURRENT_DEPENDENT_REPO_NAMES),$(name)_cgmanifest)
 CURRENT_DEPENDENT_PATHS=$(foreach name,$(CURRENT_DEPENDENT_REPO_NAMES),$(abspath $(call name_to_ci_path,$(name))/cgmanifest.json))
 FINAL_MANIFEST_PATH=$(abspath $(call name_to_ci_path,$(CURRENT_REPO_NAME))/cgmanifest.json)
+
+.PHONY: cg_manifests $(CG_MANIFEST_RULES) $(CG_MANIFEST_RULES_NODEP)
+cg_manifests: $(CG_MANIFEST_RULES)
 
 # Generate prerequesites of the form: <REPO_NAME>_cgmanifest: <REPO_DEPENDENCY1>_cgmanifest <REPO_DEPENDENCY2>_cgmanifest ... <REPO_NAME>_cgmanifest_nodep
 # This will udpate all dependent repos first, then collect the registrations into the current manifest file.
