@@ -65,6 +65,11 @@
           <FeatureID>IMX_DRIVERS</FeatureID>
         </FeatureIDs>
       </PackageFile>
+      <PackageFile Path="%BSPPKG_DIR%" Name="NXP.iMX.imxpwm.cab">
+        <FeatureIDs>
+          <FeatureID>IMX_DRIVERS</FeatureID>
+        </FeatureIDs>
+      </PackageFile>
       <PackageFile Path="%BSPPKG_DIR%" Name="NXP.iMX.imxnetmini.cab">
         <FeatureIDs>
           <FeatureID>IMX_DRIVERS</FeatureID>
