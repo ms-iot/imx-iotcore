@@ -29,6 +29,8 @@ clean: $(CLEANDIRS)
 $(CLEANDIRS):
 	$(MAKE) -C $(@:clean-%=%) clean
 
+include CGManifests.mk
+
 # Print off a list of boards to display
 .PHONY: print_board_list
 print_board_list:
