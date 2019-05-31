@@ -23,20 +23,38 @@ This document describes how to set up a build environment to build the latest fi
     $ popd
     ```
 
-1) Clone all repositories into the same directory as the imx-iotcore repo.
-    ```bash
-    $ git clone --recursive https://github.com/ms-iot/imx-iotcore.git
-    $ git clone --recursive -b u-boot-imx https://github.com/ms-iot/u-boot.git
-    $ git clone -b ms-iot https://github.com/ms-iot/optee_os.git
-    $ git clone --recursive -b tcps-feature https://github.com/Microsoft/RIoT.git
-    $ git clone -b imx https://github.com/ms-iot/imx-edk2-platforms.git
-    $ git clone --recursive https://github.com/tianocore/edk2
-    $ git clone https://github.com/tianocore/edk2-libc.git
-    ```
-    Optionally, clone the security TA repo (`imx-edk2-platforms` includes precompiled TA binaries)
-    ```bash
-    $ git clone  https://github.com/Microsoft/MSRSec
-    ```
+1) Clone all repositories into the same directory as the imx-iotcore repo. The branch name you use will depend on whether you want to build the latest code or stable-tagged code.
+    * For the latest code:
+
+        ```bash
+        $ git clone --recursive https://github.com/ms-iot/imx-iotcore.git
+        $ git clone --recursive -b u-boot-imx https://github.com/ms-iot/u-boot.git
+        $ git clone -b ms-iot https://github.com/ms-iot/optee_os.git
+        $ git clone --recursive -b tcps-feature https://github.com/Microsoft/   RIoT.git
+        $ git clone -b imx https://github.com/ms-iot/imx-edk2-platforms.git
+        $ git clone --recursive https://github.com/ms-iot/edk2
+        $ git clone https://github.com/tianocore/edk2-libc.git
+        ```
+        Optionally, clone the security TA repo (`imx-edk2-platforms` includes precompiled TA binaries)
+        ```bash
+        $ git clone https://github.com/Microsoft/MSRSec
+        ```
+
+    * For the stable tagged code: (i.e. `<tag>` = `imx-iotcore-v1.0.0`)
+
+        ```bash
+        $ git clone --recursive -b <tag> https://github.com/ms-iot/imx-iotcore.git
+        $ git clone --recursive -b <tag> https://github.com/ms-iot/u-boot.git
+        $ git clone -b <tag> https://github.com/ms-iot/optee_os.git
+        $ git clone --recursive -b tcps-feature https://github.com/Microsoft/   RIoT.git
+        $ git clone -b <tag> https://github.com/ms-iot/imx-edk2-platforms.git
+        $ git clone --recursive <tag> https://github.com/ms-iot/edk2
+        $ git clone https://github.com/tianocore/edk2-libc.git
+        ```
+        Optionally, clone the security TA repo (`imx-edk2-platforms` includes   precompiled TA binaries)
+        ```bash
+        $ git clone https://github.com/Microsoft/MSRSec
+        ```
 
 1) Download and extract the [Code Signing Tools (CST)](https://www.nxp.com/webapp/sps/download/license.jsp?colCode=IMX_CST_TOOL) from NXP's website. You will need to create an account on NXP's website to access this tool. Extract the tool to the same directory as all the above repositories, and rename the folder to cst:
     ```bash
