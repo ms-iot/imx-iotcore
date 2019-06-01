@@ -44,8 +44,10 @@ MSRSec_cgmanifest_deps=
 
 # Convert a rule to the corresponding repo name (ie. imx-iotcore_cgmanifest -> imx-iotcore)
 rule_to_name=$(subst _cgmanifest,,$(subst _nodep,,$(1)))
-# MSRSec does not have a ci/ folder, instead it uses external/
-name_to_ci_path=$(abspath $(REPO_ROOT)/$(1)/$(if $(findstring MSRSec, $(1)),external/,ci/))
+# MSRSec and RIoT do not have a ci/ folder, instead they use external/
+EXTERNAL_FOLDER_REPOS=MSRSec RIoT
+CHECK_FOR_EXTERNAL_FOLDER=$(strip $(foreach repo,$(EXTERNAL_FOLDER_REPOS),$(findstring $(repo),$(1))))
+name_to_ci_path=$(abspath $(REPO_ROOT)/$(1)/$(if $(CHECK_FOR_EXTERNAL_FOLDER),external/,ci/))
 
 # Each repo listed in $(CG_MANIFEST_REPOS) will generate a set of rules, prerequisites and variables:
 #	example: imx-iotcore gives:
