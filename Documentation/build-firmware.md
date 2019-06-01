@@ -30,7 +30,7 @@ This document describes how to set up a build environment to build the latest fi
         $ git clone --recursive https://github.com/ms-iot/imx-iotcore.git
         $ git clone --recursive -b u-boot-imx https://github.com/ms-iot/u-boot.git
         $ git clone -b ms-iot https://github.com/ms-iot/optee_os.git
-        $ git clone --recursive -b tcps-feature https://github.com/Microsoft/   RIoT.git
+        $ git clone --recursive -b tcps-feature https://github.com/Microsoft/RIoT.git
         $ git clone -b imx https://github.com/ms-iot/imx-edk2-platforms.git
         $ git clone --recursive https://github.com/ms-iot/edk2
         $ git clone https://github.com/tianocore/edk2-libc.git
@@ -46,7 +46,7 @@ This document describes how to set up a build environment to build the latest fi
         $ git clone --recursive -b <tag> https://github.com/ms-iot/imx-iotcore.git
         $ git clone --recursive -b <tag> https://github.com/ms-iot/u-boot.git
         $ git clone -b <tag> https://github.com/ms-iot/optee_os.git
-        $ git clone --recursive -b tcps-feature https://github.com/Microsoft/   RIoT.git
+        $ git clone --recursive -b tcps-feature https://github.com/Microsoft/RIoT.git
         $ git clone -b <tag> https://github.com/ms-iot/imx-edk2-platforms.git
         $ git clone --recursive -b <tag> https://github.com/ms-iot/edk2
         $ git clone https://github.com/tianocore/edk2-libc.git
