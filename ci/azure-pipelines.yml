@@ -176,7 +176,7 @@ jobs:
         git clone -b ms-iot https://github.com/ms-iot/optee_os.git
         git clone --recursive -b tcps-feature https://github.com/Microsoft/RIoT.git
         git clone https://github.com/Microsoft/MSRsec.git
-        git clone --recursive https://github.com/tianocore/ $(EDK2_BRANCH_OVERRIDE)
+        git clone --recursive https://github.com/ms-iot/edk2
         git clone https://github.com/tianocore/edk2-libc.git
         popd
       displayName: Clone repos

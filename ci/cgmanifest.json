@@ -32,7 +32,7 @@
                 "type": "git",
                 "git": {
                     "repositoryUrl": "https://github.com/ms-iot/imx-edk2-platforms.git",
-                    "commitHash": "5d7cc386e9ed95df3ff10cfc77886281600dfd59"
+                    "commitHash": "21d8873ad03c70b07d985869e4c7f85c89a8c3d9"
                 }
             }
         },
@@ -58,7 +58,7 @@
             "component": {
                 "type": "git",
                 "git": {
-                    "repositoryUrl": "https://github.com/tianocore/edk2",
+                    "repositoryUrl": "https://github.com/ms-iot/edk2",
                     "commitHash": "8594c2073cdb1065e60f01e9b099918c5e839212"
                 }
             }
