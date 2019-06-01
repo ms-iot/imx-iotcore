@@ -79,6 +79,7 @@
       REM call ..\..\..\tools\BuildBSP.bat iMX6 RSB4411_iMX6Q_1GB
       call ..\..\..\tools\BuildBSP.bat iMX6 Sabre_iMX6Q_1GB
       call ..\..\..\tools\BuildBSP.bat iMX6 Sabre_iMX6QP_1GB
+      call ..\..\..\tools\BuildBSP.bat iMX6 Sabre_iMX6SX_1GB
       REM call ..\..\..\tools\BuildBSP.bat iMX6 SabreLite_iMX6Q_1GB
       call ..\..\..\tools\BuildBSP.bat iMX6 UdooNeo_iMX6SX_1GB
       call ..\..\..\tools\BuildBSP.bat iMX6 VAB820_iMX6Q_1GB
@@ -97,6 +98,7 @@
       REM call ..\..\..\tools\BuildBSP.bat iMX6 RSB4411_iMX6Q_1GB
       call ..\..\..\tools\BuildBSP.bat iMX6 Sabre_iMX6Q_1GB
       call ..\..\..\tools\BuildBSP.bat iMX6 Sabre_iMX6QP_1GB
+      call ..\..\..\tools\BuildBSP.bat iMX6 Sabre_iMX6SX_1GB
       REM call ..\..\..\tools\BuildBSP.bat iMX6 SabreLite_iMX6Q_1GB
       call ..\..\..\tools\BuildBSP.bat iMX6 UdooNeo_iMX6SX_1GB
       call ..\..\..\tools\BuildBSP.bat iMX6 VAB820_iMX6Q_1GB

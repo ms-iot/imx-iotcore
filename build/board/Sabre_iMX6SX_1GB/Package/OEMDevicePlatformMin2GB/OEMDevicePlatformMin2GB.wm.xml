@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<identity
+    xmlns="urn:Microsoft.CompPlat/ManifestSchema.v1.00"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    name="OEMDevicePlatformMin2GB"
+    namespace="SabreiMX6SX1GB"
+    owner="NXP"
+    legacyName="NXP.Sabre_iMX6SX_1GB.OEMDevicePlatform_Min2GB"
+    >
+    <files>
+        <file
+            destinationDir="$(runtime.windows)\ImageUpdate"
+            source="OEMDevicePlatformMin2GB\DevicePlatform.xml"
+            name="OEMDevicePlatform.xml" />
+    </files>
+</identity>

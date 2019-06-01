@@ -7,6 +7,7 @@ BOARDS=\
 	HummingBoardEdge_iMX6S_512MB \
 	Sabre_iMX6Q_1GB \
 	Sabre_iMX6QP_1GB \
+	Sabre_iMX6SX_1GB \
 	Sabre_iMX7D_1GB \
 	SabreLite_iMX6Q_1GB \
 	UdooNeo_iMX6SX_1GB \

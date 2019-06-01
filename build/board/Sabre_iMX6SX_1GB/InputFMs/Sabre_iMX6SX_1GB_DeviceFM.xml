@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FeatureManifest
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns="http://schemas.microsoft.com/embedded/2004/10/ImageUpdate"
+    >
+
+  <BasePackages>
+     <PackageFile Path="%BSPPKG_DIR%" Name="NXP.Sabre_iMX6SX_1GB.SystemInformation.cab"/>
+     <PackageFile Path="%BSPPKG_DIR%" Name="NXP.Sabre_iMX6SX_1GB.BootLoader.cab"/>
+     <PackageFile Path="%BSPPKG_DIR%" Name="NXP.Sabre_iMX6SX_1GB.BootFirmware.cab"/>
+     <PackageFile Path="%BSPPKG_DIR%" Name="NXP.iMX.HalExtiMX6Timers.cab"/>
+     <!--PackageFile Path="%BSPPKG_DIR%" Name="NXP.iMX.mx6pep.cab"/-->
+     <PackageFile Path="%BSPPKG_DIR%" Name="NXP.iMX.imxusdhc.cab"/>
+     <PackageFile Path="%BSPPKG_DIR%" Name="NXP.iMX.HalExtiMXDma.cab"/>
+     <PackageFile Path="%BSPPKG_DIR%" Name="SV.PlatExtensions.UpdateOS.cab"/>
+  </BasePackages>
+
+  <OEMDevicePlatformPackages>
+    <PackageFile Device="Sabre_iMX6SX_1GB" Path="%BSPPKG_DIR%" Name="NXP.Sabre_iMX6SX_1GB.OEMDevicePlatform.cab"/>
+    <PackageFile Device="Sabre_iMX6SX_1GB_Min2GB" Path="%BSPPKG_DIR%" Name="NXP.Sabre_iMX6SX_1GB.OEMDevicePlatform_Min2GB.cab"/>
+  </OEMDevicePlatformPackages>
+
+  <DeviceLayoutPackages>
+    <PackageFile SOC="NXP_IMX6" Path="%BSPPKG_DIR%" Name="NXP.Sabre_iMX6SX_1GB.DeviceLayout.cab"/>
+    <PackageFile SOC="NXP_IMX6_Min2GB" Path="%BSPPKG_DIR%" Name="NXP.Sabre_iMX6SX_1GB.DeviceLayout_Min2GB.cab"/>
+  </DeviceLayoutPackages>
+
+  <Features>
+    <Microsoft />
+    <MSFeatureGroups />
+    <OEM>
+      <PackageFile Path="%BSPPKG_DIR%" Name="NXP.iMX.imx6aud.cab">
+        <FeatureIDs>
+          <FeatureID>IMX_DRIVERS</FeatureID>
+        </FeatureIDs>
+      </PackageFile>
+      <PackageFile Path="%BSPPKG_DIR%" Name="NXP.iMX.wm8962codec.cab">
+        <FeatureIDs>
+          <FeatureID>IMX_DRIVERS</FeatureID>
+        </FeatureIDs>
+      </PackageFile>
+      <PackageFile Path="%BSPPKG_DIR%" Name="NXP.iMX.imx6dod.cab">
+        <FeatureIDs>
+          <FeatureID>IMX_DRIVERS</FeatureID>
+        </FeatureIDs>
+      </PackageFile>
+      <PackageFile Path="%BSPPKG_DIR%" Name="NXP.iMX.imxgpio.cab">
+        <FeatureIDs>
+          <FeatureID>IMX_DRIVERS</FeatureID>
+        </FeatureIDs>
+      </PackageFile>
+      <PackageFile Path="%BSPPKG_DIR%" Name="NXP.iMX.imxi2c.cab">
+        <FeatureIDs>
+          <FeatureID>IMX_DRIVERS</FeatureID>
+        </FeatureIDs>
+      </PackageFile>
+      <PackageFile Path="%BSPPKG_DIR%" Name="NXP.iMX.imxecspi.cab">
+        <FeatureIDs>
+          <FeatureID>IMX_DRIVERS</FeatureID>
+        </FeatureIDs>
+      </PackageFile>
+      <PackageFile Path="%BSPPKG_DIR%" Name="NXP.iMX.imxuart.cab">
+        <FeatureIDs>
+          <FeatureID>IMX_DRIVERS</FeatureID>
+        </FeatureIDs>
+      </PackageFile>
+      <PackageFile Path="%BSPPKG_DIR%" Name="NXP.iMX.imxpwm.cab">
+        <FeatureIDs>
+          <FeatureID>IMX_DRIVERS</FeatureID>
+        </FeatureIDs>
+      </PackageFile>
+      <PackageFile Path="%BSPPKG_DIR%" Name="NXP.iMX.imxnetmini.cab">
+        <FeatureIDs>
+          <FeatureID>IMX_DRIVERS</FeatureID>
+        </FeatureIDs>
+      </PackageFile>
+      <PackageFile Path="%BSPPKG_DIR%" Name="NXP.iMX.OpteeTrEE.cab">
+        <FeatureIDs>
+          <FeatureID>IMX_DRIVERS</FeatureID>
+        </FeatureIDs>
+      </PackageFile>
+    </OEM>
+    <OEMFeatureGroups />
+  </Features>
+</FeatureManifest>
