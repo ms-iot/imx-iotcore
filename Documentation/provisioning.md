@@ -73,7 +73,7 @@ The changes in UEFI are responsible for the following:
 * Loading SMBIOS values from UEFI variables.
 * Create an fTPM Endorsement Keypair using the default RSA template.
 * Loading the Endorsement Public Key from the fTPM and saving it to a host computer.
-* Receiving a cross-signed EK Certificate to save into UEFI variables on the device for easy access.
+* Receiving a signed Endorsement Key Certificate to save into fTPM non-volatile variables.
 * Receiving per-device SMBIOS values to save into UEFI variables to be recalled on future boots.
 * Set the DeviceProvisioned variable so subsequent boots will not run this driver.
 
@@ -120,14 +120,14 @@ The imx-iotcore repository contains the makefile changes required to support SPL
 * MFG:hostcheck
   * The device wants to check if a provisioning host is accessible. If there's no response then boot will continue in 5 seconds.
   * The host is expected to respond with the ASCII bytes for HGFM [0x48, 0x47, 0x46, 0x4D] to prove it is a provisioning host.
-* MFG:ekcert
+* MFG:ekpublic
   * The device has retrieved an Endorsement Key Certificate from the fTPM and wants to send it to the provisioning host.
   * The device sends the length of the buffer as a 4-byte integer.
   * The device sends the EK Certificate buffer received from the fTPM.
   * The device sends a 4-byte checksum that's the sum of all the bytes in the buffer.
   * If the host checksum fails the host raises an error.
   * If the host checksum succeeds the EK Certificate is saved on the provisioning host.
-* MFG:devicecert
+* MFG:ekcertificate
   * The device is ready to receive a signed version of the EK Certificate from the provisioning host.
   * The host sends the length of the buffer as a 4-byte integer
   * The host sends the signed certificate buffer.
@@ -210,9 +210,9 @@ The default weak implementations return TEE_SUCCESS so they're no-ops on platfor
 
 The fTPM Endorsement Key Certificate is the public key that can be used to verify the identity of a TPM. In order to trust this EK Public it must be extracted in the factory and must be stored by the OEM. The OEM then signs the EK Public into an EK Certificate to establish a chain to a well-known root of trust. These signed certificates are saved back onto the platform for the OS to read, but should also be hosted externally by the OEM so the device can retrieve it in-case the secure non-volatile storage on the device is reset. Further reading on Endorsement Keys is available from the Trusted Computing Group [here](https://www.trustedcomputinggroup.org/wp-content/uploads/Credential_Profile_EK_V2.0_R14_published.pdf)
 
-The UEFI provisioning DXE driver defined in Provisioning.c opens a handle to the fTPM driver and requests the Endorsement Key Public. If the TPM does not return the Endorsement Key Public, the provisioning driver submits two more commands, CreatePrimary to generate an EK Credential using the default template, then EvictControl  to store it under a well-known persistent TPM handle. The driver then requests the EK Public again. Once the EK Public is retrieved it signals the provisioning host that it's about to send the EK Public by sending the string "MFG:ekcert\n" over serial it then sends the EK Public over serial along with a length and checksum. The provisioning host then saves the EK Public.
+The UEFI provisioning DXE driver defined in Provisioning.c opens a handle to the fTPM driver and requests the Endorsement Key Public. If the TPM does not return the Endorsement Key Public, the provisioning driver submits two more commands, CreatePrimary to generate an EK Credential using the default template, then EvictControl  to store it under a well-known persistent TPM handle. The driver then requests the EK Public again. Once the EK Public is retrieved it signals the provisioning host that it's about to send the EK Public by sending the string "MFG:ekpublic\n" over serial it then sends the EK Public over serial along with a length and checksum. The provisioning host then saves the EK Public.
 
-Next the device sends "MFG:devicecert\n" to the provisioning host to retrieve the cross-signed version of the certificate. It then receives a length, the buffer, and a checksum from the host device, and if everything succeeded it writes the certificate into the "ManufacturerDeviceCert" UEFI variable.
+Next the device sends "MFG:ekcertificate\n" to the provisioning host to retrieve the signed version of the certificate. It then receives a length, the buffer, and a checksum from the host device, and if everything succeeded it writes the certificate into fTPM non-volatile storage.
 
 ### SMBIOS Customizations
 
@@ -228,4 +228,4 @@ A provisioning GUID has been defined as the namespace for UEFI variables used in
 // {72096f5b-2ac7-4e6d-a7bb-bf947d673415}
 giMXPlatformProvisioningGuid = { 0x72096f5b, 0x2ac7, 0x4e6d, { 0xa7, 0xbb, 0xbf, 0x94, 0x7d, 0x67, 0x34, 0x15} }
 ```
-This is a shared value between the UEFI provisioning driver, the UEFI SMBIOS driver, and any OS services that need to pull values out such as the cross-signed EK Certificate.
+This is a shared value between the UEFI provisioning driver, the UEFI SMBIOS driver, and any OS services that need to pull values out such as the signed EK Certificate.
