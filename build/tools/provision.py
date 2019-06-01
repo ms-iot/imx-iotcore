@@ -60,7 +60,7 @@ while 1:
         sendfile(ekcert)
     if line == "MFG:smbiossystemserial":
         # Write Serial Number String (Placeholder)
-        sendstring(b'RealSerialNumber123456789\n')
+        sendstring(b'RealSerialNumber123456789')
     if line == "MFG:ekpublic":
         data = ser.read(4)
         length = struct.unpack_from("i", data)[0]
