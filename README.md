@@ -4,6 +4,7 @@ Windows 10 IoT Core for NXP i.MX Processors
 |-----|-----|
 | U-Boot Firmware | [![Build Status](https://microsoft.visualstudio.com/IOT/_apis/build/status/NXP/NXP-U-Boot%20Firmware%20CI?branchName=u-boot-imx)](https://microsoft.visualstudio.com/IOT/_build/latest?definitionId=39257&branchName=u-boot-imx)|
 | OP-TEE Firmware | [![Build Status](https://microsoft.visualstudio.com/IOT/_apis/build/status/NXP/NXP-OP-TEE%20Firmware%20CI?branchName=ms-iot)](https://microsoft.visualstudio.com/IOT/_build/latest?definitionId=39229&branchName=ms-iot)|
+| Security TAs | [![Build Status](https://dev.azure.com/msresearch/MSRSec/_apis/build/status/MSRSec-CI?branchName=master)](https://dev.azure.com/msresearch/MSRSec/_build/latest?definitionId=1447&branchName=master) |
 | EDK2 Firmware | [![Build Status](https://microsoft.visualstudio.com/IOT/_apis/build/status/NXP/NXP-EDK2%20Firmware%20CI?branchName=imx)](https://microsoft.visualstudio.com/IOT/_build/latest?definitionId=38657&branchName=imx)|
 | All Firmware | [![Build Status](https://dev.azure.com/microsoft/IOT/_apis/build/status/NXP/Firmware%20CI?branchName=public_preview)](https://dev.azure.com/microsoft/IOT/_build/latest?definitionId=38649&branchName=public_preview)|
 | FFU | [![Build Status](https://microsoft.visualstudio.com/OS/_apis/build/status/CET_Self_Enablement/IMX_BSP/kayla_CI_build_RTM?branchName=public_preview)](https://microsoft.visualstudio.com/OS/_build/latest?definitionId=24721&branchName=public_preview) |
@@ -27,6 +28,7 @@ Windows 10 IoT Core for NXP i.MX Processors
 |i.MX 6DualLite | SolidRun | HummingBoard Edge | HummingBoardEdge_iMX6DL_1GB |
 |i.MX 6Solo | SolidRun | HummingBoard Edge | HummingBoardEdge_iMX6S_512MB |
 |i.MX 6SoloX | UDOO | Neo Full | UdooNeo_iMX6SX_1GB |
+|i.MX 6SoloX | NXP | i.MX SX Sabre | Sabre_iMX6SX_1GB |
 |i.MX 6ULL | NXP | i.MX 6ULL EVK | EVK_iMX6ULL_512MB |
 |i.MX 7Dual | CompuLab | IoT Gateway, CL-SOM-iMX7+SBC-iMX7 | ClSomImx7_iMX7D_1GB |
 |i.MX 7Dual | NXP | i.MX 7Dual SABRE | Sabre_iMX7D_1GB |

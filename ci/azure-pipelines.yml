@@ -49,7 +49,7 @@ jobs:
         git clone --recursive https://github.com/ms-iot/mu_platform_nxp
         git clone -b imx_4.14.62_1.0.0_beta https://source.codeaurora.org/external/imx/imx-atf
         git clone -b imx_4.14.62_1.0.0_beta https://source.codeaurora.org/external/imx/imx-mkimage
-        git clone https://github.com/Microsoft/MSRsec.git
+        git clone https://github.com/Microsoft/MSRSec.git
         popd
       displayName: Clone repos
 
@@ -161,6 +161,7 @@ jobs:
 
     steps:
     - script: |
+        sudo apt-get update
         sudo apt-get install build-essential python python-dev python-crypto python-wand device-tree-compiler bison flex swig iasl uuid-dev wget git bc libssl-dev
       displayName: Download tools
 
@@ -194,7 +195,7 @@ jobs:
         echo build/firmware/$(Target)
         ls
         cd build/firmware/$(Target)
-        # echo make update_tas CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-6.4.1-2017.11-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-
+        make update_tas CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-6.4.1-2017.11-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-
       displayName: Build TAs
 
     - script: |
