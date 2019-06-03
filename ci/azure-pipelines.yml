@@ -150,6 +150,8 @@ jobs:
           Target: Sabre_iMX6Q_1GB
         Sabre_iMX6QP_1GB:
           Target: Sabre_iMX6QP_1GB
+        Sabre_iMX6SX_1GB:
+          Target: Sabre_iMX6SX_1GB
         Sabre_iMX7D_1GB:
           Target: Sabre_iMX7D_1GB
         SabreLite_iMX6Q_1GB:
@@ -157,7 +159,7 @@ jobs:
         UdooNeo_iMX6SX_1GB:
           Target: UdooNeo_iMX6SX_1GB
         VAB820_iMX6Q_1GB:
-          TargeT: VAB820_iMX6Q_1GB
+          Target: VAB820_iMX6Q_1GB
 
     steps:
     - script: |
