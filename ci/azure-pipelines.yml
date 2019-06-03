@@ -172,6 +172,23 @@ jobs:
         tar xf gcc-linaro-6.4.1-2017.11-x86_64_arm-linux-gnueabihf.tar.xz
       displayName: Download gcc
 
+    - task: AzureCLI@1
+      displayName: 'Download CST'
+      inputs:
+        azureSubscription: 'Silicon team: Cosine IOT Services Azure Internal Consumption'
+        scriptLocation: inlineScript
+        inlineScript: |
+          az storage blob download \
+          --account-name siliconfirmware \
+          --container-name cst \
+          --name cst.tar.gz \
+          --file $(Build.SourcesDirectory)/cst.tar.gz
+
+    - script: |
+        pushd ..
+        tar xf $(Build.SourcesDirectory)/cst.tar.gz
+      displayName: Extract CST
+
     # Branches are set using pipeline variables to allow overriding known build breaks (mostly useful for EDK2)
     # The variables can be set at queue time to allow custom runs.
     # ex: EDK2_BRANCH = --branch imx-iotcore-v1.0.0
