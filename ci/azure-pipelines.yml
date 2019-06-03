@@ -20,22 +20,12 @@ jobs:
     - script: |
         sudo apt-get install python python-dev python-crypto python-wand python3-pip python3-setuptools
         sudo apt-get install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev wget libsqlite3-dev
-        pushd ..
-        wget https://www.python.org/ftp/python/3.7.3/Python-3.7.3.tar.xz
-        tar -xf Python-3.7.3.tar.xz
-
-        python3 --version
-        cd Python-3.7.3
-        ./configure
-        make build_all -j8
-        sudo make altinstall
-        popd
-        python3.7 --version
-
-        sudo python3.7 -m pip install --upgrade pip
-        sudo python3.7 -m pip install --upgrade setuptools
-        sudo python3.7 -m pip install mu_environment
       displayName: Install Python components
+
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.7' 
+        addToPath: true
 
     - script: |
         wget https://releases.linaro.org/components/toolchain/binaries/7.2-2017.11/aarch64-linux-gnu/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu.tar.xz
