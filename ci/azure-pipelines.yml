@@ -186,7 +186,12 @@ jobs:
 
     - script: |
         pushd ..
-        tar xf $(Build.SourcesDirectory)/cst.tar.gz
+        if [ -f $(Build.SourcesDirectory)/cst.tar.gz ]
+        then
+          tar xf $(Build.SourcesDirectory)/cst.tar.gz
+          echo '##vso[task.setvariable variable=CST_AVAILABLE]yes'
+        else
+          echo '##vso[task.setvariable variable=CST_AVAILABLE]no'
       displayName: Extract CST
 
     # Branches are set using pipeline variables to allow overriding known build breaks (mostly useful for EDK2)
@@ -233,5 +238,12 @@ jobs:
         cd build/firmware/$(Target)
         make image.fit CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-6.4.1-2017.11-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-
       displayName: Initial FIT packaging
+      condition: eq(variables['CST_AVAILABLE'], 'no')
+
+    - script: |
+        cd build/firmware/$(Target)
+        make CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-6.4.1-2017.11-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-
+      displayName: Full firmware build
+      condition: eq(variables['CST_AVAILABLE'], 'yes')
 
     - task: ComponentGovernanceComponentDetection@0
