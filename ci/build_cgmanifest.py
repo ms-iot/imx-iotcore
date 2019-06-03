@@ -3,9 +3,9 @@
 
 import subprocess, os, sys, json
 
-# This python script will dynamically generate a cgmanifest file based on a template (or generate from
-# scratch if needed). It will also automatically populate the the cgmanifest file with the first level
-# of submodules included in the current repo.
+# This python script will dynamically generate a cgmanifest file based on a set of templates
+# (or generate from scratch if needed). It will also automatically populate the the cgmanifest
+# file with the first level of submodules included in the current repo.
 #
 # The template file can include:
 #   - explicit registrations (as defined in the Component Governance docs)
@@ -17,15 +17,15 @@ import subprocess, os, sys, json
 #   - Convert all 'branch' tags to 'commitHash' tags based on a call to the upstream repo via 'git ls-remote'
 #   - Add an entry for each git submodule not already added by either of the above steps
 #
-# Use: python3 build_cgmanifest.py [input.json [output.json]]
-#   input.json: A template file which may include 0 or more registrations following the standard cgmanifest format
-#                   Git registrations may omit the required 'commitHash' tag and replace it with a 'branch' tag.
-#                   If the file is not found a default blank template is used.
-#                   default: cgmanifest_template.json
+# Use: python3 build_cgmanifest.py [[input1.json input2.json ...] output.json]
+#   input.json: A list of template files which may include 0 or more registrations following the standard 
+#                   cgmanifest format. Git registrations may omit the required 'commitHash' tag and replace
+#                   it with a 'branch' tag. If the file is not found a default blank template is used.
+#                   If no arguments are passed a default is used: cgmanifest_template.json
 #
 #   output.json: The location to place the final json (must be named cgmanifest.json to be picked up by the tooling)
 #                   Path doesn't matter, the tooling will search the entire repo for the file.
-#                   default: cgmanifest.json
+#                   If no arguments are passed a default is used: cgmanifest.json
 
 # Returns a list of tupples (URL, Commit hash) of registered first level submodules
 def get_submodules():
@@ -117,7 +117,7 @@ def check_existing_registration(registrations, url, hash):
     if url.endswith('.git'):
         url = url[:-4]
 
-    print("Checking submodule", url, "with hash:", hash)
+    print("Checking if", url, "with hash:", hash, "is already registered")
     for registration in registrations:
             component = registration['component']
             if component['type'] == 'git':
@@ -141,50 +141,75 @@ def default_cgmanifest():
 
     return new_manifest
 
-def update_json(json_file_in, json_file_out):
-    #Load json, then search for any repos with branches.
-    if json_file_in is not None:
-        print("Opening file ", os.path.abspath(os.path.join(os.getcwd(), json_file_in)))
-        with open(json_file_in, 'r') as f_in:
-            cgmanifest = json.load(f_in)
-    else:
-        print("Starting with blank cgmanifest")
-        cgmanifest = default_cgmanifest()
+def update_json(json_input_list, json_file_out):
+    print("Starting with blank cgmanifest")
+    cgmanifest = default_cgmanifest()
+    existing_registrations = cgmanifest["Registrations"]
 
-    registrations = cgmanifest["Registrations"]
+    for json_file_in in json_input_list:
+        #Load json, then search for any repos with branches.
+        if os.path.isfile(json_file_in):
+            print("Opening file ", os.path.abspath(os.path.join(os.getcwd(), json_file_in)))
+            with open(json_file_in, 'r') as f_in:
+                new_cgmanifest = json.load(f_in)
 
-    # Update existing registrations to replace 'branch' with 'commitHash'
-    for registration in registrations:
-        update_registration(registration)
+            new_registrations = new_cgmanifest["Registrations"]
+
+            # Update existing registrations to replace 'branch' with 'commitHash', then place into
+            # final manifest if they are not already present
+            for new_registration in new_registrations:
+                update_registration(new_registration)
+                new_url = new_registration['component']['git']['repositoryUrl']
+                new_hash = new_registration['component']['git']['commitHash']
+                if not check_existing_registration(existing_registrations, new_url, new_hash):
+                    print("\tRegistering new dependency")
+                    add_new_registration(existing_registrations, new_url, new_hash)
+                else:
+                    print("\t Skipping")
+
+        else:
+            print("Can't find", json_file_in, ", skipping it")
 
     # Add any missing submodules
     for submodule in get_submodules():
-        if not check_existing_registration(registrations, submodule[0], submodule[1]):
+        if not check_existing_registration(existing_registrations, submodule[0], submodule[1]):
             print("\tRegistering new submodule")
-            add_new_registration(registrations, submodule[0], submodule[1])
+            add_new_registration(existing_registrations, submodule[0], submodule[1])
         else:
             print("\tSubmodule already registered")
 
-    print("Writing back to file ", os.path.abspath(os.path.join(os.getcwd(), json_file_out)))
-    with open(json_file_out, 'w') as f_out:
-        json.dump(cgmanifest, f_out, indent=4)
 
+    full_output_path = os.path.abspath(os.path.join(os.getcwd(), json_file_out))
+    output_directory = os.path.dirname(full_output_path)
+    if len(existing_registrations) > 0:
+        print("Found", len(existing_registrations), "registrations!")
+        print("Writing back to file ", full_output_path)
 
-json_file_in = "cgmanifest_template.json"
+        if not os.path.exists(output_directory):
+            print("Creating directory", output_directory)
+            os.makedirs(output_directory)
+
+        with open(full_output_path, 'w') as f_out:
+            json.dump(cgmanifest, f_out, indent=4)
+    else:
+        print("Found no registrations to add!")
+        if os.path.isfile(full_output_path):
+            print("Clearing old cgmanifest file", full_output_path)
+            os.remove(full_output_path)
+
+# Default files:
 json_file_out = "cgmanifest.json"
+json_input_list = ["cgmanifest_template.json",]
 
 num_args = len(sys.argv)
 if num_args == 1:
     print("Using default filenames")
-if num_args >= 2:
-    json_file_in = sys.argv[1]
-if num_args == 3:
-    json_file_out = sys.argv[2]
-if num_args > 3:
-    print("\n\n\t\tUse: build_cgmanifest.py [input.json [output.json]]\n\n")
-    raise ValueError("Too many arguments")
+elif num_args >= 2:
+    json_input_list = sys.argv[1:-1]
+    json_file_out = sys.argv[num_args - 1]
+else:
+    print("\n\n\t\tUse: build_cgmanifest.py [[input.json ... ] output.json]\n\n")
+    raise ValueError("Too few arguments")
 
-if not os.path.isfile(json_file_in):
-    json_file_in = None
-
-update_json(json_file_in, json_file_out)
+print(json_input_list)
+update_json(json_input_list, json_file_out)

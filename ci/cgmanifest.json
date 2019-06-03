@@ -1,0 +1,122 @@
+{
+    "Registrations": [
+        {
+            "component": {
+                "type": "git",
+                "git": {
+                    "repositoryUrl": "https://github.com/ms-iot/optee_os",
+                    "commitHash": "bc454ea594eefeed0ffb4baa1fdc09f47cdc1704"
+                }
+            }
+        },
+        {
+            "component": {
+                "type": "git",
+                "git": {
+                    "repositoryUrl": "https://github.com/ms-iot/u-boot.git",
+                    "commitHash": "abec1328dd13df76b19f5fd5ae3a5f3275110c8c"
+                }
+            }
+        },
+        {
+            "component": {
+                "type": "git",
+                "git": {
+                    "repositoryUrl": "https://github.com/Microsoft/RIoT.git",
+                    "commitHash": "8fef3325493c06a09e1c5ffeacb7740669b8db35"
+                }
+            }
+        },
+        {
+            "component": {
+                "type": "git",
+                "git": {
+                    "repositoryUrl": "https://github.com/ms-iot/imx-edk2-platforms.git",
+                    "commitHash": "21d8873ad03c70b07d985869e4c7f85c89a8c3d9"
+                }
+            }
+        },
+        {
+            "component": {
+                "type": "git",
+                "git": {
+                    "repositoryUrl": "https://github.com/intel/tinycbor.git",
+                    "commitHash": "aa3731592c784ce91e7fcafa66665c147b18be25"
+                }
+            }
+        },
+        {
+            "component": {
+                "type": "git",
+                "git": {
+                    "repositoryUrl": "https://github.com/Microsoft/RIoT.git",
+                    "commitHash": "9d31ae9439b41a455d9c16c9cceb965ff2f7b4ac"
+                }
+            }
+        },
+        {
+            "component": {
+                "type": "git",
+                "git": {
+                    "repositoryUrl": "https://github.com/ms-iot/edk2",
+                    "commitHash": "8594c2073cdb1065e60f01e9b099918c5e839212"
+                }
+            }
+        },
+        {
+            "component": {
+                "type": "git",
+                "git": {
+                    "repositoryUrl": "https://github.com/tianocore/edk2-libc",
+                    "commitHash": "61687168fe02ac4d933a36c9145fdd242ac424d1"
+                }
+            }
+        },
+        {
+            "component": {
+                "type": "git",
+                "git": {
+                    "repositoryUrl": "https://github.com/Microsoft/MSRSec",
+                    "commitHash": "3c0db43ceaa0da74688b138bf643905c2d374a00"
+                }
+            }
+        },
+        {
+            "component": {
+                "type": "git",
+                "git": {
+                    "repositoryUrl": "https://github.com/Microsoft/ms-tpm-20-ref.git",
+                    "commitHash": "6cb570e90317c7927a0c6da86a27777376a9a433"
+                }
+            }
+        },
+        {
+            "component": {
+                "type": "git",
+                "git": {
+                    "repositoryUrl": "https://github.com/openssl/openssl.git",
+                    "commitHash": "3d753b0cefaa7e3d4b5d12d7805b20fabff1f385"
+                }
+            }
+        },
+        {
+            "component": {
+                "type": "git",
+                "git": {
+                    "repositoryUrl": "https://github.com/wolfSSL/wolfssl.git",
+                    "commitHash": "74ebf510a3d73e98767eac26082eabdc84e19d31"
+                }
+            }
+        },
+        {
+            "component": {
+                "type": "git",
+                "git": {
+                    "repositoryUrl": "https://github.com/ms-iot/OpteeCalls.git",
+                    "commitHash": "6117e16aa71c5874c3d25fe3fd070af02983714d"
+                }
+            }
+        }
+    ],
+    "Version": 1
+}

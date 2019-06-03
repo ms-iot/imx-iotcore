@@ -170,15 +170,18 @@ jobs:
         tar xf gcc-linaro-6.4.1-2017.11-x86_64_arm-linux-gnueabihf.tar.xz
       displayName: Download gcc
 
+    # Branches are set using pipeline variables to allow overriding known build breaks (mostly useful for EDK2)
+    # The variables can be set at queue time to allow custom runs.
+    # ex: EDK2_BRANCH = --branch imx-iotcore-v1.0.0
     - script: |
         pushd ..
-        git clone -b imx https://github.com/ms-iot/imx-edk2-platforms.git
-        git clone --recursive -b u-boot-imx https://github.com/ms-iot/u-boot.git
-        git clone -b ms-iot https://github.com/ms-iot/optee_os.git
-        git clone --recursive -b tcps-feature https://github.com/Microsoft/RIoT.git
-        git clone https://github.com/Microsoft/MSRSec.git
-        git clone --recursive https://github.com/tianocore/edk2
-        git clone https://github.com/tianocore/edk2-libc.git
+        git clone https://github.com/ms-iot/imx-edk2-platforms.git $(EDK2_PLATFORMS_BRANCH)
+        git clone --recursive -b u-boot-imx https://github.com/ms-iot/u-boot.git $(UBOOT_BRANCH)
+        git clone https://github.com/ms-iot/optee_os.git $(OPTEE_BRANCH)
+        git clone --recursive https://github.com/Microsoft/RIoT.git $(RIOT_BRANCH)
+        git clone https://github.com/Microsoft/MSRSec.git $(MSRSEC_BRANCH)
+        git clone --recursive https://github.com/ms-iot/edk2 $(EDK2_BRANCH)
+        git clone https://github.com/tianocore/edk2-libc.git $(EDK2_LIBC_BRANCH)
         popd
       displayName: Clone repos
 
@@ -212,9 +215,4 @@ jobs:
         make image.fit CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-6.4.1-2017.11-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-
       displayName: Initial FIT packaging
 
-    - script: |
-        python3 ci/build_cgmanifest.py ci/cgmanifest_template.json
-        cat cgmanifest.json
-      displayName: Generate dynamic Component Governance cgmanifest.json
-      
     - task: ComponentGovernanceComponentDetection@0
