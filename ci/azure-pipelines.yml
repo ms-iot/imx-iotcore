@@ -172,6 +172,29 @@ jobs:
         tar xf gcc-linaro-6.4.1-2017.11-x86_64_arm-linux-gnueabihf.tar.xz
       displayName: Download gcc
 
+    - task: AzureCLI@1
+      displayName: 'Download CST'
+      inputs:
+        azureSubscription: 'Silicon team: Cosine IOT Services Azure Internal Consumption'
+        scriptLocation: inlineScript
+        inlineScript: |
+          az storage blob download \
+          --account-name siliconfirmware \
+          --container-name cst \
+          --name cst.tar.gz \
+          --file $(Build.SourcesDirectory)/cst.tar.gz
+
+    - script: |
+        pushd ..
+        if [ -f $(Build.SourcesDirectory)/cst.tar.gz ]
+        then
+          tar xf $(Build.SourcesDirectory)/cst.tar.gz
+          echo '##vso[task.setvariable variable=CST_AVAILABLE]yes'
+        else
+          echo '##vso[task.setvariable variable=CST_AVAILABLE]no'
+        fi
+      displayName: Extract CST
+
     # Branches are set using pipeline variables to allow overriding known build breaks (mostly useful for EDK2)
     # The variables can be set at queue time to allow custom runs.
     # ex: EDK2_BRANCH = --branch imx-iotcore-v1.0.0
@@ -216,5 +239,12 @@ jobs:
         cd build/firmware/$(Target)
         make image.fit CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-6.4.1-2017.11-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-
       displayName: Initial FIT packaging
+      condition: eq(variables['CST_AVAILABLE'], 'no')
+
+    - script: |
+        cd build/firmware/$(Target)
+        make CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-6.4.1-2017.11-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-
+      displayName: Full firmware build
+      condition: eq(variables['CST_AVAILABLE'], 'yes')
 
     - task: ComponentGovernanceComponentDetection@0
