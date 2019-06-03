@@ -169,6 +169,23 @@ jobs:
         tar xf gcc-linaro-6.4.1-2017.11-x86_64_arm-linux-gnueabihf.tar.xz
       displayName: Download gcc
 
+    - task: AzureCLI@1
+      displayName: 'Download CST'
+      inputs:
+        azureSubscription: 'Silicon team: Cosine IOT Services Azure Internal Consumption'
+        scriptLocation: inlineScript
+        inlineScript: |
+          az storage blob download \
+          --account-name siliconfirmware \
+          --container-name cst \
+          --name cst.tar.gz \
+          --file $(Build.SourcesDirectory)/cst.tar.gz
+
+    - script: |
+        pushd ..
+        tar xf $(Build.SourcesDirectory)/cst.tar.gz
+      displayName: Extract CST
+
     - script: |
         pushd ..
         git clone -b imx https://github.com/ms-iot/imx-edk2-platforms.git
