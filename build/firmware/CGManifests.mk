@@ -35,7 +35,6 @@ optee_os_cgmanifest_deps=
 imx-edk2-platforms_cgmanifest_deps=MSRSec
 RIoT_cgmanifest_deps=
 edk2_cgmanifest_deps=
-edk2-libc_cgmanifest_deps=
 MSRSec_cgmanifest_deps=
 
 #

@@ -33,7 +33,6 @@ This document describes how to set up a build environment to build the latest fi
         $ git clone --recursive -b tcps-feature https://github.com/Microsoft/RIoT.git
         $ git clone -b imx https://github.com/ms-iot/imx-edk2-platforms.git
         $ git clone --recursive https://github.com/ms-iot/edk2
-        $ git clone https://github.com/tianocore/edk2-libc.git
         ```
         Optionally, clone the security TA repo (`imx-edk2-platforms` includes precompiled TA binaries)
         ```bash
@@ -49,7 +48,6 @@ This document describes how to set up a build environment to build the latest fi
         $ git clone --recursive -b tcps-feature https://github.com/Microsoft/RIoT.git
         $ git clone -b <tag> https://github.com/ms-iot/imx-edk2-platforms.git
         $ git clone --recursive -b <tag> https://github.com/ms-iot/edk2
-        $ git clone https://github.com/tianocore/edk2-libc.git
         ```
         Optionally, clone the security TA repo (`imx-edk2-platforms` includes   precompiled TA binaries)
         ```bash
