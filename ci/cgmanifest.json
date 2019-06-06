@@ -67,15 +67,6 @@
             "component": {
                 "type": "git",
                 "git": {
-                    "repositoryUrl": "https://github.com/tianocore/edk2-libc",
-                    "commitHash": "61687168fe02ac4d933a36c9145fdd242ac424d1"
-                }
-            }
-        },
-        {
-            "component": {
-                "type": "git",
-                "git": {
                     "repositoryUrl": "https://github.com/Microsoft/MSRSec",
                     "commitHash": "3c0db43ceaa0da74688b138bf643905c2d374a00"
                 }
