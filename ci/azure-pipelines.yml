@@ -26,6 +26,11 @@ jobs:
       inputs:
         versionSpec: '3.7' 
         addToPath: true
+        
+    - script: |
+        sudo python3.7 -m pip install --upgrade pip
+        sudo python3.7 -m pip install --upgrade setuptools
+        sudo python3.7 -m pip install mu_environment
 
     - script: |
         wget https://releases.linaro.org/components/toolchain/binaries/7.2-2017.11/aarch64-linux-gnu/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu.tar.xz
