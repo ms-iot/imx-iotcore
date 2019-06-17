@@ -29,9 +29,9 @@ jobs:
         
     - script: |
         python3 --version
-        sudo python3 -m pip install --upgrade pip
-        sudo python3 -m pip install --upgrade setuptools
-        sudo python3 -m pip install mu_environment
+        pip3 install --upgrade pip
+        pip3 install --upgrade setuptools
+        pip3 install mu_environment
 
     - script: |
         wget https://releases.linaro.org/components/toolchain/binaries/7.2-2017.11/aarch64-linux-gnu/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu.tar.xz
@@ -109,7 +109,7 @@ jobs:
     - script: |
         pushd ../mu_platform_nxp
         export GCC5_AARCH64_PREFIX=$(Build.SourcesDirectory)/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
-        sudo python3 -m pip3 install -r requirements.txt --upgrade
+        sudo pip3 install -r requirements.txt --upgrade
         python3 NXP/MCIMX8M_EVK_4GB/PlatformBuild.py --setup
 
         cd MU_BASECORE
