@@ -47,7 +47,7 @@ The following tools are required to build the driver packages and IoT Core FFU: 
 
 #### Visual Studio 2017
 * Make sure that you **install Visual Studio 2017 before the WDK** so that the WDK can install a required plugin.
-* Download from https://www.visualstudio.com.
+* Download [Visual Studio 2017](https://docs.microsoft.com/en-us/windows-hardware/drivers/other-wdk-downloads#step-1-install-visual-studio).
 * During install select **Desktop development with C++**.
 * During install select the following in the Individual components tab. If these options are not available try updating VS2017 to the latest release:
   * **VC++ 2017 version 15.9 v14.16 Libs for Spectre (ARM)**
@@ -58,8 +58,8 @@ The following tools are required to build the driver packages and IoT Core FFU: 
 
 #### Windows Kits from Windows 10, version 1809
 * **IMPORTANT: Make sure that any previous versions of the ADK and WDK have been uninstalled!**
-* Install [ADK 1809](https://developer.microsoft.com/en-us/windows/hardware/windows-assessment-deployment-kit)
-* Install [WDK 1809](https://developer.microsoft.com/en-us/windows/hardware/windows-driver-kit)
+* Install [ADK version 1809](https://docs.microsoft.com/en-us/windows-hardware/get-started/adk-install#other-adk-downloads)
+* Install [WDK version 1809](https://docs.microsoft.com/en-us/windows-hardware/drivers/other-wdk-downloads#step-2-install-the-wdk)
   * Make sure that you allow the Visual Studio Extension to install after the WDK install completes.
 * If the WDK installer says it could not find the correct SDK version, install [SDK 1809](https://developer.microsoft.com/en-us/windows/downloads/windows-10-sdk)
 
