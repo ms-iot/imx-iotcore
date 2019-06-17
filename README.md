@@ -61,7 +61,7 @@ The following tools are required to build the driver packages and IoT Core FFU: 
 * Install [ADK version 1809](https://docs.microsoft.com/en-us/windows-hardware/get-started/adk-install#other-adk-downloads)
 * Install [WDK version 1809](https://docs.microsoft.com/en-us/windows-hardware/drivers/other-wdk-downloads#step-2-install-the-wdk)
   * Make sure that you allow the Visual Studio Extension to install after the WDK install completes.
-* If the WDK installer says it could not find the correct SDK version, install [SDK 1809](https://developer.microsoft.com/en-us/windows/downloads/windows-10-sdk)
+* If the WDK installer says it could not find the correct SDK version, install [SDK version 1809](https://developer.microsoft.com/en-us/windows/downloads/sdk-archive)
 
 #### IoT Core OS Packages
 * Visit the [Windows IoT Core Downloads](https://www.microsoft.com/en-us/software-download/windows10IoTCore#!) page and download "Windows 10 IoT Core Packages – Windows 10 IoT Core, version 1809 (LTSC)".
