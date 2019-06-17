@@ -27,3 +27,8 @@ $start_time = Get-Date;
 
 Invoke-WebRequest -Uri $url -OutFile $output;
 Write-Output "Time taken: $((Get-Date).Subtract($start_time).Seconds) second(s)";'
+
+- task: PowerShell@2
+  inputs:
+    targetType: 'inline'
+    script: '.\myadksetup.exe /quiet'
