@@ -21,9 +21,9 @@ steps:
 - task: PowerShell@2
   inputs:
     targetType: 'inline'
-    script: '$url = "https://go.microsoft.com/fwlink/?linkid=2026036"
-      $output = "myadksetup.exe"
-      $start_time = Get-Date
-      
-      Invoke-WebRequest -Uri $url -OutFile $output
-      Write-Output "Time taken: $((Get-Date).Subtract($start_time).Seconds) second(s)"'
+    script: '$url = "https://go.microsoft.com/fwlink/?linkid=2026036";
+$output = "myadksetup.exe";
+$start_time = Get-Date;
+
+Invoke-WebRequest -Uri $url -OutFile $output;
+Write-Output "Time taken: $((Get-Date).Subtract($start_time).Seconds) second(s)";'
