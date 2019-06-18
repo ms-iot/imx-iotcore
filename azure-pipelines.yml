@@ -32,3 +32,20 @@ Write-Output "Time taken: $((Get-Date).Subtract($start_time).Seconds) second(s)"
   inputs:
     targetType: 'inline'
     script: '.\myadksetup.exe /quiet'
+
+- task: PowerShell@2
+  inputs:
+    targetType: 'inline'
+    script: '$url = "https://www.microsoft.com/en-us/software-download/windows10IoTCore#!";
+      $output = "Windows10_IoTCore_Packages_ARM32_en-us_17763_253.iso";
+      $start_time = Get-Date;
+      
+      Invoke-WebRequest -Uri $url -OutFile $output;
+      Write-Output "Time taken: $((Get-Date).Subtract($start_time).Seconds) second(s)";'
+
+- task: PowerShell@2
+  inputs:
+    targetType: 'inline'
+    script: '$MountedISOs=Mount-DiskImage -PassThru Windows10_IoTCore_Packages_ARM32_en-us_17763_253.iso;
+      
+      foreach($iso in $MountedISOs){Get-Volume -DiskImage $iso}'
