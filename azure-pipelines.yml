@@ -45,7 +45,7 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
-      $msiPath = "$(Build.SourcesDirectory\Windows_10_IoT_Core_ARM_Packages.msi"
+      $msiPath = "$(Build.SourcesDirectory)\Windows_10_IoT_Core_ARM_Packages.msi"
       dir $msiPath
       msiexec.exe /i $msiPath /quiet /qn /L*V "$(Build.SourcesDirectory)\msi.log"
 
