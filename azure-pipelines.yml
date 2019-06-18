@@ -42,6 +42,8 @@ Write-Output "Time taken: $((Get-Date).Subtract($start_time).Seconds) second(s)"
       
       Invoke-WebRequest -Uri $url -OutFile $output;
       Write-Output "Time taken: $((Get-Date).Subtract($start_time).Seconds) second(s)";
-      $MountedISOs=Mount-DiskImage -PassThru Windows10_IoTCore_Packages_ARM32_en-us_17763_253.iso;
-      
-      foreach($iso in $MountedISOs){Get-Volume -DiskImage $iso}'
+      $mountResult = Mount-DiskImage "$PWD\Windows10_IoTCore_Packages_ARM32_en-us_17763_253.iso" -PassThru;
+      $driveLetter = ($mountResult | Get-Volume).DriveLetter;
+
+      $msiPath = $driveLetter + ":\Windows_10_IoT_Core_ARM_Packages.msi";
+      msiexec.exe /i $msiPath /quiet /qn /L*V "$PWD\msi.log";'
