@@ -36,7 +36,7 @@ Write-Output "Time taken: $((Get-Date).Subtract($start_time).Seconds) second(s)"
 - task: PowerShell@2
   inputs:
     targetType: 'inline'
-    script: '$url = "https://www.microsoft.com/en-us/software-download/windows10IoTCore#!";
+    script: '$url = "https://software-download.microsoft.com/pr/Windows10_IoTCore_Packages_ARM32_en-us_17763_253.iso?t=01c5bb7f-da19-4b8b-829e-5f4b5172e5f1&e=1560903163&h=698e1a3a5313c159a69f40bc036cbf97";
       $output = "Windows10_IoTCore_Packages_ARM32_en-us_17763_253.iso";
       $start_time = Get-Date;
       
