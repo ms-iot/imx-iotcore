@@ -21,29 +21,36 @@ steps:
 - task: PowerShell@2
   inputs:
     targetType: 'inline'
-    script: '$url = "https://go.microsoft.com/fwlink/?linkid=2026036";
-$output = "myadksetup.exe";
-$start_time = Get-Date;
-
-Invoke-WebRequest -Uri $url -OutFile $output;
-Write-Output "Time taken: $((Get-Date).Subtract($start_time).Seconds) second(s)";'
-
-- task: PowerShell@2
-  inputs:
-    targetType: 'inline'
-    script: '.\myadksetup.exe /quiet'
+    script: |
+      $url = "https://go.microsoft.com/fwlink/?linkid=2026036"
+      $output = "adksetup.exe"
+      $start_time = Get-Date
+      Invoke-WebRequest -Uri $url -OutFile $(Build.SourcesDirectory)/$output
+      Write-Output "Time taken: $((Get-Date).Subtract($start_time).Seconds) second(s)"
 
 - task: PowerShell@2
   inputs:
     targetType: 'inline'
-    script: '$url = "https://software-download.microsoft.com/db/Windows10_IoTCore_Packages_ARM32_en-us_17763_253.iso?t=35b6ace8-aeb0-4fdb-ac0c-9c117ac905cc&e=1560908115&h=c7e256e38802702826e887d53eafaff4";
-      $output = "Windows10_IoTCore_Packages_ARM32_en-us_17763_253.iso";
-      $start_time = Get-Date;
-      
-      Invoke-WebRequest -Uri $url -OutFile $output;
-      Write-Output "Time taken: $((Get-Date).Subtract($start_time).Seconds) second(s)";
-      $mountResult = Mount-DiskImage "$PWD\Windows10_IoTCore_Packages_ARM32_en-us_17763_253.iso" -PassThru;
-      $driveLetter = ($mountResult | Get-Volume).DriveLetter;
+    script: '.\adksetup.exe /quiet'
 
-      $msiPath = $driveLetter + ":\Windows_10_IoT_Core_ARM_Packages.msi";
-      msiexec.exe /i $msiPath /quiet /qn /L*V "$PWD\msi.log";'
+- task: AzureCLI@1
+  displayName: 'Download IoT Core Packages'
+  inputs:
+    azureSubscription: '36cf3502-1d62-4d4a-8c31-17051ac8617e'
+    scriptLocation: inlineScript
+    inlineScript: |
+      az storage blob download \
+      --account-name imxiotcoreteststorage \
+      --container-name imxiotcoreblobcontainer \
+      --name Windows10_IoTCore_Packages_ARM32_en-us_17763_253.iso \
+      --file $(Build.SourcesDirectory)/Windows10_IoTCore_Packages_ARM32_en-us_17763_253.iso
+
+- task: PowerShell@2
+  inputs:
+    targetType: 'inline'
+    script: |
+      $mountResult = Mount-DiskImage "$(Build.SourcesDirectory)\Windows10_IoTCore_Packages_ARM32_en-us_17763_253.iso" -PassThru
+      $driveLetter = ($mountResult | Get-Volume).DriveLetter
+      $msiPath = $driveLetter + ":\Windows_10_IoT_Core_ARM_Packages.msi"
+      msiexec.exe /i $msiPath /quiet /qn /L*V "$(Build.SourcesDirectory)\msi.log"
+
