@@ -36,7 +36,7 @@ steps:
 - task: AzureCLI@1
   displayName: 'Download IoT Core Packages'
   inputs:
-    azureSubscription: '36cf3502-1d62-4d4a-8c31-17051ac8617e'
+    azureSubscription: 'Visual Studio Enterprise'
     scriptLocation: inlineScript
     inlineScript: |
       az storage blob download \
