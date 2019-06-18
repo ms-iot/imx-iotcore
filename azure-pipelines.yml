@@ -41,11 +41,7 @@ Write-Output "Time taken: $((Get-Date).Subtract($start_time).Seconds) second(s)"
       $start_time = Get-Date;
       
       Invoke-WebRequest -Uri $url -OutFile $output;
-      Write-Output "Time taken: $((Get-Date).Subtract($start_time).Seconds) second(s)";'
-
-- task: PowerShell@2
-  inputs:
-    targetType: 'inline'
-    script: '$MountedISOs=Mount-DiskImage -PassThru Windows10_IoTCore_Packages_ARM32_en-us_17763_253.iso;
+      Write-Output "Time taken: $((Get-Date).Subtract($start_time).Seconds) second(s)";
+      $MountedISOs=Mount-DiskImage -PassThru Windows10_IoTCore_Packages_ARM32_en-us_17763_253.iso;
       
       foreach($iso in $MountedISOs){Get-Volume -DiskImage $iso}'
