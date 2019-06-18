@@ -31,7 +31,7 @@ steps:
 - task: PowerShell@2
   inputs:
     targetType: 'inline'
-    script: '.\adksetup.exe /quiet'
+    script: 'Start-Process .\adksetup.exe -ArgumentList "/quiet" -wait' 
 
 - task: AzureCLI@1
   displayName: 'Download IoT Core Packages'
@@ -47,5 +47,5 @@ steps:
     script: |
       $msiPath = "$(Build.SourcesDirectory)\Windows_10_IoT_Core_ARM_Packages.msi"
       dir $msiPath
-      msiexec.exe /i $msiPath /quiet /qn /L*V "$(Build.SourcesDirectory)\msi.log"
+      Start-Process msiexec.exe -ArgumentList @("/i $msiPath", "/quiet", "/qn", "/L*V `"$(Build.SourcesDirectory)\msi.log`"") -wait
 
