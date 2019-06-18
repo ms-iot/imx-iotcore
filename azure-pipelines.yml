@@ -39,10 +39,10 @@ steps:
     azureSubscription: 'Azure'
     scriptLocation: inlineScript
     inlineScript: |
-      az storage blob download \
-      --account-name imxiotcoreteststorage \
-      --container-name imxiotcoreblobcontainer \
-      --name Windows10_IoTCore_Packages_ARM32_en-us_17763_253.iso \
+      az storage blob download `
+      --account-name imxiotcoreteststorage `
+      --container-name imxiotcoreblobcontainer `
+      --name Windows10_IoTCore_Packages_ARM32_en-us_17763_253.iso `
       --file $(Build.SourcesDirectory)/Windows10_IoTCore_Packages_ARM32_en-us_17763_253.iso
 
 - task: PowerShell@2
