@@ -6,95 +6,91 @@
 trigger:
 - master
 
-pool:
-  vmImage: 'vs2017-win2016'
+jobs:
+  - job: Build67
+    displayName: Build iMX 6 & 7 FFUs
+    pool:
+      vmImage: 'vs2017-win2016'
 
-steps:
-- task: PowerShell@2
-  displayName: 'Download ADK 1809 from MSDN'
-  inputs:
-    targetType: 'inline'
-    script: |
-      $url = "https://go.microsoft.com/fwlink/?linkid=2026036"
-      $output = "adksetup.exe"
-      $start_time = Get-Date
-      Invoke-WebRequest -Uri $url -OutFile $(Build.SourcesDirectory)/$output
-      Write-Output "Time taken: $((Get-Date).Subtract($start_time).Seconds) second(s)"
+    steps:
+    - task: PowerShell@2
+      displayName: 'Download ADK 1809 from MSDN'
+      inputs:
+        targetType: 'inline'
+        script: |
+          $url = "https://go.microsoft.com/fwlink/?linkid=2026036"
+          $output = "adksetup.exe"
+          $start_time = Get-Date
+          Invoke-WebRequest -Uri $url -OutFile $(Build.SourcesDirectory)/$output
+          Write-Output "Time taken: $((Get-Date).Subtract($start_time).Seconds) second(s)"
 
-- task: PowerShell@2
-  displayName: 'Install ADK 1809'
-  inputs:
-    targetType: 'inline'
-    script: 'Start-Process .\adksetup.exe -ArgumentList "/quiet" -wait' 
+    - task: PowerShell@2
+      displayName: 'Install ADK 1809'
+      inputs:
+        targetType: 'inline'
+        script: 'Start-Process .\adksetup.exe -ArgumentList "/quiet" -wait' 
 
-- task: AzureCLI@1
-  displayName: 'Download Windows IoT Core Packages 1809 LTSC'
-  inputs:
-    azureSubscription: 'Silicon team: Cosine IOT Services Azure Internal Consumption'
-    scriptLocation: inlineScript
-    inlineScript: |
-      az storage blob download --account-name imxiotcorestorage --container-name imxbuildinputs --name Windows_10_IoT_Core_ARM_Packages.msi --file $(Build.SourcesDirectory)\Windows_10_IoT_Core_ARM_Packages.msi
+    - task: AzureCLI@1
+      displayName: 'Fetch Windows IoT Core Packages 1809 LTSC from Azure Storage'
+      inputs:
+        azureSubscription: 'Silicon team: Cosine IOT Services Azure Internal Consumption'
+        scriptLocation: inlineScript
+        inlineScript: |
+          az storage blob download --account-name imxiotcorestorage --container-name imxbuildinputs --name Windows_10_IoT_Core_ARM_Packages.msi --file $(Build.SourcesDirectory)\Windows_10_IoT_Core_ARM_Packages.msi
 
-- task: PowerShell@2
-  displayName: 'Install IoT Core Packages'
-  inputs:
-    targetType: 'inline'
-    script: |
-      $msiPath = "$(Build.SourcesDirectory)\Windows_10_IoT_Core_ARM_Packages.msi"
-      dir $msiPath
-      Start-Process msiexec.exe -ArgumentList @("/i $msiPath", "/quiet", "/qn", "/L*V `"$(Build.SourcesDirectory)\msi.log`"") -wait
+    - task: PowerShell@2
+      displayName: 'Install IoT Core Packages'
+      inputs:
+        targetType: 'inline'
+        script: |
+          $msiPath = "$(Build.SourcesDirectory)\Windows_10_IoT_Core_ARM_Packages.msi"
+          dir $msiPath
+          Start-Process msiexec.exe -ArgumentList @("/i $msiPath", "/quiet", "/qn", "/L*V `"$(Build.SourcesDirectory)\msi.log`"") -wait
 
-- task: PowerShell@2
-  displayName: 'Check installation'
-  inputs:
-    targetType: 'inline'
-    script: |
-      dir "C:\Program Files (x86)\Windows Kits\10\MSPackages\retail\arm\fre"
-      dir "C:\Program Files (x86)\Windows Kits\10\Assessment and Deployment Kit"
+    - task: PowerShell@2
+      displayName: 'Verify Kit Installation'
+      inputs:
+        targetType: 'inline'
+        script: |
+          dir "C:\Program Files (x86)\Windows Kits\10\MSPackages\retail\arm\fre"
+          dir "C:\Program Files (x86)\Windows Kits\10\Assessment and Deployment Kit"
 
-- task: PowerShell@2
-  displayName: 'Install Test Certificates'
-  inputs:
-    targetType: 'inline'
-    script: |
-      dir $(Build.SourcesDirectory)
-      cmd.exe /c '$(Build.SourcesDirectory)\build\tools\SetupCertificate.bat'
+    - task: PowerShell@2
+      displayName: 'Install Test Certificates'
+      inputs:
+        targetType: 'inline'
+        script: |
+          dir $(Build.SourcesDirectory)
+          cmd.exe /c '$(Build.SourcesDirectory)\build\tools\SetupCertificate.bat'
 
-- script: |
-    git submodule init
-    git submodule update
-  displayName: 'Download submodules'
+    - script: |
+        git submodule init
+        git submodule update
+      displayName: 'Download submodules'
 
-#- script: |
-#    mkdir $(Build.SourcesDirectory)\build\solution\iMXPlatform\Build
-#    mkdir $(Build.SourcesDirectory)\build\solution\iMXPlatform\Build\FFU
-#    mkdir $(Build.SourcesDirectory)\build\solution\iMXPlatform\Build\FFU\HummingBoardEdge_iMX6Q_2GB
-#    echo HelloWorld! > $(Build.SourcesDirectory)\build\solution\iMXPlatform\Build\FFU\HummingBoardEdge_iMX6Q_2GB\HummingBoardEdge_iMX6Q_2GB.ffu
-#  displayName: 'Mock FFU'
+    - task: VSBuild@1
+      inputs:
+        solution: '**\*.sln'
+        vsVersion: '15.0'
+        platform: 'ARM'
+        configuration: 'Release'
+        createLogFile: true
+        logFileVerbosity: 'diagnostic'
 
-- task: VSBuild@1
-  inputs:
-    solution: '**\*.sln'
-    vsVersion: '15.0'
-    platform: 'ARM'
-    configuration: 'Release'
-    createLogFile: true
-    logFileVerbosity: 'diagnostic'
+    - task: CopyFiles@2
+      inputs:
+        contents: '$(Build.SourcesDirectory)\**\*.ffu'
+        targetFolder: $(Build.ArtifactStagingDirectory)
+        flattenFolders: true
 
-- task: CopyFiles@2
-  inputs:
-    contents: '$(Build.SourcesDirectory)\**\*.ffu'
-    targetFolder: $(Build.ArtifactStagingDirectory)
-    flattenFolders: true
+    - task: PowerShell@2
+      displayName: 'Check Artifact Directory'
+      inputs:
+        targetType: 'inline'
+        script: |
+          dir $(Build.ArtifactStagingDirectory)
 
-- task: PowerShell@2
-  displayName: 'Check Artifact Directory'
-  inputs:
-    targetType: 'inline'
-    script: |
-      dir $(Build.ArtifactStagingDirectory)
-
-- task: PublishBuildArtifacts@1
-  inputs:
-    pathtoPublish: $(Build.ArtifactStagingDirectory)
-    artifactName: MyBuildOutputs
+    - task: PublishBuildArtifacts@1
+      inputs:
+        pathtoPublish: $(Build.ArtifactStagingDirectory)
+        artifactName: MyBuildOutputs
