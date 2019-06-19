@@ -62,8 +62,8 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
-      dir $(Build.SourcesDirectory)\imx-iotcore\build\tools\SetupCertificate.bat
-      cmd.exe /c '$(Build.SourcesDirectory)\imx-iotcore\build\tools\SetupCertificate.bat'
+      dir $(Build.SourcesDirectory)
+      cmd.exe /c '$(Build.SourcesDirectory)\build\tools\SetupCertificate.bat'
 
 - task: VSBuild@1
   inputs:
