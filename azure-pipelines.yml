@@ -30,7 +30,7 @@ steps:
 - task: AzureCLI@1
   displayName: 'Download Windows IoT Core Packages 1809 LTSC'
   inputs:
-    azureSubscription: 'Azure'
+    azureSubscription: 'Silicon team: Cosine IOT Services Azure Internal Consumption'
     scriptLocation: inlineScript
     inlineScript: |
       az storage blob download --account-name imxiotcorestorage --container-name imxbuildinputs --name Windows_10_IoT_Core_ARM_Packages.msi --file $(Build.SourcesDirectory)\Windows_10_IoT_Core_ARM_Packages.msi
