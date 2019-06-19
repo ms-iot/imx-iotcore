@@ -49,3 +49,25 @@ steps:
       dir $msiPath
       Start-Process msiexec.exe -ArgumentList @("/i $msiPath", "/quiet", "/qn", "/L*V `"$(Build.SourcesDirectory)\msi.log`"") -wait
 
+- task: PowerShell@2
+  displayName: 'Check installation'
+  inputs:
+    targetType: 'inline'
+    script: |
+      dir "C:\Program Files (x86)\Windows Kits\10\MSPackages\retail\arm\fre"
+      dir "C:\Program Files (x86)\Windows Kits\10\Assessment and Deployment Kit"
+
+- task: PowerShell@2
+  displayName: 'Install Test Certificates'
+  inputs:
+    targetType: 'inline'
+    script: '.\imx-iotcore\build\tools\SetupCertificate.bat'
+
+- task: VSBuild@1
+  inputs:
+    solution: '**\*.sln'
+    vsVersion: '15.0'
+    platform: 'ARM'
+    configuration: 'Release'
+    createLogFile: true
+    logFileVerbosity: 'diagnostic'
