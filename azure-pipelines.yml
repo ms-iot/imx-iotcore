@@ -33,7 +33,7 @@ steps:
     azureSubscription: 'Azure'
     scriptLocation: inlineScript
     inlineScript: |
-      az storage blob download --account-name imxiotcoreteststorage --container-name imxiotcoreblobcontainer --name Windows_10_IoT_Core_ARM_Packages.msi --file $(Build.SourcesDirectory)\Windows_10_IoT_Core_ARM_Packages.msi
+      az storage blob download --account-name imxiotcorestorage --container-name imxbuildinputs --name Windows_10_IoT_Core_ARM_Packages.msi --file $(Build.SourcesDirectory)\Windows_10_IoT_Core_ARM_Packages.msi
 
 - task: PowerShell@2
   displayName: 'Install IoT Core Packages'
