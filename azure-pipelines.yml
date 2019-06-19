@@ -85,6 +85,7 @@ steps:
   inputs:
     contents: '$(Build.SourcesDirectory)\**\*.ffu'
     targetFolder: $(Build.ArtifactStagingDirectory)
+    flattenFolders: true
 
 - task: PowerShell@2
   displayName: 'Check Artifact Directory'
