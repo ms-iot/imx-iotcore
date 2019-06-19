@@ -61,7 +61,9 @@ steps:
   displayName: 'Install Test Certificates'
   inputs:
     targetType: 'inline'
-    script: '.\imx-iotcore\build\tools\SetupCertificate.bat'
+    script: |
+      dir $(Build.SourcesDirectory)\imx-iotcore\build\tools\SetupCertificate.bat
+      cmd.exe /c '$(Build.SourcesDirectory)\imx-iotcore\build\tools\SetupCertificate.bat'
 
 - task: VSBuild@1
   inputs:
