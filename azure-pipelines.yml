@@ -10,15 +10,8 @@ pool:
   vmImage: 'vs2017-win2016'
 
 steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
-
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
-
 - task: PowerShell@2
+  displayName: 'Download ADK 1809 from MSDN'
   inputs:
     targetType: 'inline'
     script: |
@@ -29,12 +22,13 @@ steps:
       Write-Output "Time taken: $((Get-Date).Subtract($start_time).Seconds) second(s)"
 
 - task: PowerShell@2
+  displayName: 'Install ADK 1809'
   inputs:
     targetType: 'inline'
     script: 'Start-Process .\adksetup.exe -ArgumentList "/quiet" -wait' 
 
 - task: AzureCLI@1
-  displayName: 'Download IoT Core Packages'
+  displayName: 'Download Windows IoT Core Packages 1809 LTSC'
   inputs:
     azureSubscription: 'Azure'
     scriptLocation: inlineScript
@@ -42,6 +36,7 @@ steps:
       az storage blob download --account-name imxiotcoreteststorage --container-name imxiotcoreblobcontainer --name Windows_10_IoT_Core_ARM_Packages.msi --file $(Build.SourcesDirectory)\Windows_10_IoT_Core_ARM_Packages.msi
 
 - task: PowerShell@2
+  displayName: 'Install IoT Core Packages'
   inputs:
     targetType: 'inline'
     script: |
@@ -64,6 +59,11 @@ steps:
     script: |
       dir $(Build.SourcesDirectory)
       cmd.exe /c '$(Build.SourcesDirectory)\build\tools\SetupCertificate.bat'
+
+- script: |
+    git submodule init
+    git submodule update
+  displayName: 'Download submodules'
 
 - task: VSBuild@1
   inputs:
