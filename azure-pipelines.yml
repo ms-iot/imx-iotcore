@@ -65,21 +65,21 @@ steps:
     git submodule update
   displayName: 'Download submodules'
 
-- script: |
-    mkdir $(Build.SourcesDirectory)\build\solution\iMXPlatform\Build
-    mkdir $(Build.SourcesDirectory)\build\solution\iMXPlatform\Build\FFU
-    mkdir $(Build.SourcesDirectory)\build\solution\iMXPlatform\Build\FFU\HummingBoardEdge_iMX6Q_2GB
-    echo HelloWorld! > $(Build.SourcesDirectory)\build\solution\iMXPlatform\Build\FFU\HummingBoardEdge_iMX6Q_2GB\HummingBoardEdge_iMX6Q_2GB.ffu
-  displayName: 'Mock FFU'
+#- script: |
+#    mkdir $(Build.SourcesDirectory)\build\solution\iMXPlatform\Build
+#    mkdir $(Build.SourcesDirectory)\build\solution\iMXPlatform\Build\FFU
+#    mkdir $(Build.SourcesDirectory)\build\solution\iMXPlatform\Build\FFU\HummingBoardEdge_iMX6Q_2GB
+#    echo HelloWorld! > $(Build.SourcesDirectory)\build\solution\iMXPlatform\Build\FFU\HummingBoardEdge_iMX6Q_2GB\HummingBoardEdge_iMX6Q_2GB.ffu
+#  displayName: 'Mock FFU'
 
-#- task: VSBuild@1
-#  inputs:
-#    solution: '**\*.sln'
-#    vsVersion: '15.0'
-#    platform: 'ARM'
-#    configuration: 'Release'
-#    createLogFile: true
-#    logFileVerbosity: 'diagnostic'
+- task: VSBuild@1
+  inputs:
+    solution: '**\*.sln'
+    vsVersion: '15.0'
+    platform: 'ARM'
+    configuration: 'Release'
+    createLogFile: true
+    logFileVerbosity: 'diagnostic'
 
 - task: CopyFiles@2
   inputs:
