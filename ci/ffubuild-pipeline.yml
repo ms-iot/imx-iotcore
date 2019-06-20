@@ -80,7 +80,7 @@ jobs:
           cd /d %BATCH_HOME%
           call BuildImage $(Target) $(Target)_TestOEMInput.xml
           "@
-          $batfile | Out-File -FilePath $(Build.SourcesDirectory)\build\solution\iMXPlatform\GenerateTestFFU\GenerateFFU.bat
+          $batfile | Out-File -FilePath $(Build.SourcesDirectory)\build\solution\iMXPlatform\GenerateTestFFU\GenerateFFU.bat -Encoding ascii
 
     - script: |
         cat $(Build.SourcesDirectory)\build\solution\iMXPlatform\GenerateTestFFU\GenerateFFU.bat
