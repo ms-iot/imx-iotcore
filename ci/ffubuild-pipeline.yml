@@ -131,6 +131,11 @@ jobs:
         createLogFile: true
         logFileVerbosity: 'diagnostic'
 
+    - task: PublishSymbols@2
+      inputs:
+        SearchPattern: '/**/*.pdb'
+        SymbolServerType: 'TeamServices'
+
     - task: CopyFiles@2
       inputs:
         contents: '$(Build.SourcesDirectory)\**\*.ffu'
