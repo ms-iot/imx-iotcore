@@ -26,6 +26,7 @@ stages:
 
       - script: |
           echo HelloWorld > Windows_10_IoT_Core_ARM_Packages.msi
+          echo HelloWorld > Windows_10_IoT_Core_ARM64_Packages.msi
 
       - task: CopyFiles@2
         inputs:
