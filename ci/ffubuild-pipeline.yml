@@ -3,7 +3,7 @@ trigger:
 
 jobs:
   - job: Build67
-    displayName: Build iMX 6 & 7 FFUs
+    displayName: Build i.MX FFU
     pool:
       vmImage: 'vs2017-win2016'
     strategy:
@@ -109,7 +109,7 @@ jobs:
       inputs:
         targetType: 'inline'
         script: |
-          dir "C:\Program Files (x86)\Windows Kits\10\MSPackages\retail\arm\fre"
+          dir "C:\Program Files (x86)\Windows Kits\10\MSPackages\retail\$(Arch)\fre"
           dir "C:\Program Files (x86)\Windows Kits\10\Assessment and Deployment Kit"
 
     - task: PowerShell@2
