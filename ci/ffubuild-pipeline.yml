@@ -6,6 +6,12 @@ jobs:
     displayName: Build iMX 6 & 7 FFUs
     pool:
       vmImage: 'vs2017-win2016'
+    strategy:
+      matrix:
+        ClSomImx7_iMX7D_1GB:
+          Target: ClSomImx7_iMX7D_1GB
+        HummingBoardEdge_iMX6Q_2GB:
+          Target: HummingBoardEdge_iMX6Q_2GB
 
     steps:
     - task: PowerShell@2
@@ -63,14 +69,30 @@ jobs:
         git submodule update
       displayName: 'Download submodules'
 
-    - task: VSBuild@1
+    - task: PowerShell@2
       inputs:
-        solution: '**\*.sln'
-        vsVersion: '15.0'
-        platform: 'ARM'
-        configuration: 'Release'
-        createLogFile: true
-        logFileVerbosity: 'diagnostic'
+        targetType: 'inline'
+        script: |
+          $batfile = 
+          @"
+          set BATCH_HOME=%~dp0
+          call ..\..\..\tools\SetupBuildEnv.bat
+          cd /d %BATCH_HOME%
+          call BuildImage $(Target) $(Target)_TestOEMInput.xml
+          "@
+          $batfile | Out-File -FilePath $(Build.SourcesDirectory)\build\solution\iMXPlatform\GenerateTestFFU\GenerateFFU.bat
+
+    - script: |
+        cat $(Build.SourcesDirectory)\build\solution\iMXPlatform\GenerateTestFFU\GenerateFFU.bat
+
+#    - task: VSBuild@1
+#      inputs:
+#        solution: '**\*.sln'
+#        vsVersion: '15.0'
+#        platform: 'ARM'
+#        configuration: 'Release'
+#        createLogFile: true
+#        logFileVerbosity: 'diagnostic'
 
     - task: CopyFiles@2
       inputs:
