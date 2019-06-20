@@ -25,8 +25,8 @@ stages:
 #            az storage blob download --account-name imxiotcorestorage --container-name imxbuildinputs --name Windows_10_IoT_Core_$(Arch)_Packages.msi --file $(Build.SourcesDirectory)\Windows_10_IoT_Core_$(Arch)_Packages.msi
 
       - script: |
-        echo HelloWorld > Windows_10_IoT_Core_ARM_Packages.msi
-        echo HelloWorld > Windows_10_IoT_Core_ARM64_Packages.msi
+          echo HelloWorld > Windows_10_IoT_Core_ARM_Packages.msi
+          echo HelloWorld > Windows_10_IoT_Core_ARM64_Packages.msi
 
       - task: CopyFiles@2
         inputs:
