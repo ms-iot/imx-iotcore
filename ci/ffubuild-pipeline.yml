@@ -66,7 +66,6 @@ jobs:
         targetType: 'inline'
         script: 'Start-Process .\adksetup.exe -ArgumentList "/quiet" -wait' 
 
-
     - task: DownloadBuildArtifacts@0
       inputs:
         buildType: 'specific'
@@ -135,7 +134,7 @@ jobs:
     - task: CopyFiles@2
       inputs:
         contents: '$(Build.SourcesDirectory)\**\*.ffu'
-        targetFolder: $(Build.ArtifactStagingDirectory)
+        targetFolder: $(Build.ArtifactStagingDirectory)\Release
         flattenFolders: true
 
     - task: PowerShell@2
@@ -147,5 +146,5 @@ jobs:
 
     - task: PublishBuildArtifacts@1
       inputs:
-        pathtoPublish: $(Build.ArtifactStagingDirectory)
+        pathtoPublish: $(Build.ArtifactStagingDirectory)\Release
         artifactName: $(Target)_ReleaseFFU
