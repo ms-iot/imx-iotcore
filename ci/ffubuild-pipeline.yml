@@ -8,30 +8,45 @@ jobs:
       vmImage: 'vs2017-win2016'
     strategy:
       matrix:
+        NXPEVK_iMX8M_4GB:
+          Target: NXPEVK_iMX8M_4GB
+          Arch: ARM64
         ClSomImx7_iMX7D_1GB:
           Target: ClSomImx7_iMX7D_1GB
+          Arch: ARM
         EVK_iMX6ULL_512MB:
           Target: EVK_iMX6ULL_512MB
+          Arch: ARM
         HummingBoardEdge_iMX6DL_1GB:
           Target: HummingBoardEdge_iMX6DL_1GB
+          Arch: ARM
         HummingBoardEdge_iMX6Q_2GB:
           Target: HummingBoardEdge_iMX6Q_2GB
+          Arch: ARM
         HummingBoardEdge_iMX6S_512MB:
           Target: HummingBoardEdge_iMX6S_512MB
+          Arch: ARM
         Sabre_iMX6Q_1GB:
           Target: Sabre_iMX6Q_1GB
+          Arch: ARM
         Sabre_iMX6QP_1GB:
           Target: Sabre_iMX6QP_1GB
+          Arch: ARM
         Sabre_iMX6SX_1GB:
           Target: Sabre_iMX6SX_1GB
+          Arch: ARM
         Sabre_iMX7D_1GB:
           Target: Sabre_iMX7D_1GB
+          Arch: ARM
         SabreLite_iMX6Q_1GB:
           Target: SabreLite_iMX6Q_1GB
+          Arch: ARM
         UdooNeo_iMX6SX_1GB:
           Target: UdooNeo_iMX6SX_1GB
+          Arch: ARM
         VAB820_iMX6Q_1GB:
           Target: VAB820_iMX6Q_1GB
+          Arch: ARM
 
     steps:
     - task: PowerShell@2
@@ -52,12 +67,22 @@ jobs:
         script: 'Start-Process .\adksetup.exe -ArgumentList "/quiet" -wait' 
 
     - task: AzureCLI@1
-      displayName: 'Fetch Windows IoT Core Packages 1809 LTSC from Azure Storage'
+      condition: eq('ARM',variables['Arch'])
+      displayName: 'Fetch ARM Windows IoT Core Packages 1809 LTSC from Azure Storage'
       inputs:
         azureSubscription: 'Silicon team: Cosine IOT Services Azure Internal Consumption'
         scriptLocation: inlineScript
         inlineScript: |
           az storage blob download --account-name imxiotcorestorage --container-name imxbuildinputs --name Windows_10_IoT_Core_ARM_Packages.msi --file $(Build.SourcesDirectory)\Windows_10_IoT_Core_ARM_Packages.msi
+
+    - task: AzureCLI@1
+      condition: eq('ARM64',variables['Arch'])
+      displayName: 'Fetch ARM64 Windows IoT Core Packages 1809 LTSC from Azure Storage'
+      inputs:
+        azureSubscription: 'Silicon team: Cosine IOT Services Azure Internal Consumption'
+        scriptLocation: inlineScript
+        inlineScript: |
+          az storage blob download --account-name imxiotcorestorage --container-name imxbuildinputs --name Windows_10_IoT_Core_ARM64_Packages.msi --file $(Build.SourcesDirectory)\Windows_10_IoT_Core_ARM64_Packages.msi
 
     - task: PowerShell@2
       displayName: 'Install IoT Core Packages'
@@ -109,7 +134,7 @@ jobs:
       inputs:
         solution: '**\*.sln'
         vsVersion: '15.0'
-        platform: 'ARM'
+        platform: '$(Arch)'
         configuration: 'Release'
         createLogFile: true
         logFileVerbosity: 'diagnostic'
