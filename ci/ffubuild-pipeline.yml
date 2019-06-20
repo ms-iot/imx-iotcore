@@ -66,9 +66,13 @@ jobs:
         targetType: 'inline'
         script: 'Start-Process .\adksetup.exe -ArgumentList "/quiet" -wait' 
 
+
     - task: DownloadBuildArtifacts@0
       inputs:
-        buildType: 'current'
+        buildType: 'specific'
+        project: 'a0a9e539-5c45-490f-83c8-289a6ed8234e'
+        pipeline: '41039'
+        buildVersionToDownload: 'latest'
         downloadType: 'single'
         artifactName: 'BuildCollaterals'
         downloadPath: '$(System.ArtifactsDirectory)'
@@ -78,7 +82,7 @@ jobs:
       inputs:
         targetType: 'inline'
         script: |
-          $msiPath = "$(System.ArtifactsDirectory)\Windows_10_IoT_Core_$(Arch)_Packages.msi"
+          $msiPath = "$(System.ArtifactsDirectory)\BuildCollaterals\Windows_10_IoT_Core_$(Arch)_Packages.msi"
           dir $msiPath
           Start-Process msiexec.exe -ArgumentList @("/i $msiPath", "/quiet", "/qn", "/L*V `"$(Build.SourcesDirectory)\msi.log`"") -wait
 
