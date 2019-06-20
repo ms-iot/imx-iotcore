@@ -20,22 +20,18 @@ jobs:
     - script: |
         sudo apt-get install python python-dev python-crypto python-wand python3-pip python3-setuptools
         sudo apt-get install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev wget libsqlite3-dev
-        pushd ..
-        wget https://www.python.org/ftp/python/3.7.3/Python-3.7.3.tar.xz
-        tar -xf Python-3.7.3.tar.xz
-
-        python3 --version
-        cd Python-3.7.3
-        ./configure
-        make build_all -j8
-        sudo make altinstall
-        popd
-        python3.7 --version
-
-        sudo python3.7 -m pip install --upgrade pip
-        sudo python3.7 -m pip install --upgrade setuptools
-        sudo python3.7 -m pip install mu_environment
       displayName: Install Python components
+
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.7' 
+        addToPath: true
+        
+    - script: |
+        python3 --version
+        pip3 install --upgrade pip
+        pip3 install --upgrade setuptools
+        pip3 install mu_environment
 
     - script: |
         wget https://releases.linaro.org/components/toolchain/binaries/7.2-2017.11/aarch64-linux-gnu/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu.tar.xz
@@ -113,14 +109,14 @@ jobs:
     - script: |
         pushd ../mu_platform_nxp
         export GCC5_AARCH64_PREFIX=$(Build.SourcesDirectory)/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
-        sudo python3.7 -m pip3 install -r requirements.txt --upgrade
-        python3.7 NXP/MCIMX8M_EVK_4GB/PlatformBuild.py --setup
+        sudo pip3 install -r requirements.txt --upgrade
+        python3 NXP/MCIMX8M_EVK_4GB/PlatformBuild.py --setup
 
         cd MU_BASECORE
         make -C BaseTools
         cd ..
 
-        python3.7 NXP/MCIMX8M_EVK_4GB/PlatformBuild.py TOOL_CHAIN_TAG=GCC5 BUILDREPORTING=TRUE BUILDREPORT_TYPES="PCD" TARGET=RELEASE MAX_CONCURRENT_THREAD_NUMBER=20 BLD_*_CONFIG_NOT_SECURE_UEFI=1
+        python3 NXP/MCIMX8M_EVK_4GB/PlatformBuild.py TOOL_CHAIN_TAG=GCC5 BUILDREPORTING=TRUE BUILDREPORT_TYPES="PCD" TARGET=RELEASE MAX_CONCURRENT_THREAD_NUMBER=20 BLD_*_CONFIG_NOT_SECURE_UEFI=1
       displayName: Build UEFI
 
     - script: |
