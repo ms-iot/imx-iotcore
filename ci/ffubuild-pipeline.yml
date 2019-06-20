@@ -10,8 +10,28 @@ jobs:
       matrix:
         ClSomImx7_iMX7D_1GB:
           Target: ClSomImx7_iMX7D_1GB
+        EVK_iMX6ULL_512MB:
+          Target: EVK_iMX6ULL_512MB
+        HummingBoardEdge_iMX6DL_1GB:
+          Target: HummingBoardEdge_iMX6DL_1GB
         HummingBoardEdge_iMX6Q_2GB:
           Target: HummingBoardEdge_iMX6Q_2GB
+        HummingBoardEdge_iMX6S_512MB:
+          Target: HummingBoardEdge_iMX6S_512MB
+        Sabre_iMX6Q_1GB:
+          Target: Sabre_iMX6Q_1GB
+        Sabre_iMX6QP_1GB:
+          Target: Sabre_iMX6QP_1GB
+        Sabre_iMX6SX_1GB:
+          Target: Sabre_iMX6SX_1GB
+        Sabre_iMX7D_1GB:
+          Target: Sabre_iMX7D_1GB
+        SabreLite_iMX6Q_1GB:
+          Target: SabreLite_iMX6Q_1GB
+        UdooNeo_iMX6SX_1GB:
+          Target: UdooNeo_iMX6SX_1GB
+        VAB820_iMX6Q_1GB:
+          Target: VAB820_iMX6Q_1GB
 
     steps:
     - task: PowerShell@2
@@ -85,14 +105,14 @@ jobs:
     - script: |
         cat $(Build.SourcesDirectory)\build\solution\iMXPlatform\GenerateTestFFU\GenerateFFU.bat
 
-#    - task: VSBuild@1
-#      inputs:
-#        solution: '**\*.sln'
-#        vsVersion: '15.0'
-#        platform: 'ARM'
-#        configuration: 'Release'
-#        createLogFile: true
-#        logFileVerbosity: 'diagnostic'
+    - task: VSBuild@1
+      inputs:
+        solution: '**\*.sln'
+        vsVersion: '15.0'
+        platform: 'ARM'
+        configuration: 'Release'
+        createLogFile: true
+        logFileVerbosity: 'diagnostic'
 
     - task: CopyFiles@2
       inputs:
@@ -110,4 +130,4 @@ jobs:
     - task: PublishBuildArtifacts@1
       inputs:
         pathtoPublish: $(Build.ArtifactStagingDirectory)
-        artifactName: ReleaseFFU
+        artifactName: $(Target)_ReleaseFFU
