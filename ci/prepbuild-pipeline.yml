@@ -1,0 +1,37 @@
+trigger: none
+
+jobs:
+  - job: BuildCollaterals
+    pool:
+      vmImage: 'vs2017-win2016'
+    steps:
+#      - task: AzureCLI@1
+#        displayName: 'Fetch $(Arch) Windows IoT Core Packages 1809 LTSC from Azure Storage'
+#        inputs:
+#          azureSubscription: 'Silicon team: Cosine IOT Services Azure Internal Consumption'
+#          scriptLocation: inlineScript
+#          inlineScript: |
+#            az storage blob download --account-name imxiotcorestorage --container-name imxbuildinputs --name Windows_10_IoT_Core_$(Arch)_Packages.msi --file $(Build.SourcesDirectory)\Windows_10_IoT_Core_$(Arch)_Packages.msi
+
+#      - task: AzureCLI@1
+#        displayName: 'Fetch $(Arch) Windows IoT Core Packages 1809 LTSC from Azure Storage'
+#        inputs:
+#          azureSubscription: 'Silicon team: Cosine IOT Services Azure Internal Consumption'
+#          scriptLocation: inlineScript
+#          inlineScript: |
+#            az storage blob download --account-name imxiotcorestorage --container-name imxbuildinputs --name Windows_10_IoT_Core_$(Arch)_Packages.msi --file $(Build.SourcesDirectory)\Windows_10_IoT_Core_$(Arch)_Packages.msi
+
+    - script: |
+        echo HelloWorld > Windows_10_IoT_Core_ARM_Packages.msi
+        echo HelloWorld > Windows_10_IoT_Core_ARM64_Packages.msi
+
+    - task: CopyFiles@2
+      inputs:
+        contents: '$(Build.SourcesDirectory)\*.msi'
+        targetFolder: $(Build.ArtifactStagingDirectory)
+        flattenFolders: true
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+        pathtoPublish: $(Build.ArtifactStagingDirectory)
+        artifactName: BuildCollaterals
