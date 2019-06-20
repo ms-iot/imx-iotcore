@@ -133,7 +133,7 @@ jobs:
 
     - task: PublishSymbols@2
       inputs:
-        SearchPattern: '/**/*.pdb'
+        SearchPattern: '\**\*.pdb'
         SymbolServerType: 'TeamServices'
 
     - task: CopyFiles@2
