@@ -75,6 +75,16 @@ jobs:
         inlineScript: |
           az storage blob download --account-name imxiotcorestorage --container-name imxbuildinputs --name Windows_10_IoT_Core_ARM_Packages.msi --file $(Build.SourcesDirectory)\Windows_10_IoT_Core_ARM_Packages.msi
 
+    - task: PowerShell@2
+      condition: eq('ARM',variables['Arch'])
+      displayName: 'Install ARM IoT Core Packages'
+      inputs:
+        targetType: 'inline'
+        script: |
+          $msiPath = "$(Build.SourcesDirectory)\Windows_10_IoT_Core_ARM_Packages.msi"
+          dir $msiPath
+          Start-Process msiexec.exe -ArgumentList @("/i $msiPath", "/quiet", "/qn", "/L*V `"$(Build.SourcesDirectory)\msi.log`"") -wait
+
     - task: AzureCLI@1
       condition: eq('ARM64',variables['Arch'])
       displayName: 'Fetch ARM64 Windows IoT Core Packages 1809 LTSC from Azure Storage'
@@ -85,11 +95,12 @@ jobs:
           az storage blob download --account-name imxiotcorestorage --container-name imxbuildinputs --name Windows_10_IoT_Core_ARM64_Packages.msi --file $(Build.SourcesDirectory)\Windows_10_IoT_Core_ARM64_Packages.msi
 
     - task: PowerShell@2
-      displayName: 'Install IoT Core Packages'
+      condition: eq('ARM64',variables['Arch'])
+      displayName: 'Install ARM64 IoT Core Packages'
       inputs:
         targetType: 'inline'
         script: |
-          $msiPath = "$(Build.SourcesDirectory)\Windows_10_IoT_Core_ARM_Packages.msi"
+          $msiPath = "$(Build.SourcesDirectory)\Windows_10_IoT_Core_ARM64_Packages.msi"
           dir $msiPath
           Start-Process msiexec.exe -ArgumentList @("/i $msiPath", "/quiet", "/qn", "/L*V `"$(Build.SourcesDirectory)\msi.log`"") -wait
 
