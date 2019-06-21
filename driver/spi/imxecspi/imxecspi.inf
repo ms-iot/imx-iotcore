@@ -10,7 +10,6 @@
 ;Installation Notes:
 ;    Using Devcon: Type "devcon update imxecspi.inf ACPI\NXP0105" to install
 
-
 [Version]
 Signature="$WINDOWS NT$"
 Class=System
@@ -67,7 +66,6 @@ ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
 ServiceBinary  = %13%\imxecspi.sys
 LoadOrderGroup = Extended Base
 Dependencies   = SpbCx
-AddReg         = IMXECSPI_Service_Reg
 
 [imx8m_ecspi_Service_Inst]
 DisplayName    = %imxecspi.SVCDESC%
@@ -77,13 +75,18 @@ ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
 ServiceBinary  = %13%\imxecspi.sys
 LoadOrderGroup = Extended Base
 Dependencies   = SpbCx
-AddReg         = IMX8M_ECSPI_Service_Reg
 
-[IMXECSPI_Service_Reg]
-HKR,Parameters,ReferenceClockHz,0x00010001,0x03938700 ; 60Mhz
+[imxecspi_Device.NT.HW]
+Addreg=imx_ecspi_Device.NT.HW.AddReg
 
-[IMX8M_ECSPI_Service_Reg]
-HKR,Parameters,ReferenceClockHz,0x00010001,0x016e3600 ; 24Mhz
+[imx8m_ecspi_Device.NT.HW]
+Addreg=imx8m_ecspi_Device.NT.HW.AddReg
+
+[imx_ecspi_Device.NT.HW.AddReg]
+HKR,,ReferenceClockHz,0x00010001,0x03938700 ; 60Mhz
+
+[imx8m_ecspi_Device.NT.HW.AddReg]
+HKR,,ReferenceClockHz,0x00010001,0x016e3600 ; 24Mhz
 
 [Strings]
 SPSVCINST_ASSOCSERVICE= 0x00000002
