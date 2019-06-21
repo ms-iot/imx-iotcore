@@ -192,14 +192,12 @@ Note: The UEFI build environment has changed for 1903 and any existing build env
 
    export GCC5_AARCH64_PREFIX=~/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
 
-   python3 NXP/MCIMX8M_EVK_4GB/PlatformBuild.py TOOL_CHAIN_TAG=GCC5 \
-     BUILDREPORTING=TRUE BUILDREPORT_TYPES="PCD" TARGET=RELEASE \
-     MAX_CONCURRENT_THREAD_NUMBER=20 BLD_*_CONFIG_NOT_SECURE_UEFI=1
+   python3 NXP/MCIMX8M_EVK_4GB/PlatformBuild.py -V TARGET=RELEASE \
+     PROFILE=DEV MAX_CONCURRENT_THREAD_NUMBER=20
 
    # debug
-   # python3 NXP/MCIMX8M_EVK_4GB/PlatformBuild.py TOOL_CHAIN_TAG=GCC5 \
-   #   BUILDREPORTING=TRUE BUILDREPORT_TYPES="PCD" TARGET=DEBUG \
-   #   MAX_CONCURRENT_THREAD_NUMBER=20 BLD_*_CONFIG_NOT_SECURE_UEFI=1
+   # python3 NXP/MCIMX8M_EVK_4GB/PlatformBuild.py -V TARGET=DEBUG \
+   #   PROFILE=DEV MAX_CONCURRENT_THREAD_NUMBER=20
 
    cd Build/MCIMX8M_EVK_4GB/RELEASE_GCC5/FV
    cp ../../../../../imx-iotcore/build/firmware/its/uefi_imx8_unsigned.its .
