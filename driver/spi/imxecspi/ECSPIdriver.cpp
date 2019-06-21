@@ -124,7 +124,7 @@ DriverEntry (
         ECSPIDriverGetDriverExtension()->DriverLogHandle = defLogHandle;
 
     } // WDF driver 
-	
+
 done:
 
     //
@@ -256,19 +256,19 @@ ECSPIEvtDeviceAdd (
 
     } // Create the device.
 
-	//
-	// Read driver configuration parameters from registry.
-	//
-	status = ECSPIpDriverReadConfig(wdfDevice);
-	if (!NT_SUCCESS(status)) {
+    //
+    // Read driver configuration parameters from registry.
+    //
+    status = ECSPIpDriverReadConfig(wdfDevice);
+    if (!NT_SUCCESS(status)) {
 
-		ECSPI_LOG_ERROR(
-			DRIVER_LOG_HANDLE,
-			"ECSPIpDriverReadConfig failed, status = %!STATUS!",
-			status
-		);
-		return status;
-	}
+        ECSPI_LOG_ERROR(
+            DRIVER_LOG_HANDLE,
+            "ECSPIpDriverReadConfig failed, status = %!STATUS!",
+            status
+        );
+        return status;
+    }
 
     //
     // Register ECSPI with SpbCx as an SPB controller.
@@ -481,11 +481,11 @@ ECSPIpDriverReadConfig (WDFDEVICE Device)
     NTSTATUS status;
     WDFKEY driverRegkey = NULL;
 
-	status = WdfDeviceOpenRegistryKey(Device,
-		PLUGPLAY_REGKEY_DEVICE, // open the hardware key
-		STANDARD_RIGHTS_ALL,
-		WDF_NO_OBJECT_ATTRIBUTES,
-		&driverRegkey);
+    status = WdfDeviceOpenRegistryKey(Device,
+        PLUGPLAY_REGKEY_DEVICE, // open the hardware key
+        STANDARD_RIGHTS_ALL,
+        WDF_NO_OBJECT_ATTRIBUTES,
+        &driverRegkey);
 
     if (!NT_SUCCESS(status)) {
 
