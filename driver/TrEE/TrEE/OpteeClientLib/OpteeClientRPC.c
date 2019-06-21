@@ -507,7 +507,7 @@ TEEC_Result OpteeRpcCmdLoadTa(t_teesmc_arg *TeeSmcArg)
     Status = RtlStringCbPrintfW(
         OsTaFilePathW,
         sizeof(OsTaFilePathW),
-        L"\\SystemRoot\\System32\\%8.8X-%4.4X-%4.4X-%2.2X%2.2X-%2.2X%2.2X%2.2X%2.2X%2.2X%2.2X.ta",
+        L"\\SystemRoot\\System32\\TrustedAppStore\\%8.8X-%4.4X-%4.4X-%2.2X%2.2X-%2.2X%2.2X%2.2X%2.2X%2.2X%2.2X.ta",
         TaUuid.timeLow, TaUuid.timeMid, TaUuid.timeHiAndVersion,
         TaUuid.clockSeqAndNode[0], TaUuid.clockSeqAndNode[1],
         TaUuid.clockSeqAndNode[2], TaUuid.clockSeqAndNode[3],
@@ -529,6 +529,13 @@ TEEC_Result OpteeRpcCmdLoadTa(t_teesmc_arg *TeeSmcArg)
         NULL,                            // RootDirectory
         NULL);                           // SecurityDescriptor
 
+    //
+    // For containers: ensure that the openfile is executed in container host silo
+    // so that we see the host's trusted app store
+    //
+    PESILO PreviousSilo = PsAttachSiloToCurrentThread(PsGetHostSilo());
+
+
     Status = ZwOpenFile(
         &OsTaFileHandle,                 // FileHandle
         GENERIC_READ,                    // DesiredAccess
@@ -536,6 +543,11 @@ TEEC_Result OpteeRpcCmdLoadTa(t_teesmc_arg *TeeSmcArg)
         &OsTaFileIoStatus,               // IoStatusBlock
         FILE_SHARE_READ,                 // ShareAccess
         FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT); // OpenOptions
+
+    //
+    // Restore previous container silo
+    //
+    PsDetachSiloFromCurrentThread(PreviousSilo);
     
     if (!NT_SUCCESS(Status)) {
         TraceError("ERR: TA file open failed 0x%x\n", Status);
