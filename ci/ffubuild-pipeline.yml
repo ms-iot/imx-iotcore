@@ -133,7 +133,10 @@ jobs:
 
     - task: PublishSymbols@2
       inputs:
-        SearchPattern: '\**\*.pdb'
+        symbolsFolder: '$(Build.SourcesDirectory)'
+        SearchPattern: '**\*.pdb'
+        IndexSources: true
+        PublishSymbols: true
         SymbolServerType: 'TeamServices'
 
     - task: CopyFiles@2
