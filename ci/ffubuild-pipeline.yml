@@ -8,6 +8,9 @@ jobs:
       vmImage: 'vs2017-win2016'
     strategy:
       matrix:
+        NXPEVK_iMX8M_Mini_2GB:
+          Target: NXPEVK_iMX8M_Mini_2GB
+          Arch: ARM64
         NXPEVK_iMX8M_4GB:
           Target: NXPEVK_iMX8M_4GB
           Arch: ARM64
