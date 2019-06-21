@@ -1,0 +1,4 @@
+#
+# Special github handling for certain files
+
+imxecspi.inf	text working-tree-encoding=UTF-16
