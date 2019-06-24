@@ -134,6 +134,14 @@ jobs:
         createLogFile: true
         logFileVerbosity: 'diagnostic'
 
+    - task: PublishSymbols@2
+      inputs:
+        symbolsFolder: '$(Build.SourcesDirectory)\build\solution\iMXPlatform'
+        SearchPattern: '**\*.pdb'
+        IndexSources: true
+        PublishSymbols: true
+        SymbolServerType: 'TeamServices'
+
     - task: CopyFiles@2
       inputs:
         contents: '$(Build.SourcesDirectory)\**\*.ffu'
