@@ -133,7 +133,7 @@ jobs:
 
     - task: PublishSymbols@2
       inputs:
-        symbolsFolder: '$(Build.SourcesDirectory)'
+        symbolsFolder: '$(Build.SourcesDirectory)\build\solution\iMXPlatform'
         SearchPattern: '**\*.pdb'
         IndexSources: true
         PublishSymbols: true
