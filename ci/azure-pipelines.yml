@@ -169,19 +169,20 @@ jobs:
       displayName: Download gcc
 
 
-    - task: DownloadPipelineArtifact@2
+    - task: DownloadBuildArtifacts@0
       inputs:
-        source: 'specific'
-        artifact: 'Cst'
+        buildType: 'specific'
         project: 'a0a9e539-5c45-490f-83c8-289a6ed8234e'
-        pipeline: 41039
-        runVersion: 'latest'
-        path: '$(System.ArtifactsDirectory)'
+        pipeline: '41039'
+        buildVersionToDownload: 'latest'
+        downloadType: 'single'
+        artifactName: 'Cst'
+        downloadPath: '$(System.ArtifactsDirectory)'
 
     - script: |
         pushd ..
-        ls $(Build.SourcesDirectory)
-        tar xf $(Build.SourcesDirectory)/cst.tar.gz
+        ls $(System.ArtifactsDirectory)
+        tar xf $(System.ArtifactsDirectory)/cst.tar.gz
       displayName: Extract CST
 
     # Branches are set using pipeline variables to allow overriding known build breaks (mostly useful for EDK2)
