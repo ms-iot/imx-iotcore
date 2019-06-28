@@ -173,6 +173,7 @@ jobs:
       inputs:
         source: 'specific'
         artifact: 'Cst'
+        project: 'a0a9e539-5c45-490f-83c8-289a6ed8234e'
         pipeline: 41039
         runVersion: 'latest'
         path: '$(System.ArtifactsDirectory)'
