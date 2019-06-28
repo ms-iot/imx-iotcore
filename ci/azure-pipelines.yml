@@ -174,8 +174,8 @@ jobs:
         buildType: 'specific'
         project: 'a0a9e539-5c45-490f-83c8-289a6ed8234e'
         pipeline: '41039'
-        buildVersionToDownload: 'latest'
-        downloadType: 'single'
+        buildVersionToDownload: latestFromBranch
+        branchName: 'public_preview'
         artifactName: 'Cst'
         downloadPath: '$(System.ArtifactsDirectory)'
 
