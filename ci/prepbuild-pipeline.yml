@@ -5,6 +5,30 @@ jobs:
     pool:
       vmImage: 'vs2017-win2016'
     steps:
+
+    - task: AzureCLI@1
+      displayName: 'Download CST'
+      inputs:
+        azureSubscription: 'Silicon team: Cosine IOT Services Azure Internal Consumption'
+        scriptLocation: inlineScript
+        inlineScript: |
+          az storage blob download \
+          --account-name siliconfirmware \
+          --container-name cst \
+          --name cst.tar.gz \
+          --file $(Build.SourcesDirectory)/cst.tar.gz
+
+    - task: CopyFiles@2
+      inputs:
+        contents: '$(Build.SourcesDirectory)\cst.tar.gz'
+        targetFolder: $(Build.ArtifactStagingDirectory)\cst
+        flattenFolders: true
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+        pathtoPublish: $(Build.ArtifactStagingDirectory)\cst
+        artifactName: Cst
+
     - task: AzureCLI@1
       displayName: 'Fetch ARM Windows IoT Core Packages 1809 LTSC from Azure Storage'
       inputs:
@@ -24,10 +48,10 @@ jobs:
     - task: CopyFiles@2
       inputs:
         contents: '$(Build.SourcesDirectory)\*.msi'
-        targetFolder: $(Build.ArtifactStagingDirectory)
+        targetFolder: $(Build.ArtifactStagingDirectory)\msi
         flattenFolders: true
 
     - task: PublishBuildArtifacts@1
       inputs:
-        pathtoPublish: $(Build.ArtifactStagingDirectory)
+        pathtoPublish: $(Build.ArtifactStagingDirectory)\msi
         artifactName: BuildCollaterals
