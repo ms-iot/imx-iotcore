@@ -181,8 +181,8 @@ jobs:
 
     - script: |
         pushd ..
-        ls $(System.ArtifactsDirectory)
-        tar xf $(System.ArtifactsDirectory)/cst.tar.gz
+        ls $(System.ArtifactsDirectory)/Cst
+        tar xf $(System.ArtifactsDirectory)/Cst/cst.tar.gz
       displayName: Extract CST
 
     # Branches are set using pipeline variables to allow overriding known build breaks (mostly useful for EDK2)
@@ -226,5 +226,22 @@ jobs:
         cd build/firmware/$(Target)
         make CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-6.4.1-2017.11-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-
       displayName: Full firmware build
+
+    - task: CopyFiles@2
+      inputs:
+        contents: '$(Build.SourcesDirectory)/build/firmware/$(Target)/firmware_fit.merged'
+        targetFolder: $(Build.ArtifactStagingDirectory)
+        flattenFolders: true
+
+    - task: CopyFiles@2
+      inputs:
+        contents: '$(Build.SourcesDirectory)/build/firmware/$(Target)/uefi.fit'
+        targetFolder: $(Build.ArtifactStagingDirectory)
+        flattenFolders: true
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+        pathtoPublish: $(Build.ArtifactStagingDirectory)
+        artifactName: $(Target)_imx67_firmware
 
     - task: ComponentGovernanceComponentDetection@0
