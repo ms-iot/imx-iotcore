@@ -12,11 +12,7 @@ jobs:
         azureSubscription: 'Silicon team: Cosine IOT Services Azure Internal Consumption'
         scriptLocation: inlineScript
         inlineScript: |
-          az storage blob download \
-          --account-name siliconfirmware \
-          --container-name cst \
-          --name cst.tar.gz \
-          --file $(Build.SourcesDirectory)/cst.tar.gz
+          az storage blob download --account-name siliconfirmware --container-name cst --name cst.tar.gz --file $(Build.SourcesDirectory)\cst.tar.gz
 
     - task: CopyFiles@2
       inputs:
