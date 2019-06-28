@@ -169,15 +169,17 @@ jobs:
       displayName: Download gcc
 
 
-    - task: DownloadBuildArtifacts@0
+    - task: DownloadPipelineArtifact@2
       inputs:
-        buildType: 'specific'
+        buildType: specific
         project: 'a0a9e539-5c45-490f-83c8-289a6ed8234e'
-        pipeline: '41039'
+        definition: 41039
+        specificBuildWithTriggering: true
         buildVersionToDownload: latestFromBranch
-        branchName: 'public_preview'
-        artifactName: 'Cst'
-        downloadPath: '$(System.ArtifactsDirectory)'
+        branchName: 'refs/heads/public_preview'
+        artifactName: Cst
+        path: '$(System.ArtifactsDirectory)'
+      displayName: Download CST
 
     - script: |
         pushd ..
