@@ -122,6 +122,7 @@ call :GETPACKAGE NXP.iMX.imxnetmini.cab || goto err
 call :GETPACKAGE NXP.iMX.imxuart.cab || goto err
 call :GETPACKAGE NXP.iMX.imxusdhc.cab || goto err
 call :GETPACKAGE NXP.iMX.mx6pep.cab || goto err
+call :GETPACKAGE NXP.iMX.OpteeTrEE.cab || goto err
 
 echo Injecting drivers from %PACKAGES_DIR% into WIM
 dism /image:"%MOUNT_DIR%" /Add-Package /packagepath:"%PACKAGES_DIR%" || goto err
