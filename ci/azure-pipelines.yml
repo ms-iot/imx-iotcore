@@ -183,8 +183,7 @@ jobs:
     - script: |
         pushd ..
         ls $(System.ArtifactsDirectory)/
-        ls $(System.ArtifactsDirectory)/Cst
-        tar xf $(System.ArtifactsDirectory)/Cst/cst.tar.gz
+        tar xf $(System.ArtifactsDirectory)/cst.tar.gz
       displayName: Extract CST
 
     # Branches are set using pipeline variables to allow overriding known build breaks (mostly useful for EDK2)
