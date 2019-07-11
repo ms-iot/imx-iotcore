@@ -182,6 +182,7 @@ jobs:
 
     - script: |
         pushd ..
+        ls $(System.ArtifactsDirectory)/
         ls $(System.ArtifactsDirectory)/Cst
         tar xf $(System.ArtifactsDirectory)/Cst/cst.tar.gz
       displayName: Extract CST
