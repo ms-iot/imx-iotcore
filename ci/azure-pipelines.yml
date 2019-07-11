@@ -174,9 +174,8 @@ jobs:
         buildType: specific
         project: 'a0a9e539-5c45-490f-83c8-289a6ed8234e'
         definition: 41039
-        specificBuildWithTriggering: true
-        buildVersionToDownload: latestFromBranch
-        branchName: 'refs/heads/public_preview'
+        buildVersionToDownload: specific
+        pipelineId: 16732832
         artifactName: Cst
         path: '$(System.ArtifactsDirectory)'
       displayName: Download CST
