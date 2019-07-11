@@ -1,10 +1,6 @@
 trigger:
 - public_preview
 
-resources:
-  pipelines:
-  - pipeline: NXP-PrepBuildCollaterals
-
 jobs:
   - job: Build8
     displayName: Build iMX 8
