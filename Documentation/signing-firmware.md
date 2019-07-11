@@ -1,5 +1,5 @@
-# Signing Firmware
-This document is a high level overview of the various signing keys used in constructing the High Assurance Boot chain from Boot ROM all the way to Windows IoT Core.
+# Signing Firmware for i.MX6 and i.MX7
+This document is a high level overview of the various signing keys used on i.MX6 and i.MX7 devices to construct the High Assurance Boot chain from Boot ROM all the way to Windows IoT Core.
 
 ## High Assurance Boot
 High Assurance Boot is an NXP security feature to ensure that the Boot ROM will only load code that has been signed with the correct private key. This is accomplished by creating a public/private keypair with NXP's Code Signing Tool (CST), burning the Super Root Key Hash of the public key into SoC fuses, then signing the SPL binary with the manufacturer's private key. The private keys used for HAB **MUST BE** kept secure and secret because they are the root of trust for your device and any firmware signed with these private keys will be allowed to run.

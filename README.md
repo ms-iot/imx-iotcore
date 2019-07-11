@@ -135,7 +135,7 @@ Building custom firmware into an FFU requires additional steps:
 * [Building and Updating Firmware for ARM](Documentation/build-firmware.md)
 * [Building and Updating Firmware for ARM64](Documentation/build-arm64-firmware.md)
 * [Firmware Boot Documentation](Documentation/boot.md)
-* [Firmware Signing Documentation](Documentation/signing-firmware.md)
+* [Firmware Signing Documentation for ARM](Documentation/signing-firmware.md)
 * [Testing your BSP](Documentation/tests.md)
 * [Creating Windows PE images and booting from eMMC](Documentation/winpe-mmc.md)
 
