@@ -74,7 +74,8 @@ jobs:
         buildType: 'specific'
         project: 'a0a9e539-5c45-490f-83c8-289a6ed8234e'
         pipeline: '41039'
-        buildVersionToDownload: 'latest'
+        buildVersionToDownload: 'specific'
+        buildId: 16732832
         downloadType: 'single'
         artifactName: 'BuildCollaterals'
         specificBuildWithTriggering: true
