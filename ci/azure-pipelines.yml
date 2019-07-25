@@ -178,6 +178,7 @@ jobs:
         pipelineId: 16732832
         artifactName: Cst
         path: '$(System.ArtifactsDirectory)'
+        specificBuildWithTriggering: true
       displayName: Download CST
 
     - script: |
