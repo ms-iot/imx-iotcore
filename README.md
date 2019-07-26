@@ -1,4 +1,4 @@
-Windows 10 IoT Core for NXP i.MX Processors
+Test Windows 10 IoT Core for NXP i.MX Processors
 ==============
 | Component | Build Status |
 |-----|-----|
