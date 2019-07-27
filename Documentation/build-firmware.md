@@ -90,11 +90,15 @@ This document describes how to set up a build environment to build the latest fi
 1) To make the updated firmware a part of your FFU build, you must copy the firmwares to your board's Package folder in imx-iotcore.
  * Copy uefi.fit into /board/boardname/Package/BootFirmware
  * Copy firmware_fit.merged into /board/boardname/Package/BootLoader
+ * You can also use the following make command to copy uefi.fit and firmware_fit.merged to the correct package directories.
+    ```bash
+    $ make update-ffu
+    ```
 
 2) When preparing to commit your changes, you should use the following make command save your OP-TEE SDK and the commit versions of your firmware automatically in your board folder.
 
     ```bash
-    $ make update-ffu
+    $ make commit-firmware
     ```
 
 ## Deploying firmware to an SD card manually

@@ -291,9 +291,18 @@ authvars: optee
 	cp -f $(AUTHVARS_OUT)/2d57c0f7-bddf-48ea-832f-d84a1a219301.elf $(AUTHVARS_BIN_PLACE)
 	cp -f $(AUTHVARS_OUT)/2d57c0f7-bddf-48ea-832f-d84a1a219301.ta $(AUTHVARS_BIN_PLACE)
 
-# Copy binaries from build output to package location and 'git add' them
+# Copy binaries from build output to package location
 .PHONY: update-ffu
-update-ffu: $(VERSIONS)
+update-ffu:
+	board=`basename $$PWD` && \
+	dest=../../board/$$board/Package/BootLoader && \
+	uefidest=../../board/$$board/Package/BootFirmware && \
+	cp firmware_fit.merged $$dest && \
+	cp uefi.fit $$uefidest
+
+# Copy binaries from build output to package location and 'git add' them
+.PHONY: commit-firmware
+commit-firmware: $(VERSIONS)
 	board=`basename $$PWD` && \
 	dest=../../board/$$board/Package/BootLoader && \
 	uefidest=../../board/$$board/Package/BootFirmware && \
