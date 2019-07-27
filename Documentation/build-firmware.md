@@ -95,7 +95,7 @@ This document describes how to set up a build environment to build the latest fi
     $ make update-ffu
     ```
 
-2) When preparing to commit your changes, you should use the following make command save your OP-TEE SDK and the commit versions of your firmware automatically in your board folder.
+2) When preparing to commit your changes, you should use the following make command to save your OP-TEE SDK and the commit versions of your firmware automatically in your board folder.
 
     ```bash
     $ make commit-firmware
