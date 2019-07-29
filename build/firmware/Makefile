@@ -16,6 +16,7 @@ BOARDS=\
 	EVK_iMX6ULL_512MB \
 
 UPDATEDIRS=$(BOARDS:%=update-%)
+COMMITDIRS=$(BOARDS:%=commit-%)
 CLEANDIRS=$(BOARDS:%=clean-%)
 
 all: $(BOARDS)
@@ -25,6 +26,10 @@ $(BOARDS):
 update-ffu: $(UPDATEDIRS)
 $(UPDATEDIRS):
 	$(MAKE) -C $(@:update-%=%) update-ffu
+
+commit-firmware: $(COMMITDIRS)
+$(COMMITDIRS):
+	$(MAKE) -C $(@:commit-%=%) commit-firmware
 
 clean: $(CLEANDIRS)
 $(CLEANDIRS):
@@ -40,4 +45,4 @@ print_board_list:
 .PHONY: subdirs $(BOARDS)
 .PHONY: subdirs $(UPDATEDIRS)
 .PHONY: subdirs $(CLEANDIRS)
-.PHONY: all update-ffu clean
+.PHONY: all update-ffu commit-ffu clean
