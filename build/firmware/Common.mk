@@ -370,11 +370,11 @@ $(TA_VERSIONS):
 
 place_authvars_notice:
 	rm -f $(AUTHVARS_BIN_PLACE)/NOTICE
-	echo "PUT AUTHVARS NOTICE HERE!" >> $(AUTHVARS_BIN_PLACE)/NOTICE
+	cp $(TA_ROOT)/../../NOTICE $(AUTHVARS_BIN_PLACE)/NOTICE
 
 place_ftpm_notice:
 	rm -f $(FTPM_BIN_PLACE)/NOTICE
-	echo "PUT FTPM NOTICE HERE!" >> $(FTPM_BIN_PLACE)/NOTICE
+	cp $(TA_ROOT)/../../NOTICE $(FTPM_BIN_PLACE)/NOTICE
 
 # Make sure that dirs have case sensitivity on in Windows Subsystem for Linux.
 $(UBOOT): verify_case_sensitivity_$(UBOOT_OUT)
