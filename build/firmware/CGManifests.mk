@@ -22,14 +22,14 @@
 #		make <REPO_NAME>_cgmanifest_nodep
 
 # List of all repos to generate dependencies for:
-CG_MANIFEST_REPOS= imx-iotcore u-boot optee_os RIoT imx-edk2-platforms MSRSec
+CG_MANIFEST_REPOS= imx-iotcore u-boot optee_os RIoT imx-edk2-platforms MSRSec mu_platform_nxp
 
 # CG Manifest dependency Graph. List all implicit dependencies here. Submodules will be detected
 # automatically.
 #
 # It should not be necessary to list pure upstream repos (edk2, etc) here, it is expected that
 # they will have properly attributed all of their componenets already.
-imx-iotcore_cgmanifest_deps=u-boot optee_os imx-edk2-platforms
+imx-iotcore_cgmanifest_deps=u-boot optee_os imx-edk2-platforms mu_platform_nxp
 u-boot_cgmanifest_deps=RIoT
 optee_os_cgmanifest_deps=
 imx-edk2-platforms_cgmanifest_deps=MSRSec
