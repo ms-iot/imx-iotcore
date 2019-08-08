@@ -1,20 +1,20 @@
 U-Boot commit information:
 https://github.com/ms-iot/u-boot.git
-e52dae0a95b4f61e54a12f6c6147b9345ee05019
+c0637ee7a3bc0a2e0e0ea679ceae142e3bf5b511
 U-Boot diff information:
 U-Boot diff end
 OPTEE commit information:
-git@github.com:ms-iot/optee_os.git
-ab616627d2ef6c2dc9a1be4eb05a3bd35edb5e2c
+https://github.com/ms-iot/optee_os.git
+2ab0f50c68122a91c62d66b25e6758424dd6a93d
 OPTEE diff information:
 OPTEE diff end
 EDK2 commit information:
-https://github.com/tianocore/edk2
-736c436e5355e1370f13392a6cecf2cf260608a8
+https://github.com/ms-iot/EDK2.git
+89910a39dcfd788057caa5d88b7e76e112d187b5
 EDK2 diff information:
 EDK2 diff end
 EDK2-Platforms commit information:
 https://github.com/ms-iot/imx-edk2-platforms.git
-df26792b79c25be0fc278ca5d8824bb563c05361
+a8f2188e1aa7684ef112902c1885dbf5cda817ae
 EDK2-Platforms diff information:
 EDK2-Platforms diff end
