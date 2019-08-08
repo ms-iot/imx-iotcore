@@ -22,17 +22,29 @@
 #		make <REPO_NAME>_cgmanifest_nodep
 
 # List of all repos to generate dependencies for:
-CG_MANIFEST_REPOS= imx-iotcore u-boot optee_os RIoT imx-edk2-platforms MSRSec
+CG_MANIFEST_REPOS= imx-iotcore u-boot optee_os RIoT imx-edk2-platforms MSRSec edk2
+
+# Add project MU, the MU submodules may themselves include other submodules
+MU_DEPENDENCIES = mu_platform_nxp \
+ mu_platform_nxp/Common/MU \
+ mu_platform_nxp/Common/MU_OEM_SAMPLE \
+ mu_platform_nxp/Common/MU_TIANO \
+ mu_platform_nxp/MU_BASECORE \
+ mu_platform_nxp/Silicon/ARM/MU_TIANO \
+ mu_platform_nxp/Silicon/ARM/NXP
+
+CG_MANIFEST_REPOS+= $(MU_DEPENDENCIES)
 
 # CG Manifest dependency Graph. List all implicit dependencies here. Submodules will be detected
 # automatically.
 #
 # It should not be necessary to list pure upstream repos (edk2, etc) here, it is expected that
 # they will have properly attributed all of their componenets already.
-imx-iotcore_cgmanifest_deps=u-boot optee_os imx-edk2-platforms
+imx-iotcore_cgmanifest_deps=u-boot optee_os imx-edk2-platforms mu_platform_nxp
 u-boot_cgmanifest_deps=RIoT
 optee_os_cgmanifest_deps=
-imx-edk2-platforms_cgmanifest_deps=MSRSec
+imx-edk2-platforms_cgmanifest_deps=MSRSec edk2
+mu_platform_nxp_cgmanifest_deps= $(MU_DEPENDENCIES)
 RIoT_cgmanifest_deps=
 edk2_cgmanifest_deps=
 MSRSec_cgmanifest_deps=

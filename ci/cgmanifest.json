@@ -40,6 +40,42 @@
             "component": {
                 "type": "git",
                 "git": {
+                    "repositoryUrl": "https://github.com/ms-iot/u-boot.git",
+                    "commitHash": "63f552fac5c8070c4451bdf81cf7b1a3158b07d2"
+                }
+            }
+        },
+        {
+            "component": {
+                "type": "git",
+                "git": {
+                    "repositoryUrl": "https://github.com/ms-iot/optee_os.git",
+                    "commitHash": "7edb46e0fe60261d06bb2390b716201d6772e16f"
+                }
+            }
+        },
+        {
+            "component": {
+                "type": "git",
+                "git": {
+                    "repositoryUrl": "https://source.codeaurora.org/external/imx/imx-atf",
+                    "commitHash": "413e93e10ee4838e9a68b190f1468722f6385e0e"
+                }
+            }
+        },
+        {
+            "component": {
+                "type": "git",
+                "git": {
+                    "repositoryUrl": "https://github.com/ms-iot/mu_platform_nxp",
+                    "commitHash": "da89fdfbcd70f56be7e815fc5a842e13f0f38815"
+                }
+            }
+        },
+        {
+            "component": {
+                "type": "git",
+                "git": {
                     "repositoryUrl": "https://github.com/intel/tinycbor.git",
                     "commitHash": "aa3731592c784ce91e7fcafa66665c147b18be25"
                 }
@@ -96,6 +132,69 @@
                 "git": {
                     "repositoryUrl": "https://github.com/wolfSSL/wolfssl.git",
                     "commitHash": "74ebf510a3d73e98767eac26082eabdc84e19d31"
+                }
+            }
+        },
+        {
+            "component": {
+                "type": "git",
+                "git": {
+                    "repositoryUrl": "https://github.com/openssl/openssl",
+                    "commitHash": "74f2d9c1ec5f5510e1d3da5a9f03c28df0977762"
+                }
+            }
+        },
+        {
+            "component": {
+                "type": "git",
+                "git": {
+                    "repositoryUrl": "https://github.com/Microsoft/mu_plus.git",
+                    "commitHash": "6fe8e0cec25434c9e746e306cda885801a7141bc"
+                }
+            }
+        },
+        {
+            "component": {
+                "type": "git",
+                "git": {
+                    "repositoryUrl": "https://github.com/Microsoft/mu_oem_sample.git",
+                    "commitHash": "bc8add5ffc85943393887349125509583756355c"
+                }
+            }
+        },
+        {
+            "component": {
+                "type": "git",
+                "git": {
+                    "repositoryUrl": "https://github.com/Microsoft/mu_tiano_plus.git",
+                    "commitHash": "c6a0ad30012bae30fb9bb06e9b3caa975ac631a7"
+                }
+            }
+        },
+        {
+            "component": {
+                "type": "git",
+                "git": {
+                    "repositoryUrl": "https://github.com/Microsoft/mu_basecore.git",
+                    "commitHash": "97b39c0a8a7fb9d949310f93615835891862f7b0"
+                }
+            }
+        },
+        {
+            "component": {
+                "type": "git",
+                "git": {
+                    "repositoryUrl": "https://github.com/Microsoft/mu_silicon_arm_tiano.git",
+                    "commitHash": "6c366af7a3772450cb137faa50656f77f204e4b1"
+                }
+            }
+        },
+        {
+            "component": {
+                "type": "git",
+                "git": {
+                    "repositoryUrl": "https://github.com/ms-iot/MU_SILICON_NXP.git",
+                    "commitHash": "65fae2fc9d1cbe6ccebed4a0b5a9b119ba0d37c5"
                 }
             }
         },
