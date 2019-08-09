@@ -18,10 +18,16 @@ BOARDS=\
 UPDATEDIRS=$(BOARDS:%=update-%)
 COMMITDIRS=$(BOARDS:%=commit-%)
 CLEANDIRS=$(BOARDS:%=clean-%)
+INITDIRS=$(BOARDS:%=init-%)
 
 all: $(BOARDS)
-$(BOARDS):
+$(BOARDS): init-dirs
 	$(MAKE) -C $@
+
+#Checks for the case sensitivity of all output folders all at once.
+init-dirs: $(INITDIRS)
+$(INITDIRS):
+	$(MAKE) -C $(@:init-%=%) verify_case_sensitivity
 
 update-ffu: $(UPDATEDIRS)
 $(UPDATEDIRS):
@@ -42,7 +48,5 @@ include CGManifests.mk
 print_board_list:
 	@echo $(BOARDS) | tr " " "\n"
 
-.PHONY: subdirs $(BOARDS)
-.PHONY: subdirs $(UPDATEDIRS)
-.PHONY: subdirs $(CLEANDIRS)
-.PHONY: all update-ffu commit-ffu clean
+.PHONY: $(BOARDS) $(INITDIRS) $(UPDATEDIRS) $(CLEANDIRS)
+.PHONY: all update-ffu commit-ffu clean init-dirs

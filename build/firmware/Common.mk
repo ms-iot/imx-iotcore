@@ -384,6 +384,7 @@ $(OPTEE): verify_case_sensitivity_$(OPTEE_OUT)
 verify_case_sensitivity: verify_case_sensitivity_$(UBOOT_OUT) verify_case_sensitivity_$(OPTEE_OUT)
 CASE_DIR=$(subst verify_case_sensitivity_,,$@)
 CASE_DIR_WIN=$(shell wslpath -m $(CASE_DIR))
+CASE_WSL_MNT=$(CASE_DIR:/mnt/%=)
 CASE_SENSITIVITY_CMD=fsutil.exe file queryCaseSensitiveInfo $(CASE_DIR_WIN) | grep -o
 MOUNT_BASE_DIRECTORY=$(shell echo $(CASE_DIR) | cut -d "/" -f1-3)
 MOUNT_CASE_SENSITIVITY_CMD=mount | grep "$(MOUNT_BASE_DIRECTORY)" | grep -o
@@ -392,6 +393,9 @@ IS_ADMIN_CMD=net.exe session 2>&1 >/dev/null | grep -o
 verify_case_sensitivity_$(UBOOT_OUT) verify_case_sensitivity_$(OPTEE_OUT):
 ifeq (,$(findstring Microsoft,$(shell cat /proc/sys/kernel/osrelease)))
 	@echo Not running WSL, no case sensitivity check needed.
+else
+ifneq (,$(CASE_WSL_MNT))
+	@echo Running WSL, but not in a mount.
 else
 	@echo Checking case sensitivity of $(CASE_DIR)
 	mkdir -p $(CASE_DIR)
@@ -418,7 +422,8 @@ else
 	  echo Setting case sensitivity enabled on $(CASE_DIR)
 	  fsutil.exe file setCaseSensitiveInfo . enable
 	fi
-endif
+endif #Not WSL mount
+endif #Not WSL
 
 .PHONY: clean
 clean:
