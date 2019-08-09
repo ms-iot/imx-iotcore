@@ -25,9 +25,12 @@ $(BOARDS): init-dirs
 	$(MAKE) -C $@
 
 #Checks for the case sensitivity of all output folders all at once.
-init-dirs: $(INITDIRS)
-$(INITDIRS):
-	$(MAKE) -C $(@:init-%=%) verify_case_sensitivity
+#Force serial build using $(foreach to avoid too many pop-ups which can cause some to fail.
+init-dirs:
+	$(foreach BOARD, $(INITDIRS), \
+	$(MAKE) -C $(BOARD:init-%=%) verify_case_sensitivity && \
+	sleep 1 && \
+	) true
 
 update-ffu: $(UPDATEDIRS)
 $(UPDATEDIRS):
