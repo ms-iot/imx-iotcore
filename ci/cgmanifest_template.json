@@ -71,6 +71,15 @@
                     "branch": "master"
                 }
             }
+        },
+        {
+            "component": {
+                "type": "git",
+                "git": {
+                    "repositoryUrl": "https://source.codeaurora.org/external/imx/imx-mkimage",
+                    "branch": "imx_4.14.98_2.0.0_ga"
+                }
+            }
         }
     ],
     "Version": 1
