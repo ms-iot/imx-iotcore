@@ -76,6 +76,15 @@
             "component": {
                 "type": "git",
                 "git": {
+                    "repositoryUrl": "https://source.codeaurora.org/external/imx/imx-mkimage",
+                    "commitHash": "dd0234001713623c79be92b60fa88bc07b07f24f"
+                }
+            }
+        },
+        {
+            "component": {
+                "type": "git",
+                "git": {
                     "repositoryUrl": "https://github.com/intel/tinycbor.git",
                     "commitHash": "aa3731592c784ce91e7fcafa66665c147b18be25"
                 }
