@@ -30,6 +30,13 @@ CDmaBuffer::ResetTxFifo()
     TransmitControlRegister.FifoReset = 1;
     WRITE_REGISTER_ULONG(&m_pSaiRegisters->TransmitControlRegister.AsUlong, TransmitControlRegister.AsUlong);
 
+#ifdef _ARM64_
+    SAI_TRANSMIT_CONFIGURATION_REGISTER_3 TransmitConfigReg3;
+
+    TransmitConfigReg3.AsUlong = READ_REGISTER_ULONG(&m_pSaiRegisters->TransmitConfigRegister3.AsUlong);
+    TransmitConfigReg3.ChannelFifoReset |= 1;
+    WRITE_REGISTER_ULONG(&m_pSaiRegisters->TransmitConfigRegister3.AsUlong, TransmitConfigReg3.AsUlong);
+#endif
     m_ulChannel = 0;
 }
 
@@ -255,8 +262,13 @@ CSoc::SetupClocks()
     TransmitConfigReg1.AsUlong = 0;
     ReceiveConfigReg1.AsUlong = 0;
 
+#ifdef _ARM64_
+    TransmitConfigReg1.TransmitFifoWatermark = 0x2C;
+    ReceiveConfigReg1.ReceiveFifoWatermark = 0xC;
+#else
     TransmitConfigReg1.TransmitFifoWatermark = 0xC;
     ReceiveConfigReg1.ReceiveFifoWatermark = 0xC;
+#endif
 
     WRITE_REGISTER_ULONG(&m_pSaiRegisters->TransmitConfigRegister1.AsUlong, TransmitConfigReg1.AsUlong);
     WRITE_REGISTER_ULONG(&m_pSaiRegisters->ReceiveConfigRegister1.AsUlong, ReceiveConfigReg1.AsUlong);
@@ -269,13 +281,21 @@ CSoc::SetupClocks()
     ReceiveConfigReg2.AsUlong = 0;
 
     TransmitConfigReg2.SynchronousMode = 0; // Asynchronous Mode.
-    TransmitConfigReg2.BitClockDivide = 0x3;
+#ifdef _ARM64_
+    TransmitConfigReg2.BitClockDivide = 0x1;  // bitclk = mclk / 4
+#else
+    TransmitConfigReg2.BitClockDivide = 0x3;  // bitclk = mclk / 16
+#endif
     TransmitConfigReg2.BitClockDirection = 1; // internal bit clock
     TransmitConfigReg2.BitClockParity = 1;
     TransmitConfigReg2.MasterClockSelect = 1; // 0 or 1 makes no difference according to NXP.
 
     ReceiveConfigReg2.SynchronousMode = 0x1;  // Synchronous Mode, dependant on Transmitter.
+#ifdef _ARM64_
+    ReceiveConfigReg2.BitClockDivide = 0x1;
+#else
     ReceiveConfigReg2.BitClockDivide = 0x3;
+#endif
     ReceiveConfigReg2.BitClockDirection = 1;
     ReceiveConfigReg2.BitClockPolarity = 1;
     ReceiveConfigReg2.MasterClockSelect = 1; // 0 or 1 makes no difference according to NXP.
@@ -307,6 +327,9 @@ CSoc::SetupClocks()
     ReceiveConfigReg4.AsUlong = 0;
 
     TransmitConfigReg4.FrameSize = 1;       // two words per frame (n-1)
+#ifdef _ARM64_
+    TransmitConfigReg4.ChannelMode = 1;     // don't tristate outputs when masked
+#endif
     TransmitConfigReg4.SyncWidth = 0x1f;    // 32 bit word lengths
     TransmitConfigReg4.MSBFirst = 1;        // I2S MSB-First left-1 Justified
     TransmitConfigReg4.FrameSyncEarly = 1;
