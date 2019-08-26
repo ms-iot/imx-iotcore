@@ -10,6 +10,7 @@ jobs:
       matrix:
         NXPEVK_iMX8M_4GB:
           Target: NXPEVK_iMX8M_4GB
+          AlternateName: MCIMX8M_EVK_4GB
 
     steps:
     - script: |
@@ -110,21 +111,40 @@ jobs:
         pushd ../mu_platform_nxp
         export GCC5_AARCH64_PREFIX=$(Build.SourcesDirectory)/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
         sudo pip3 install -r requirements.txt --upgrade
-        python3 NXP/MCIMX8M_EVK_4GB/PlatformBuild.py --setup
+        python3 NXP/$(AlternateName)/PlatformBuild.py --setup
 
         cd MU_BASECORE
         make -C BaseTools
         cd ..
 
-        python3 NXP/MCIMX8M_EVK_4GB/PlatformBuild.py TOOL_CHAIN_TAG=GCC5 BUILDREPORTING=TRUE BUILDREPORT_TYPES="PCD" TARGET=RELEASE MAX_CONCURRENT_THREAD_NUMBER=20 BLD_*_CONFIG_NOT_SECURE_UEFI=1
+        python3 NXP/$(AlternateName)/PlatformBuild.py TOOL_CHAIN_TAG=GCC5 BUILDREPORTING=TRUE BUILDREPORT_TYPES="PCD" TARGET=RELEASE MAX_CONCURRENT_THREAD_NUMBER=20 BLD_*_CONFIG_NOT_SECURE_UEFI=1
       displayName: Build UEFI
 
     - script: |
-        pushd ../mu_platform_nxp/Build/MCIMX8M_EVK_4GB/RELEASE_GCC5/FV
+        pushd ../mu_platform_nxp/Build/$(AlternateName)/RELEASE_GCC5/FV
         cp $(Build.SourcesDirectory)/build/firmware/its/uefi_imx8_unsigned.its .
         $(Build.SourcesDirectory)/../u-boot/tools/mkimage -f uefi_imx8_unsigned.its -r uefi.fit
       displayName: Create uefi.fit
 
+    - script: |
+        cd ..
+        cp imx-mkimage/iMX8M/flash.bin imx-iotcore/build/board/$(Target)/Package/BootLoader/flash.bin
+        cp mu_platform_nxp/Build/$(AlternateName)/RELEASE_GCC5/FV/uefi.fit imx-iotcore/build/board/$(Target)/Package/BootFirmware/uefi.fit
+      displayName: Move fimrware files to package folders
+
+    - task: CopyFiles@2
+      displayname: Copy firmware artifacts to staging directory
+      inputs:
+        contents: |
+          $(Build.SourcesDirectory)/build/board/$(Target)/Package/BootFirmware/**
+          $(Build.SourcesDirectory)/build/board/$(Target)/Package/BootLoader/**
+        targetFolder: $(Build.ArtifactStagingDirectory)
+        flattenFolders: false
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+        pathtoPublish: $(Build.ArtifactStagingDirectory)
+        artifactName: $(Target)_imx8_firmware
 
   - job: Build67
     displayName: Build iMX 6 & 7
@@ -227,19 +247,20 @@ jobs:
     - script: |
         cd build/firmware/$(Target)
         make CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-6.4.1-2017.11-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-
+        make update-ffu
       displayName: Full firmware build
 
     - task: CopyFiles@2
+      displayname: Copy firmware artifacts to staging directory
       inputs:
-        contents: '$(Build.SourcesDirectory)/build/firmware/$(Target)/firmware_fit.merged'
+        contents: |
+          $(Build.SourcesDirectory)/build/board/$(Target)/export-ta_arm32.tar.bz2
+          $(Build.SourcesDirectory)/build/board/$(Target)/Package/BootFirmware/**
+          $(Build.SourcesDirectory)/build/board/$(Target)/Package/BootLoader/**
+          $(Build.SourcesDirectory)/build/firmware/$(Target)/?(ftpm|authvars)/*.ta
+          $(Build.SourcesDirectory)/build/firmware/$(Target)/?(ftpm|authvars)/*.elf
         targetFolder: $(Build.ArtifactStagingDirectory)
-        flattenFolders: true
-
-    - task: CopyFiles@2
-      inputs:
-        contents: '$(Build.SourcesDirectory)/build/firmware/$(Target)/uefi.fit'
-        targetFolder: $(Build.ArtifactStagingDirectory)
-        flattenFolders: true
+        flattenFolders: false
 
     - task: PublishBuildArtifacts@1
       inputs:
