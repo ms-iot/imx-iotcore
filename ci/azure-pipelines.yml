@@ -133,7 +133,7 @@ jobs:
       displayName: Move fimrware files to package folders
 
     - task: CopyFiles@2
-      displayname: Copy firmware artifacts to staging directory
+      displayName: Copy firmware artifacts to staging directory
       inputs:
         contents: |
           $(Build.SourcesDirectory)/build/board/$(Target)/Package/BootFirmware/**
@@ -251,7 +251,7 @@ jobs:
       displayName: Full firmware build
 
     - task: CopyFiles@2
-      displayname: Copy firmware artifacts to staging directory
+      displayName: Copy firmware artifacts to staging directory
       inputs:
         contents: |
           $(Build.SourcesDirectory)/build/board/$(Target)/export-ta_arm32.tar.bz2
