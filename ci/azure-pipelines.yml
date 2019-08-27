@@ -86,21 +86,20 @@ jobs:
       displayName: Build OP-TEE
 
     - script: |
-      export TA_DEV_KIT_DIR=../../../../optee_os/out/arm-plat-imx/export-ta_arm64
-      export TA_CROSS_COMPILE=~/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
-      export TA_CPU=cortex-a53
+        export TA_DEV_KIT_DIR=../../../../optee_os/out/arm-plat-imx/export-ta_arm64
+        export TA_CROSS_COMPILE=~/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
+        export TA_CPU=cortex-a53
 
-      pushd ../MSRSec/TAs/optee_ta
-      make CFG_ARM64_ta_arm64=y CFG_FTPM_USE_WOLF=y CFG_AUTHVARS_USE_WOLF=y
+        pushd ../MSRSec/TAs/optee_ta
+        make CFG_ARM64_ta_arm64=y CFG_FTPM_USE_WOLF=y CFG_AUTHVARS_USE_WOLF=y
 
-      popd
+        popd
 
-      cp ../MSRSec/TAs/optee_ta/out/AuthVars/*.ta  ../mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/AuthvarsTa/Arm64/Test/
-      cp ../MSRSec/TAs/optee_ta/out/AuthVars/*.elf ../mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/AuthvarsTa/Arm64/Test/
+        cp ../MSRSec/TAs/optee_ta/out/AuthVars/*.ta  ../mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/AuthvarsTa/Arm64/Test/
+        cp ../MSRSec/TAs/optee_ta/out/AuthVars/*.elf ../mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/AuthvarsTa/Arm64/Test/
 
-      cp ../MSRSec/TAs/optee_ta/out/fTPM/*.ta ../mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/fTpmTa/Arm64/Test/
-      cp ../MSRSec/TAs/optee_ta/out/fTPM/*.elf ../mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/fTpmTa/Arm64/Test/
-
+        cp ../MSRSec/TAs/optee_ta/out/fTPM/*.ta ../mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/fTpmTa/Arm64/Test/
+        cp ../MSRSec/TAs/optee_ta/out/fTPM/*.elf ../mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/fTpmTa/Arm64/Test/
       displayName: Build TAs
 
     - script: |
