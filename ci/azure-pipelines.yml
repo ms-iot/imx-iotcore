@@ -204,8 +204,14 @@ jobs:
     - script: |
         pushd ..
         ls $(System.ArtifactsDirectory)/
-        tar xf $(System.ArtifactsDirectory)/cst.tar.gz
-        rm $(System.ArtifactsDirectory)/cst.tar.gz
+        if [ -f $(Build.ArtifactsDirectory)/cst.tar.gz ]
+        then
+          tar xf $(System.ArtifactsDirectory)/cst.tar.gz
+          rm $(System.ArtifactsDirectory)/cst.tar.gz
+          echo '##vso[task.setvariable variable=CST_AVAILABLE]yes'
+        else
+          echo '##vso[task.setvariable variable=CST_AVAILABLE]no'
+        fi
       displayName: Extract CST
 
     # Branches are set using pipeline variables to allow overriding known build breaks (mostly useful for EDK2)
@@ -250,6 +256,7 @@ jobs:
         make CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-6.4.1-2017.11-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-
         make update-ffu
       displayName: Full firmware build
+      condition: eq(variables['CST_AVAILABLE'], 'yes')
 
     - task: CopyFiles@2
       displayName: Copy firmware artifacts to staging directory
@@ -264,10 +271,12 @@ jobs:
           $(Build.SourcesDirectory)/build/firmware/$(Target)/authvars/*.elf
         targetFolder: $(Build.ArtifactStagingDirectory)
         flattenFolders: false
+      condition: eq(variables['CST_AVAILABLE'], 'yes')
 
     - task: PublishBuildArtifacts@1
       inputs:
         pathtoPublish: $(Build.ArtifactStagingDirectory)
         artifactName: $(Target)_imx67_firmware
+      condition: eq(variables['CST_AVAILABLE'], 'yes')
 
     - task: ComponentGovernanceComponentDetection@0
