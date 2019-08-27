@@ -150,10 +150,21 @@ jobs:
       displayName: Copy firmware artifacts to staging directory
       inputs:
         contents: |
-          $(Build.SourcesDirectory)/build/board/$(Target)/Package/BootFirmware/**
-          $(Build.SourcesDirectory)/build/board/$(Target)/Package/BootLoader/**
+          $(Build.SourcesDirectory)/build/board/$(Target)/Package/BootFirmware/!(*.xml)
+          $(Build.SourcesDirectory)/build/board/$(Target)/Package/BootLoader/!(*.xml)
         targetFolder: $(Build.ArtifactStagingDirectory)
         flattenFolders: false
+
+    - task: CopyFiles@2
+      displayName: Copy TAs to staging directory
+      inputs:
+        contents: |
+          $(Build.SourcesDirectory)/../mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/AuthvarsTa/Arm64/Test/*.ta
+          $(Build.SourcesDirectory)/../mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/AuthvarsTa/Arm64/Test/*.elf
+          $(Build.SourcesDirectory)/../mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/fTpmTa/Arm64/Test/*.ta
+          $(Build.SourcesDirectory)/../mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/fTpmTa/Arm64/Test/*.elf
+        targetFolder: $(Build.ArtifactStagingDirectory)
+        flattenFolders: true
 
     - task: PublishBuildArtifacts@1
       inputs:
