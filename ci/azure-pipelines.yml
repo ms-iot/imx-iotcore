@@ -200,6 +200,7 @@ jobs:
         path: '$(System.ArtifactsDirectory)'
         specificBuildWithTriggering: true
       displayName: Download CST
+      continueOnError: true
 
     - script: |
         pushd ..
@@ -229,7 +230,7 @@ jobs:
       displayName: Clone repos
 
 
-    # Builds all components except the final HAB signed SPL (Need to find a way to store the NXP code signing tools)
+    # Builds all components except the final HAB signed SPL
     - script: |
         echo build/firmware/$(Target)
         ls
@@ -255,11 +256,11 @@ jobs:
         cd build/firmware/$(Target)
         make CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-6.4.1-2017.11-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-
         make update-ffu
-      displayName: Full firmware build
+      displayName: Full firmware build (Only available with CST)
       condition: eq(variables['CST_AVAILABLE'], 'yes')
 
     - task: CopyFiles@2
-      displayName: Copy firmware artifacts to staging directory
+      displayName: Copy firmware artifacts to staging directory  (Only available with CST)
       inputs:
         contents: |
           $(Build.SourcesDirectory)/build/board/$(Target)/export-ta_arm32.tar.bz2
