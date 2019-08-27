@@ -41,7 +41,7 @@ jobs:
         git clone --recursive https://github.com/ms-iot/mu_platform_nxp
         git clone -b imx_4.14.62_1.0.0_beta https://source.codeaurora.org/external/imx/imx-atf
         git clone -b imx_4.14.62_1.0.0_beta https://source.codeaurora.org/external/imx/imx-mkimage
-        git clone https://github.com/Microsoft/MSRSec.git
+        git clone https://github.com/Microsoft/MSRSec.git $(MSRSEC_BRANCH)
         popd
       displayName: Clone repos
 
@@ -83,7 +83,7 @@ jobs:
 
     - script: |
         export TA_DEV_KIT_DIR=../../../../optee_os/out/arm-plat-imx/export-ta_arm64
-        export TA_CROSS_COMPILE=~/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
+        export TA_CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
         export TA_CPU=cortex-a53
 
         pushd ../MSRSec/TAs/optee_ta
