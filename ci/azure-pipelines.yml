@@ -128,8 +128,8 @@ jobs:
 
     - script: |
         cd ..
-        cp imx-mkimage/iMX8M/flash.bin imx-iotcore/build/board/$(Target)/Package/BootLoader/flash.bin
-        cp mu_platform_nxp/Build/$(AlternateName)/RELEASE_GCC5/FV/uefi.fit imx-iotcore/build/board/$(Target)/Package/BootFirmware/uefi.fit
+        cp imx-mkimage/iMX8M/flash.bin $(Build.SourcesDirectory)/build/board/$(Target)/Package/BootLoader/flash.bin
+        cp mu_platform_nxp/Build/$(AlternateName)/RELEASE_GCC5/FV/uefi.fit $(Build.SourcesDirectory)/build/board/$(Target)/Package/BootFirmware/uefi.fit
       displayName: Move fimrware files to package folders
 
     - task: CopyFiles@2
