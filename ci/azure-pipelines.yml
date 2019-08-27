@@ -230,7 +230,7 @@ jobs:
     - script: |
         pushd ..
         ls $(System.ArtifactsDirectory)/
-        if [ -f $(Build.ArtifactsDirectory)/cst.tar.gz ]
+        if [ -f $(System.ArtifactsDirectory)/cst.tar.gz ]
         then
           tar xf $(System.ArtifactsDirectory)/cst.tar.gz
           rm $(System.ArtifactsDirectory)/cst.tar.gz
