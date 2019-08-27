@@ -205,6 +205,7 @@ jobs:
         pushd ..
         ls $(System.ArtifactsDirectory)/
         tar xf $(System.ArtifactsDirectory)/cst.tar.gz
+        rm $(System.ArtifactsDirectory)/cst.tar.gz
       displayName: Extract CST
 
     # Branches are set using pipeline variables to allow overriding known build breaks (mostly useful for EDK2)
@@ -255,10 +256,12 @@ jobs:
       inputs:
         contents: |
           $(Build.SourcesDirectory)/build/board/$(Target)/export-ta_arm32.tar.bz2
-          $(Build.SourcesDirectory)/build/board/$(Target)/Package/BootFirmware/**
-          $(Build.SourcesDirectory)/build/board/$(Target)/Package/BootLoader/**
-          $(Build.SourcesDirectory)/build/firmware/$(Target)/?(ftpm|authvars)/*.ta
-          $(Build.SourcesDirectory)/build/firmware/$(Target)/?(ftpm|authvars)/*.elf
+          $(Build.SourcesDirectory)/build/board/$(Target)/Package/BootFirmware/!(*.xml)
+          $(Build.SourcesDirectory)/build/board/$(Target)/Package/BootLoader/!(*.xml)
+          $(Build.SourcesDirectory)/build/firmware/$(Target)/ftpm/*.ta
+          $(Build.SourcesDirectory)/build/firmware/$(Target)/ftpm/*.elf
+          $(Build.SourcesDirectory)/build/firmware/$(Target)/authvars/*.ta
+          $(Build.SourcesDirectory)/build/firmware/$(Target)/authvars/*.elf
         targetFolder: $(Build.ArtifactStagingDirectory)
         flattenFolders: false
 
