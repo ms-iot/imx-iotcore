@@ -259,6 +259,14 @@ jobs:
       displayName: Full firmware build (Only available with CST)
       condition: eq(variables['CST_AVAILABLE'], 'yes')
 
+    - script: |	
+        echo build/firmware/$(Target)	
+        ls	
+        cd build/firmware/$(Target)	
+        make image.fit CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-6.4.1-2017.11-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-	
+      displayName: Initial FIT packaging (Non-CST alternative)
+      condition: eq(variables['CST_AVAILABLE'], 'no')
+
     - task: CopyFiles@2
       displayName: Copy firmware artifacts to staging directory  (Only available with CST)
       inputs:
