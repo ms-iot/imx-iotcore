@@ -26,7 +26,7 @@ jobs:
     - script: |
         python3 --version
         # pip3 install --upgrade pip
-        # pip3 install --upgrade setuptools
+        pip3 install --upgrade setuptools
         pip3 install mu_environment
 
     - script: |
@@ -116,10 +116,10 @@ jobs:
         popd
       displayName: Build Imx-mkimage_uboot
 
-    # - task: UsePythonVersion@0
-    #   inputs:
-    #     versionSpec: '3.7' 
-    #     addToPath: true
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.7' 
+        addToPath: true
 
     - script: |
         pushd ../mu_platform_nxp
