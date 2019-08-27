@@ -18,11 +18,6 @@ jobs:
         sudo apt-get install build-essential device-tree-compiler bison flex swig iasl uuid-dev wget git bc libssl-dev zlib1g-dev gcc g++ make python3 mono-devel
       displayName: Download tools
 
-    - task: UsePythonVersion@0
-      inputs:
-        versionSpec: '3.7' 
-        addToPath: true
-
     - script: |
         sudo apt-get install python python-dev python-crypto python-wand python3-pip python3-setuptools
         sudo apt-get install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev wget libsqlite3-dev
@@ -120,6 +115,11 @@ jobs:
         make SOC=iMX8M flash_hdmi_spl_uboot
         popd
       displayName: Build Imx-mkimage_uboot
+
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.7' 
+        addToPath: true
 
     - script: |
         pushd ../mu_platform_nxp
