@@ -251,6 +251,13 @@ copy %BUILD_ROOT%\OpteeTrEE\* %PKG_ROOT%\OPTEE\ >NUL
 if errorlevel 1 (set FAILURE=OpteeTrEE & goto ERROR)
 copy %REPO_ROOT%\driver\TrEE\TrEE\OpteeTrEE.wm.xml %PKG_ROOT%\OPTEE\ >NUL
 
+:: Copy Components
+echo Copying components to %PKG_ROOT%
+mkdir %PKG_ROOT%\Arm64CrtRuntime >NUL 2>NUL
+copy %BUILD_ROOT%\Arm64CrtRuntime\* %PKG_ROOT%\Arm64CrtRuntime\ >NUL
+if errorlevel 1 (set FAILURE=Arm64CrtRuntime & goto ERROR)
+copy %REPO_ROOT%\components\Arm64CrtRuntime\Arm64CrtRuntime.wm.xml %PKG_ROOT%\Arm64CrtRuntime\ >NUL
+
 :: Copy HAL Extension Packages
 echo Copying HAL Extension Packages to %PKG_ROOT%
 mkdir %PKG_ROOT%\HalExtDma >NUL 2>NUL
