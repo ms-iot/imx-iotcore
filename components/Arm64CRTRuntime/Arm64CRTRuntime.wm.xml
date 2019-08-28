@@ -1,0 +1,18 @@
+﻿<?xml version='1.0' encoding='utf-8' standalone='yes'?>
+<identity
+    xmlns="urn:Microsoft.CompPlat/ManifestSchema.v1.00"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    name="Arm64CRTRuntime"
+    namespace="Platform"
+    owner="NXP"
+    legacyName="IOT.Arm64.Crt.Runtime"
+    >
+  <!-- workaround to drop VC runtime 140 to system32 directory since it isn't part of
+       Arm64 IoT image -->
+  <files>
+    <file source="$(_Redist)vcruntime140.dll" destinationDir="$(runtime.system32)" />
+    <file source="$(_Redist)vccorlib140.dll" destinationDir="$(runtime.system32)" />
+    <file source="$(_Redist)msvcp140.dll" destinationDir="$(runtime.system32)" />
+  </files>
+</identity>
