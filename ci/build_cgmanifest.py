@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT License.
 
-import subprocess, os, sys, json
+import subprocess, os, sys, json, getopt
 
 # This python script will dynamically generate a cgmanifest file based on a set of templates
 # (or generate from scratch if needed). It will also automatically populate the the cgmanifest
@@ -17,15 +17,51 @@ import subprocess, os, sys, json
 #   - Convert all 'branch' tags to 'commitHash' tags based on a call to the upstream repo via 'git ls-remote'
 #   - Add an entry for each git submodule not already added by either of the above steps
 #
-# Use: python3 build_cgmanifest.py [[input1.json input2.json ...] output.json]
-#   input.json: A list of template files which may include 0 or more registrations following the standard 
-#                   cgmanifest format. Git registrations may omit the required 'commitHash' tag and replace
-#                   it with a 'branch' tag. If the file is not found a default blank template is used.
-#                   If no arguments are passed a default is used: cgmanifest_template.json
+# Use: python3 build_cgmanifest.py [-g graph_file] [-i input1.json -i input2.json ...] [-o output.json]
+#   -g:     A file to print dependency information (formated for future use in graphviz), defaults to 'None'
 #
-#   output.json: The location to place the final json (must be named cgmanifest.json to be picked up by the tooling)
-#                   Path doesn't matter, the tooling will search the entire repo for the file.
-#                   If no arguments are passed a default is used: cgmanifest.json
+#   -i: A template file which may include 0 or more registrations following the standard 
+#           cgmanifest format. Git registrations may omit the required 'commitHash' tag and replace
+#           it with a 'branch' tag. If the file is not found a default blank template is used.
+#           If no arguments are passed a default is used: cgmanifest_template.json. May be passed multiple
+#           times, the templates will be unioned together.
+#
+#   -o: The location to place the final json (must be named cgmanifest.json to be picked up by the tooling)
+#           Path doesn't matter, the tooling will search the entire repo for the file.
+#           If no arguments are passed a default is used: cgmanifest.json
+
+def get_repo_name():
+    git_process = subprocess.run("git rev-parse --show-toplevel",shell=True, stdout=subprocess.PIPE,  universal_newlines=True, timeout=10)
+    git_process.check_returncode()
+    repo_root = git_process.stdout.splitlines()[0]
+    repo_name = repo_root.rsplit(r'/',1)[1]
+    return repo_name
+
+def get_repo_url():
+    git_process = subprocess.run("git config --get remote.upstream.url",shell=True, stdout=subprocess.PIPE,  universal_newlines=True, timeout=10)
+    try:
+        git_process.check_returncode()
+    except:
+        # Try again using origin instead of upstream
+        git_process = subprocess.run("git config --get remote.origin.url",shell=True, stdout=subprocess.PIPE,  universal_newlines=True, timeout=10)
+    git_process.check_returncode()
+    repo_url = git_process.stdout.splitlines()[0]
+    if repo_url.endswith('.git'):
+        repo_url = repo_url[:-4]
+    return repo_url
+
+def get_repo_commit():
+    git_process = subprocess.run("git rev-parse HEAD",shell=True, stdout=subprocess.PIPE,  universal_newlines=True, timeout=10)
+    git_process.check_returncode()
+    repo_commit = git_process.stdout.splitlines()[0]
+    return repo_commit
+
+def add_to_graph(dependency, commit, graph_edges):
+    if dependency.endswith('.git'):
+        dependency = dependency[:-4]
+    # TODO: Figure out a better way to get commits, nothing matches currently and the graph fails
+    #graph_edges.append('"%s\n(%s)" -> "%s\n(%s)";' % (dependency, commit, get_repo_url(), get_repo_commit()))
+    graph_edges.append('"%s" -> "%s";' % (dependency.lower(), get_repo_url().lower()))
 
 # Returns a list of tupples (URL, Commit hash) of registered first level submodules
 def get_submodules():
@@ -96,8 +132,8 @@ def update_registration(registration):
             update_git_repo(git)
 
 # Adds a new git component to the registrations
-def add_new_registration(registrations, url, hash):
-    new_registration = dict()    
+def add_new_registration(registrations, url, hash, graph_edges):
+    new_registration = dict()
     new_component = dict()
     new_git = dict()
 
@@ -109,10 +145,12 @@ def add_new_registration(registrations, url, hash):
 
     new_registration['component'] = new_component
 
+    add_to_graph(url, hash, graph_edges)
     registrations.append(new_registration)
 
 # Return true if a (url,hash) pair already exists in the json
-def check_existing_registration(registrations, url, hash):
+# Add any existing edges to the graph
+def check_existing_registration(registrations, url, hash, graph_edges):
     # Strip .git from URLs
     if url.endswith('.git'):
         url = url[:-4]
@@ -131,6 +169,7 @@ def check_existing_registration(registrations, url, hash):
                 if (('commitHash' in git) and 
                         (git['commitHash'] == hash) and
                         (component_url == url)):
+                    add_to_graph(component_url, hash, graph_edges)
                     return True
     return False
 
@@ -141,10 +180,11 @@ def default_cgmanifest():
 
     return new_manifest
 
-def update_json(json_input_list, json_file_out):
+def update_json(json_input_list, json_file_out, graph_file_out):
     print("Starting with blank cgmanifest")
     cgmanifest = default_cgmanifest()
     existing_registrations = cgmanifest["Registrations"]
+    graph_edges = []
 
     for json_file_in in json_input_list:
         #Load json, then search for any repos with branches.
@@ -161,9 +201,9 @@ def update_json(json_input_list, json_file_out):
                 update_registration(new_registration)
                 new_url = new_registration['component']['git']['repositoryUrl']
                 new_hash = new_registration['component']['git']['commitHash']
-                if not check_existing_registration(existing_registrations, new_url, new_hash):
+                if not check_existing_registration(existing_registrations, new_url, new_hash, graph_edges):
                     print("\tRegistering new dependency")
-                    add_new_registration(existing_registrations, new_url, new_hash)
+                    add_new_registration(existing_registrations, new_url, new_hash, graph_edges)
                 else:
                     print("\t Skipping")
 
@@ -172,12 +212,19 @@ def update_json(json_input_list, json_file_out):
 
     # Add any missing submodules
     for submodule in get_submodules():
-        if not check_existing_registration(existing_registrations, submodule[0], submodule[1]):
+        if not check_existing_registration(existing_registrations, submodule[0], submodule[1], graph_edges):
             print("\tRegistering new submodule")
-            add_new_registration(existing_registrations, submodule[0], submodule[1])
+            add_new_registration(existing_registrations, submodule[0], submodule[1], graph_edges)
         else:
             print("\tSubmodule already registered")
 
+    print("New dependencies for graph: %s" % str(graph_edges))
+    if graph_file_out is not None:
+        full_graph_path = os.path.abspath(graph_file_out)
+        print("Appending graph data to %s" % full_graph_path)
+        with open(full_graph_path, "a") as graph_file:
+            for edge in graph_edges:
+                graph_file.write(edge + "\n")
 
     full_output_path = os.path.abspath(os.path.join(os.getcwd(), json_file_out))
     output_directory = os.path.dirname(full_output_path)
@@ -197,19 +244,35 @@ def update_json(json_input_list, json_file_out):
             print("Clearing old cgmanifest file", full_output_path)
             os.remove(full_output_path)
 
-# Default files:
-json_file_out = "cgmanifest.json"
-json_input_list = ["cgmanifest_template.json",]
+try:
+    opts,args = getopt.getopt(sys.argv[1:],'g:i:o:')
+except getopt.GetoptError:
+    print("\n\n\t\tUse: build_cgmanifest.py [-g graph_file] [ -i input1.json -i ... ] [-o output.json]\n\n")
+    sys.exit(-1)
 
-num_args = len(sys.argv)
-if num_args == 1:
-    print("Using default filenames")
-elif num_args >= 2:
-    json_input_list = sys.argv[1:-1]
-    json_file_out = sys.argv[num_args - 1]
-else:
-    print("\n\n\t\tUse: build_cgmanifest.py [[input.json ... ] output.json]\n\n")
-    raise ValueError("Too few arguments")
+if len(args) > 0:
+    print("\n\n\t\tUse: build_cgmanifest.py [-g graph_file] [ -i input1.json -i ... ] [-o output.json]\n\n")
+    sys.exit(-1)
+
+json_input_list = []
+# Set default output
+json_file_out = "cgmanifest.json"
+graph_file = None
+
+for opt, arg in opts:
+    if opt == '-g':
+        graph_file = arg
+        print("Graph file is %s" % graph_file)
+    elif opt == '-i':
+        json_input_list.append(arg)
+        print("Input files are %s" % str(json_input_list))
+    elif opt == '-o':
+        json_file_out = arg
+        print("Output file is %s" % json_file_out)
+
+# Set default input
+if len(json_input_list) == 0:
+    json_input_list = ["cgmanifest_template.json",]
 
 print(json_input_list)
-update_json(json_input_list, json_file_out)
+update_json(json_input_list, json_file_out, graph_file)

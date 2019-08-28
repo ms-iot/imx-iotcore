@@ -143,6 +143,8 @@ Building custom firmware into an FFU requires additional steps:
 
 The firmware code can be found in the following repos:
 
+![Repository Dependency Graph](Documentation/repository_graph.png)
+
 * U-Boot: https://github.com/ms-iot/u-boot.git
 * OP-TEE: https://github.com/ms-iot/optee_os.git
 * UEFI for ARM:
