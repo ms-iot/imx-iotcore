@@ -26,6 +26,11 @@
     <Microsoft />
     <MSFeatureGroups />
     <OEM>
+      <PackageFile Path="%BSPPKG_DIR%" Name="IOT.Arm64.Crt.Runtime.cab">
+        <FeatureIDs>
+          <FeatureID>IOT_CRT140</FeatureID>
+        </FeatureIDs>
+      </PackageFile>
       <PackageFile Path="%BSPPKG_DIR%" Name="NXP.iMX.imxaud.cab">
         <FeatureIDs>
           <FeatureID>IMX_DRIVERS</FeatureID>
