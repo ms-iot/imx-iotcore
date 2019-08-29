@@ -21,6 +21,9 @@
 # Update a manifest WITHOUT updating any dependencies first:
 #		make <REPO_NAME>_cgmanifest_nodep
 
+GRAPH_FILE=$(abspath graph.txt)
+GRAPH_OUT=$(abspath ../../Documentation/repository_graph.png)
+
 # List of all repos to generate dependencies for:
 CG_MANIFEST_REPOS= imx-iotcore u-boot optee_os RIoT imx-edk2-platforms MSRSec edk2
 
@@ -92,17 +95,25 @@ CURRENT_REPO_PATH=$(abspath $(REPO_ROOT)/$(CURRENT_REPO_NAME))
 CURRENT_TEMPLATE_PATH=$(abspath $(call name_to_ci_path,$(CURRENT_REPO_NAME))/cgmanifest_template.json)
 CURRENT_DEPENDENT_REPO_NAMES=$(foreach name,$($(CURRENT_REPO_NAME)_cgmanifest_deps),$(name))
 CURRENT_DEPENDENT_RULES=$(foreach name,$(CURRENT_DEPENDENT_REPO_NAMES),$(name)_cgmanifest)
-CURRENT_DEPENDENT_PATHS=$(foreach name,$(CURRENT_DEPENDENT_REPO_NAMES),$(abspath $(call name_to_ci_path,$(name))/cgmanifest.json))
+CURRENT_DEPENDENT_PATHS=$(foreach name,$(CURRENT_DEPENDENT_REPO_NAMES),-i $(abspath $(call name_to_ci_path,$(name))/cgmanifest.json))
 FINAL_MANIFEST_PATH=$(abspath $(call name_to_ci_path,$(CURRENT_REPO_NAME))/cgmanifest.json)
 
-.PHONY: cg_manifests $(CG_MANIFEST_RULES) $(CG_MANIFEST_RULES_NODEP)
+.PHONY: cg_manifests clear_graph draw_graph $(CG_MANIFEST_RULES) $(CG_MANIFEST_RULES_NODEP)
 cg_manifests: $(CG_MANIFEST_RULES)
+
+clear_graph: 
+	rm -f $(GRAPH_FILE)
+
+draw_graph: clear_graph $(CG_MANIFEST_RULES)
+	@echo "Using graphviz to generate a repo visualization"
+	echo "digraph g { $$(cat $(GRAPH_FILE)) }" | dot -Tpng -o $(GRAPH_OUT)
+	rm -f $(GRAPH_FILE)
 
 # Generate prerequesites of the form: <REPO_NAME>_cgmanifest: <REPO_DEPENDENCY1>_cgmanifest <REPO_DEPENDENCY2>_cgmanifest ... <REPO_NAME>_cgmanifest_nodep
 # This will udpate all dependent repos first, then collect the registrations into the current manifest file.
 #	The inner foreach loop takes its list from the dependency graph variables above using a computed variable name ( $(rule)_deps )
 $(foreach rule,$(CG_MANIFEST_RULES),$(eval $(rule):$(foreach dep,$($(rule)_deps),$(dep)_cgmanifest) $(rule)_nodep))
-$(CG_MANIFEST_RULES):
+$(CG_MANIFEST_RULES): clear_graph
 	$(info Recursive update of $@ complete)
 	$(info Regenerated manifests for: $^)
 
@@ -114,4 +125,6 @@ $(CG_MANIFEST_RULES_NODEP):
 	$(info Dependencies: $(CURRENT_DEPENDENT_REPO_NAMES))
 	$(info Dependency paths: $(CURRENT_DEPENDENT_PATHS))
 	rm -rf $(FINAL_MANIFEST_PATH)
-	cd $(CURRENT_REPO_PATH) && python3 $(MANIFEST_SCRIPT) $(CURRENT_TEMPLATE_PATH) $(CURRENT_DEPENDENT_PATHS) $(FINAL_MANIFEST_PATH)
+	cd $(CURRENT_REPO_PATH) && python3 $(MANIFEST_SCRIPT) -i $(CURRENT_TEMPLATE_PATH) $(CURRENT_DEPENDENT_PATHS) -o $(FINAL_MANIFEST_PATH)
+	# Build the graph file (no flattened tree, discard the normal output)
+	cd $(CURRENT_REPO_PATH) && python3 $(MANIFEST_SCRIPT) -i $(CURRENT_TEMPLATE_PATH) -o /dev/null -g $(GRAPH_FILE)
