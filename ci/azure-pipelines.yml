@@ -281,9 +281,6 @@ jobs:
         NXPEVK_iMX8M_4GB:
           Target: NXPEVK_iMX8M_4GB
           Arch: ARM64
-        NXPEVK_iMX8M_Mini_2GB:
-          Target: NXPEVK_iMX8M_Mini_2GB
-          Arch: ARM64
         ClSomImx7_iMX7D_1GB:
           Target: ClSomImx7_iMX7D_1GB
           Arch: ARM
