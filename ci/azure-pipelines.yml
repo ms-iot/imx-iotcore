@@ -11,7 +11,7 @@ jobs:
         NXPEVK_iMX8M_4GB:
           Target: NXPEVK_iMX8M_4GB
           AlternateName: MCIMX8M_EVK_4GB
-        NXPEVK_iMX8M_4GB:
+        NXPEVK_iMX8M_Mini_2GB:
           Target: NXPEVK_iMX8M_Mini_2GB
           AlternateName: NXPEVK_iMX8M_Mini_2GB
 
