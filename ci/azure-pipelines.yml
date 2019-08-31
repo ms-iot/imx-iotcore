@@ -332,7 +332,6 @@ jobs:
         downloadType: 'single'
         artifactName: '$(Target)_firmware'
         downloadPath: '$(System.ArtifactsDirectory)'
-      #condition: eq(variables['UPDATE_FIRMWARE'], 'yes')
 
     -task: CopyFiles@2
       inputs:
@@ -341,7 +340,6 @@ jobs:
         contents: '**'
         overWrite: true
         preserveTimestamp: true
-      #condition: eq(variables['UPDATE_FIRMWARE'], 'yes')
 
     - task: PowerShell@2
       displayName: 'debug fw artifacts'
