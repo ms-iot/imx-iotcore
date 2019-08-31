@@ -333,7 +333,7 @@ jobs:
         artifactName: '$(Target)_firmware'
         downloadPath: '$(System.ArtifactsDirectory)'
 
-    -task: CopyFiles@2
+    - task: CopyFiles@2
       inputs:
         sourceFolder: $(System.ArtifactsDirectory)/$(Target)_firmware
         targetFolder: $(Build.SourcesDirectory)
