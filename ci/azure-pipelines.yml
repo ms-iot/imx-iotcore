@@ -323,7 +323,7 @@ jobs:
       inputs:
         targetType: 'inline'
         script: |
-          cd $(Build.SourcesDirectory)
+          cd $(Build.SourcesDirectory)/build/board/ClSomImx7_iMX7D_1GB/Package/BootLoader
           ls
 
     - task: DownloadBuildArtifacts@0
@@ -331,14 +331,24 @@ jobs:
         buildType: 'current'
         downloadType: 'single'
         artifactName: '$(Target)_firmware'
-        downloadPath: '$(Build.SourcesDirectory)'
+        downloadPath: '$(System.ArtifactsDirectory)'
+      #condition: eq(variables['UPDATE_FIRMWARE'], 'yes')
+
+    -task: CopyFiles@2
+      inputs:
+        sourceFolder: $(System.ArtifactsDirectory)/$(Target)_firmware
+        targetFolder: $(Build.SourcesDirectory)
+        contents: '**'
+        overWrite: true
+        preserveTimestamp: true
+      #condition: eq(variables['UPDATE_FIRMWARE'], 'yes')
 
     - task: PowerShell@2
       displayName: 'debug fw artifacts'
       inputs:
         targetType: 'inline'
         script: |
-          cd $(Build.SourcesDirectory)
+          cd $(Build.SourcesDirectory)/build/board/ClSomImx7_iMX7D_1GB/Package/BootLoader
           ls
 
     - task: PowerShell@2
