@@ -11,6 +11,9 @@ jobs:
         NXPEVK_iMX8M_4GB:
           Target: NXPEVK_iMX8M_4GB
           AlternateName: MCIMX8M_EVK_4GB
+        NXPEVK_iMX8M_4GB:
+          Target: NXPEVK_iMX8M_Mini_2GB
+          AlternateName: NXPEVK_iMX8M_Mini_2GB
 
     steps:
     - script: |
@@ -23,6 +26,11 @@ jobs:
         sudo apt-get install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev wget libsqlite3-dev
         sudo apt-get upgrade python3-pip
       displayName: Install Python components
+
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.7' 
+        addToPath: true
 
     - script: |
         python3 --version
@@ -55,97 +63,38 @@ jobs:
       displayName: Install NXP HDMI/DDR firmware
 
     - script: |
-        pushd ../u-boot
-        export CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
-        export ARCH=arm64
-        make imx8mq_evk_nt_defconfig
-        make
-        popd
+        cd build/firmware
+        make -f imx8.mk IMX8_TARGET=$(Target) imx8_u-boot CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
       displayName: Build U-Boot
 
     - script: |
-        pushd ../imx-atf
-        export CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
-        export ARCH=arm64
-        make PLAT=imx8mq SPD=opteed bl31
-        popd
+        cd build/firmware
+        make -f imx8.mk IMX8_TARGET=$(Target) imx8_atf CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
       displayName: Build ATF
 
     - script: |
-        pushd ../optee_os
-        python --version
-        export -n CROSS_COMPILE
-        export -n ARCH
-        export CROSS_COMPILE64=$(Build.SourcesDirectory)/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
-        make PLATFORM=imx PLATFORM_FLAVOR=mx8mqevk CFG_TEE_CORE_DEBUG=n CFG_TEE_CORE_LOG_LEVEL=2  CFG_UART_BASE=0x30890000 CFG_RPMB_FS=y CFG_RPMB_TESTKEY=y CFG_RPMB_WRITE_KEY=y CFG_REE_FS=n CFG_IMXCRYPT=y CFG_CORE_HEAP_SIZE=98304
-        ${CROSS_COMPILE64}objcopy -O binary ./out/arm-plat-imx/core/tee.elf ./out/arm-plat-imx/tee.bin
-        popd
+        cd build/firmware
+        make -f imx8.mk IMX8_TARGET=$(Target) imx8_optee CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
       displayName: Build OP-TEE
 
     - script: |
-        export TA_DEV_KIT_DIR=../../../../optee_os/out/arm-plat-imx/export-ta_arm64
-        export TA_CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
-        export TA_CPU=cortex-a53
-
-        pushd ../MSRSec/TAs/optee_ta
-        make CFG_ARM64_ta_arm64=y CFG_FTPM_USE_WOLF=y CFG_AUTHVARS_USE_WOLF=y
-
-        popd
-
-        cp ../MSRSec/TAs/optee_ta/out/AuthVars/*.ta  ../mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/AuthvarsTa/Arm64/Test/
-        cp ../MSRSec/TAs/optee_ta/out/AuthVars/*.elf ../mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/AuthvarsTa/Arm64/Test/
-
-        cp ../MSRSec/TAs/optee_ta/out/fTPM/*.ta ../mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/fTpmTa/Arm64/Test/
-        cp ../MSRSec/TAs/optee_ta/out/fTPM/*.elf ../mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/fTpmTa/Arm64/Test/
+        cd build/firmware
+        make -f imx8.mk IMX8_TARGET=$(Target) imx8_tas CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
       displayName: Build TAs
 
     - script: |
-        pushd ../imx-mkimage/iMX8M
-        export CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
-        export ARCH=arm64
-        cp ../../firmware-imx-7.9/firmware/ddr/synopsys/lpddr4_pmu_train_*.bin .
-        cp ../../firmware-imx-7.9/firmware/hdmi/cadence/signed_hdmi_imx8m.bin .
-        cp ../../optee_os/out/arm-plat-imx/tee.bin .
-        cp ../../imx-atf/build/imx8mq/release/bl31.bin .
-        cp ../../u-boot/u-boot-nodtb.bin  .
-        cp ../../u-boot/spl/u-boot-spl.bin .
-        cp ../../u-boot/arch/arm/dts/fsl-imx8mq-evk.dtb .
-        cp ../../u-boot/tools/mkimage .
-        mv mkimage mkimage_uboot
-        cd ..
-        make SOC=iMX8M flash_hdmi_spl_uboot
-        popd
+        cd build/firmware
+        make -f imx8.mk IMX8_TARGET=$(Target) imx8_mkimage CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
       displayName: Build Imx-mkimage_uboot
 
-    - task: UsePythonVersion@0
-      inputs:
-        versionSpec: '3.7' 
-        addToPath: true
-
     - script: |
-        python3 --version
-        pushd ../mu_platform_nxp
-        export GCC5_AARCH64_PREFIX=$(Build.SourcesDirectory)/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
-        sudo pip3 install -r requirements.txt --upgrade
-        python3 NXP/$(AlternateName)/PlatformBuild.py --setup
-
-        cd MU_BASECORE
-        make -C BaseTools
-        cd ..
-
-        python3 NXP/$(AlternateName)/PlatformBuild.py TOOL_CHAIN_TAG=GCC5 BUILDREPORTING=TRUE BUILDREPORT_TYPES="PCD" TARGET=RELEASE MAX_CONCURRENT_THREAD_NUMBER=20 BLD_*_CONFIG_NOT_SECURE_UEFI=1
+        cd build/firmware
+        make -f imx8.mk IMX8_TARGET=$(Target) imx8_uefi CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
       displayName: Build UEFI
 
     - script: |
-        pushd ../mu_platform_nxp/Build/$(AlternateName)/RELEASE_GCC5/FV
-        cp $(Build.SourcesDirectory)/build/firmware/its/uefi_imx8_unsigned.its .
-        $(Build.SourcesDirectory)/../u-boot/tools/mkimage -f uefi_imx8_unsigned.its -r uefi.fit
-      displayName: Create uefi.fit
-
-    - script: |
-        cd ..
-        cp imx-mkimage/iMX8M/flash.bin $(Build.SourcesDirectory)/build/board/$(Target)/Package/BootLoader/flash.bin
-        cp mu_platform_nxp/Build/$(AlternateName)/RELEASE_GCC5/FV/uefi.fit $(Build.SourcesDirectory)/build/board/$(Target)/Package/BootFirmware/uefi.fit
+        cd build/firmware
+        make -f imx8.mk IMX8_TARGET=$(Target) imx8_update-ffu CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
       displayName: Move fimrware files to package folders
 
     - task: CopyFiles@2
