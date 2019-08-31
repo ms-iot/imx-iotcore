@@ -1,7 +1,10 @@
 trigger:
 - public_preview
 
-jobs:
+stages:
+- stage: firmware_build_stage
+  displayName: Firmware Build
+  jobs:
   - job: Build8
     displayName: Build iMX 8
     pool:
@@ -28,7 +31,7 @@ jobs:
 
     - task: UsePythonVersion@0
       inputs:
-        versionSpec: '3.7' 
+        versionSpec: '3.6' 
         addToPath: true
 
     - script: |
@@ -265,11 +268,12 @@ jobs:
 
     - task: ComponentGovernanceComponentDetection@0
 
+# Implicit dependency on firmware_build_stage due to ordering in file.
+- stage: ffu_build_stage
+  displayName: FFU Build
+  jobs:
   - job: BuildFFU
     displayName: Build i.MX FFU
-    dependsOn:
-    - Build67
-    #- Build8
     pool:
       vmImage: 'vs2017-win2016'
     strategy:
@@ -318,20 +322,13 @@ jobs:
           Arch: ARM
 
     steps:
-    - task: PowerShell@2
-      displayName: 'debug fw artifacts'
-      inputs:
-        targetType: 'inline'
-        script: |
-          cd $(Build.SourcesDirectory)/build/board/ClSomImx7_iMX7D_1GB/Package/BootLoader
-          ls
-
     - task: DownloadBuildArtifacts@0
       inputs:
         buildType: 'current'
         downloadType: 'single'
         artifactName: '$(Target)_firmware'
         downloadPath: '$(System.ArtifactsDirectory)'
+      condition: eq(variables['UPDATE_FIRMWARE'], 'yes')
 
     - task: CopyFiles@2
       inputs:
@@ -339,15 +336,7 @@ jobs:
         targetFolder: $(Build.SourcesDirectory)
         contents: '**'
         overWrite: true
-        preserveTimestamp: true
-
-    - task: PowerShell@2
-      displayName: 'debug fw artifacts'
-      inputs:
-        targetType: 'inline'
-        script: |
-          cd $(Build.SourcesDirectory)/build/board/ClSomImx7_iMX7D_1GB/Package/BootLoader
-          ls
+      condition: eq(variables['UPDATE_FIRMWARE'], 'yes')
 
     - task: PowerShell@2
       displayName: 'Download ADK 1809 from MSDN'
