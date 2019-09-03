@@ -38,6 +38,9 @@ stages:
         python3 --version
         pip3 install --upgrade pip
         pip3 install --upgrade setuptools
+        pip3 uninstall crypto
+        pip3 uninstall pycrypto
+        pip3 install pycrypto
         pip3 install mu_environment
 
     - script: |
@@ -75,9 +78,20 @@ stages:
       displayName: Build ATF
 
     - script: |
+        pushd ../optee_os
+        export -n CROSS_COMPILE
+        export -n ARCH
+        export CROSS_COMPILE64=$(Build.SourcesDirectory)/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
+        make PLATFORM=imx PLATFORM_FLAVOR=mx8mqevk CFG_TEE_CORE_DEBUG=n CFG_TEE_CORE_LOG_LEVEL=2  CFG_UART_BASE=0x30890000 CFG_RPMB_FS=y CFG_RPMB_TESTKEY=y CFG_RPMB_WRITE_KEY=y CFG_REE_FS=n CFG_IMXCRYPT=y CFG_CORE_HEAP_SIZE=98304
+        ${CROSS_COMPILE64}objcopy -O binary ./out/arm-plat-imx/core/tee.elf ./out/arm-plat-imx/tee.bin
+        # cd build/firmware
+        # make -f imx8.mk IMX8_TARGET=$(Target) imx8_optee CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
+      displayName: Build OP-TEE
+
+    - script: |
         cd build/firmware
         make -f imx8.mk IMX8_TARGET=$(Target) imx8_optee CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
-      displayName: Build OP-TEE
+      displayName: Build OP-TEE 2
 
     - script: |
         cd build/firmware
