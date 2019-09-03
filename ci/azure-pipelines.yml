@@ -25,6 +25,8 @@ stages:
       displayName: Download tools
 
     - script: |
+        python3 --version
+        python --version
         sudo apt-get install python python-dev python-crypto python-wand python3-pip python3-setuptools
         sudo apt-get install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev wget libsqlite3-dev
       displayName: Install Python components
@@ -32,6 +34,11 @@ stages:
     - task: UsePythonVersion@0
       inputs:
         versionSpec: '3.7' 
+        addToPath: false
+
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '2.7' 
         addToPath: true
 
     - script: |
