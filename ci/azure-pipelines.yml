@@ -45,7 +45,7 @@ stages:
         addToPath: true
       name: python2Install
 
-    # Don't add tho the path, since that overwrites python2.x Path to python will be in $(python3Install.pythonLocation)
+    # Don't add to the path, since that overwrites python2.x Path to python will be in $(python3Install.pythonLocation)
     - task: UsePythonVersion@0
       inputs:
         versionSpec: '3.7' 
@@ -70,9 +70,9 @@ stages:
 
     - script: |
         pushd ..
-        wget https://www.nxp.com/lgfiles/NMG/MAD/YOCTO/firmware-imx-7.9.bin
-        chmod +x firmware-imx-7.9.bin
-        yes | ./firmware-imx-7.9.bin
+        wget https://www.nxp.com/lgfiles/NMG/MAD/YOCTO/firmware-imx-8.1.bin && \
+        chmod +x firmware-imx-8.1.bin && \
+        yes | ./firmware-imx-8.1.bin && \
         popd
       displayName: Install NXP HDMI/DDR firmware
 
