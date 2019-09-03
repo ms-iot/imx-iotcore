@@ -78,37 +78,46 @@ stages:
 
     - script: |
         cd build/firmware
-        make -f imx8.mk IMX8_TARGET=$(Target) imx8_u-boot CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
+        make -f imx8.mk IMX8_TARGET=$(Target) imx8_u-boot \
+            CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
       displayName: Build U-Boot
 
     - script: |
         cd build/firmware
-        make -f imx8.mk IMX8_TARGET=$(Target) imx8_atf CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
+        make -f imx8.mk IMX8_TARGET=$(Target) imx8_atf \
+            CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
       displayName: Build ATF
 
     - script: |
         cd build/firmware
-        make -f imx8.mk IMX8_TARGET=$(Target) imx8_optee CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
+        make -f imx8.mk IMX8_TARGET=$(Target) imx8_optee \
+            CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
       displayName: Build OP-TEE
 
     - script: |
         cd build/firmware
-        make -f imx8.mk IMX8_TARGET=$(Target) imx8_tas CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
+        make -f imx8.mk IMX8_TARGET=$(Target) imx8_tas \
+            CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
       displayName: Build TAs
 
     - script: |
         cd build/firmware
-        make -f imx8.mk IMX8_TARGET=$(Target) imx8_mkimage CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
+        make -f imx8.mk IMX8_TARGET=$(Target) imx8_mkimage \
+            CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
       displayName: Build Imx-mkimage_uboot
 
     - script: |
         cd build/firmware
-        make -f imx8.mk IMX8_TARGET=$(Target) imx8_uefi CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu- PYTHON3=$(python3Install.pythonLocation/python)
+        make -f imx8.mk IMX8_TARGET=$(Target) imx8_uefi \
+            CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu- \
+            PYTHON3=$(python3Install.pythonLocation)/python
       displayName: Build UEFI
 
     - script: |
         cd build/firmware
-        make -f imx8.mk IMX8_TARGET=$(Target) imx8_update-ffu CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu- PYTHON3=$(python3Install.pythonLocation/python)
+        make -f imx8.mk IMX8_TARGET=$(Target) imx8_update-ffu \
+            CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu- \
+            PYTHON3=$(python3Install.pythonLocation)/python
       displayName: Move fimrware files to package folders
 
     - task: CopyFiles@2
