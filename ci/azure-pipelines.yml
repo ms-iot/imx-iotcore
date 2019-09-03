@@ -35,6 +35,7 @@ stages:
         python3 --version
         python --version
         #pip3 install --upgrade pip
+        pip install wheel
         pip3 install wheel
         pip3 install --upgrade setuptools
         pip3 uninstall crypto
@@ -42,6 +43,7 @@ stages:
         pip install pycrypto
         pip3 install pycrypto
         pip3 install mu_environment
+      failOnStderr: true
 
     - task: UsePythonVersion@0
       inputs:
