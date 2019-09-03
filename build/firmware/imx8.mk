@@ -3,6 +3,7 @@ SHELL = bash
 .SHELLFLAGS = -ec
 
 CROSS_COMPILE ?=$(HOME)/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
+PYTHON3?=python3
 ARCH=arm64
 VERSIONS=firmwareversions.log
 
@@ -96,13 +97,13 @@ imx8_uefi: imx8_u-boot imx8_tas its/uefi_imx8_unsigned.its
 	
 	cd $(IMX8_REPO_ROOT)/mu_platform_nxp
 	pip3 install -r requirements.txt --upgrade
-	python3 NXP/$(EDK2_PLATFORM)/PlatformBuild.py --setup
+	$(PYTHON3) NXP/$(EDK2_PLATFORM)/PlatformBuild.py --setup
 
 	cd MU_BASECORE
 	$(MAKE) -C BaseTools 
 	cd ..
 	
-	python3 NXP/$(EDK2_PLATFORM)/PlatformBuild.py -V TARGET=RELEASE \
+	$(PYTHON3) NXP/$(EDK2_PLATFORM)/PlatformBuild.py -V TARGET=RELEASE \
      PROFILE=DEV MAX_CONCURRENT_THREAD_NUMBER=20
 	
 	cd Build/$(EDK2_PLATFORM)/RELEASE_GCC5/FV
