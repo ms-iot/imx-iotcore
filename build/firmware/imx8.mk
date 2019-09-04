@@ -107,7 +107,7 @@ imx8_uefi: imx8_u-boot imx8_tas its/uefi_imx8_unsigned.its
      PROFILE=DEV MAX_CONCURRENT_THREAD_NUMBER=20
 	
 	cd Build/$(EDK2_PLATFORM)/RELEASE_GCC5/FV
-	cp $(IMX8_REPO_ROOT)/imx-iotcore/build/firmware/its/uefi_imx8_unsigned.its .
+	cp $(CURDIR)/its/uefi_imx8_unsigned.its .
 	$(IMX8_REPO_ROOT)/u-boot/tools/mkimage -f uefi_imx8_unsigned.its -r uefi.fit
 
 imx8_build: imx8_uefi imx8_mkimage
@@ -135,11 +135,11 @@ $(VERSIONS):
 	popd; )
 
 imx8_update-ffu: imx8_build $(VERSIONS)
-	cp $(VERSIONS) $(IMX8_REPO_ROOT)/imx-iotcore/build/board/$(IMX8_TARGET)/Package/BootLoader/
-	cp $(IMX8_REPO_ROOT)/imx-mkimage/iMX8M/flash.bin $(IMX8_REPO_ROOT)/imx-iotcore/build/board/$(IMX8_TARGET)/Package/BootLoader/flash.bin
-	cp $(IMX8_REPO_ROOT)/mu_platform_nxp/Build/$(EDK2_PLATFORM)/RELEASE_GCC5/FV/uefi.fit $(IMX8_REPO_ROOT)/imx-iotcore/build/board/$(IMX8_TARGET)/Package/BootFirmware/uefi.fit
+	cp $(VERSIONS) $(CURDIR)/../board/$(IMX8_TARGET)/Package/BootLoader/
+	cp $(IMX8_REPO_ROOT)/imx-mkimage/iMX8M/flash.bin $(CURDIR)/../board/$(IMX8_TARGET)/Package/BootLoader/flash.bin
+	cp $(IMX8_REPO_ROOT)/mu_platform_nxp/Build/$(EDK2_PLATFORM)/RELEASE_GCC5/FV/uefi.fit $(CURDIR)/../board/$(IMX8_TARGET)/Package/BootFirmware/uefi.fit
 
 imx8_commit-firmware: imx8_update-ffu
-	git add $(IMX8_REPO_ROOT)/imx-iotcore/build/board/$(IMX8_TARGET)/Package/BootLoader
-	git add $(IMX8_REPO_ROOT)/imx-iotcore/build/board/$(IMX8_TARGET)/Package/BootFirmware
+	git add $(CURDIR)/../board/$(IMX8_TARGET)/Package/BootLoader
+	git add $(CURDIR)/../board/$(IMX8_TARGET)/Package/BootFirmware
 	@echo "Successfully copied files to package and staged for commit"
