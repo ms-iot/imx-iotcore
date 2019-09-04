@@ -96,7 +96,7 @@ imx8_uefi: imx8_u-boot imx8_tas its/uefi_imx8_unsigned.its
 	export GCC5_AARCH64_PREFIX=$(CROSS_COMPILE)
 	
 	cd $(IMX8_REPO_ROOT)/mu_platform_nxp
-	pip3 install -r requirements.txt --upgrade
+	$(PYTHON3) -m pip install -r requirements.txt --upgrade
 	$(PYTHON3) NXP/$(EDK2_PLATFORM)/PlatformBuild.py --setup
 
 	cd MU_BASECORE
