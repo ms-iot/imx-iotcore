@@ -31,7 +31,7 @@ stages:
     - script: |
         echo '##vso[task.setvariable variable=ARTIFACTS_AVAILABLE]true'
       displayName: Check Artifact Availability
-      condition: not(startsWith(variables['Build.SourceBranch'], 'refs/pull/')))
+      condition: not(startsWith(variables['Build.SourceBranch'], 'refs/pull/'))
 
     - script: |
         sudo apt-get update
@@ -196,7 +196,7 @@ stages:
     - script: |
         echo '##vso[task.setvariable variable=ARTIFACTS_AVAILABLE]true'
       displayName: Check Artifact Availability
-      condition: not(startsWith(variables['Build.SourceBranch'], 'refs/pull/')))
+      condition: not(startsWith(variables['Build.SourceBranch'], 'refs/pull/'))
 
     - script: |
         sudo apt-get update
