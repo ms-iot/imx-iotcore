@@ -31,7 +31,7 @@ stages:
     - script: |
         echo '##vso[task.setvariable variable=ARTIFACTS_AVAILABLE]true'
       displayName: Check Artifact Availability
-      condition: not(startsWith(variables['Build.SourceBranch'], 'refs/pull/'))
+      condition: ne(variables['Build.Reason'], 'PullRequest')
 
     - script: |
         sudo apt-get update
@@ -196,7 +196,7 @@ stages:
     - script: |
         echo '##vso[task.setvariable variable=ARTIFACTS_AVAILABLE]true'
       displayName: Check Artifact Availability
-      condition: not(startsWith(variables['Build.SourceBranch'], 'refs/pull/'))
+      condition: ne(variables['Build.Reason'], 'PullRequest')
 
     - script: |
         sudo apt-get update
@@ -309,7 +309,7 @@ stages:
 # Only available for scheduled/manual builds due to a dependency on the collateral build.
 - stage: ffu_build_stage
   displayName: FFU Build
-  condition: and(eq(variables['BUILD_FFU'], 'yes'), not(startsWith(variables['Build.SourceBranch'], 'refs/pull/')))
+  condition: and(eq(variables['BUILD_FFU'], 'yes'), ne(variables['Build.Reason'], 'PullRequest'))
   jobs:
   - job: BuildFFU
     displayName: Build i.MX FFU
