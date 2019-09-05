@@ -1,9 +1,18 @@
+# Note: Some sections of this pipeline require access to prior builds and cannot
+# run for pull request validation.
+
+# Control Variables:
+#   BUILD_FIRMWARE:yes/no - Build new versions of the firmware binaries
+#   BUILD_FFU:yes/no - Build new FFUs
+#   UPDATE_FIRMWARE:yes/no - Update the firmware binaries before building new FFUs
+
 trigger:
 - public_preview
 
 stages:
 - stage: firmware_build_stage
   displayName: Firmware Build
+  condition: eq(variables['BUILD_FIRMWARE'], 'yes')
   jobs:
   - job: Build8
     displayName: Build iMX 8
@@ -19,6 +28,11 @@ stages:
           AlternateName: NXPEVK_iMX8M_Mini_2GB
 
     steps:
+    - script: |
+        echo '##vso[task.setvariable variable=ARTIFACTS_AVAILABLE]true'
+      displayName: Check Artifact Availability
+      condition: not(startsWith(variables['Build.SourceBranch'], 'refs/pull/')))
+
     - script: |
         sudo apt-get update
         sudo apt-get install build-essential device-tree-compiler bison flex swig iasl uuid-dev wget git bc libssl-dev zlib1g-dev gcc g++ make python3 mono-devel
@@ -128,6 +142,7 @@ stages:
           $(Build.SourcesDirectory)/build/board/$(Target)/Package/BootLoader/!(*.xml)
         targetFolder: $(Build.ArtifactStagingDirectory)
         flattenFolders: false
+      condition: eq(variables['ARTIFACTS_AVAILABLE'], 'yes')
 
     - task: CopyFiles@2
       displayName: Copy TAs to staging directory
@@ -139,6 +154,7 @@ stages:
           $(Build.SourcesDirectory)/../mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/fTpmTa/Arm64/Test/*.elf
         targetFolder: $(Build.ArtifactStagingDirectory)
         flattenFolders: true
+      condition: eq(variables['ARTIFACTS_AVAILABLE'], 'yes')
 
     - task: PublishBuildArtifacts@1
       inputs:
@@ -178,6 +194,11 @@ stages:
 
     steps:
     - script: |
+        echo '##vso[task.setvariable variable=ARTIFACTS_AVAILABLE]true'
+      displayName: Check Artifact Availability
+      condition: not(startsWith(variables['Build.SourceBranch'], 'refs/pull/')))
+
+    - script: |
         sudo apt-get update
         sudo apt-get install build-essential python python-dev python-crypto python-wand device-tree-compiler bison flex swig iasl uuid-dev wget git bc libssl-dev python3-pyelftools
       displayName: Download tools
@@ -200,19 +221,14 @@ stages:
         specificBuildWithTriggering: true
       displayName: Download CST
       continueOnError: true
+      condition: eq(variables['ARTIFACTS_AVAILABLE'], 'yes')
 
     - script: |
         pushd ..
-        ls $(System.ArtifactsDirectory)/
-        if [ -f $(System.ArtifactsDirectory)/cst.tar.gz ]
-        then
-          tar xf $(System.ArtifactsDirectory)/cst.tar.gz
-          rm $(System.ArtifactsDirectory)/cst.tar.gz
-          echo '##vso[task.setvariable variable=CST_AVAILABLE]yes'
-        else
-          echo '##vso[task.setvariable variable=CST_AVAILABLE]no'
-        fi
+        tar xf $(System.ArtifactsDirectory)/cst.tar.gz && \
+        rm $(System.ArtifactsDirectory)/cst.tar.gz
       displayName: Extract CST
+      condition: eq(variables['ARTIFACTS_AVAILABLE'], 'yes')
 
     # Branches are set using pipeline variables to allow overriding known build breaks (mostly useful for EDK2)
     # The variables can be set at queue time to allow custom runs.
@@ -256,7 +272,7 @@ stages:
         make CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-6.4.1-2017.11-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-
         make update-ffu
       displayName: Full firmware build (Only available with CST)
-      condition: eq(variables['CST_AVAILABLE'], 'yes')
+      condition: eq(variables['ARTIFACTS_AVAILABLE'], 'yes')
 
     - script: |	
         echo build/firmware/$(Target)	
@@ -264,7 +280,7 @@ stages:
         cd build/firmware/$(Target)	
         make image.fit CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-6.4.1-2017.11-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-	
       displayName: Initial FIT packaging (Non-CST alternative)
-      condition: eq(variables['CST_AVAILABLE'], 'no')
+      condition: ne(variables['ARTIFACTS_AVAILABLE'], 'yes')
 
     - task: CopyFiles@2
       displayName: Copy firmware artifacts to staging directory  (Only available with CST)
@@ -279,19 +295,21 @@ stages:
           $(Build.SourcesDirectory)/build/firmware/$(Target)/authvars/*.elf
         targetFolder: $(Build.ArtifactStagingDirectory)
         flattenFolders: false
-      condition: eq(variables['CST_AVAILABLE'], 'yes')
+      condition: eq(variables['ARTIFACTS_AVAILABLE'], 'yes')
 
     - task: PublishBuildArtifacts@1
       inputs:
         pathtoPublish: $(Build.ArtifactStagingDirectory)
         artifactName: $(Target)_firmware
-      condition: eq(variables['CST_AVAILABLE'], 'yes')
+      condition: eq(variables['ARTIFACTS_AVAILABLE'], 'yes')
 
     - task: ComponentGovernanceComponentDetection@0
 
 # Implicit dependency on firmware_build_stage due to ordering in file.
+# Only available for scheduled/manual builds due to a dependency on the collateral build.
 - stage: ffu_build_stage
   displayName: FFU Build
+  condition: and(eq(variables['BUILD_FFU'], 'yes'), not(startsWith(variables['Build.SourceBranch'], 'refs/pull/'))))
   jobs:
   - job: BuildFFU
     displayName: Build i.MX FFU
