@@ -142,7 +142,7 @@ stages:
           $(Build.SourcesDirectory)/build/board/$(Target)/Package/BootLoader/!(*.xml)
         targetFolder: $(Build.ArtifactStagingDirectory)
         flattenFolders: false
-      condition: eq(variables['ARTIFACTS_AVAILABLE'], 'true')
+      condition: and(succeeded(), eq(variables['ARTIFACTS_AVAILABLE'], 'true'))
 
     - task: CopyFiles@2
       displayName: Copy TAs to staging directory
@@ -154,7 +154,7 @@ stages:
           $(Build.SourcesDirectory)/../mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/fTpmTa/Arm64/Test/*.elf
         targetFolder: $(Build.ArtifactStagingDirectory)
         flattenFolders: true
-      condition: eq(variables['ARTIFACTS_AVAILABLE'], 'true')
+      condition: and(succeeded(), eq(variables['ARTIFACTS_AVAILABLE'], 'true'))
 
     - task: PublishBuildArtifacts@1
       inputs:
@@ -221,14 +221,14 @@ stages:
         specificBuildWithTriggering: true
       displayName: Download CST
       continueOnError: true
-      condition: eq(variables['ARTIFACTS_AVAILABLE'], 'true')
+      condition: and(succeeded(), eq(variables['ARTIFACTS_AVAILABLE'], 'true'))
 
     - script: |
         pushd ..
         tar xf $(System.ArtifactsDirectory)/cst.tar.gz && \
         rm $(System.ArtifactsDirectory)/cst.tar.gz
       displayName: Extract CST
-      condition: eq(variables['ARTIFACTS_AVAILABLE'], 'true')
+      condition: and(succeeded(), eq(variables['ARTIFACTS_AVAILABLE'], 'true'))
 
     # Branches are set using pipeline variables to allow overriding known build breaks (mostly useful for EDK2)
     # The variables can be set at queue time to allow custom runs.
@@ -272,7 +272,7 @@ stages:
         make CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-6.4.1-2017.11-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-
         make update-ffu
       displayName: Full firmware build (Only available with CST)
-      condition: eq(variables['ARTIFACTS_AVAILABLE'], 'true')
+      condition: and(succeeded(), eq(variables['ARTIFACTS_AVAILABLE'], 'true'))
 
     - script: |	
         echo build/firmware/$(Target)	
@@ -280,7 +280,7 @@ stages:
         cd build/firmware/$(Target)	
         make image.fit CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-6.4.1-2017.11-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-	
       displayName: Initial FIT packaging (Non-CST alternative)
-      condition: ne(variables['ARTIFACTS_AVAILABLE'], 'true')
+      condition: and(succeeded(), ne(variables['ARTIFACTS_AVAILABLE'], 'true'))
 
     - task: CopyFiles@2
       displayName: Copy firmware artifacts to staging directory  (Only available with CST)
@@ -295,13 +295,13 @@ stages:
           $(Build.SourcesDirectory)/build/firmware/$(Target)/authvars/*.elf
         targetFolder: $(Build.ArtifactStagingDirectory)
         flattenFolders: false
-      condition: eq(variables['ARTIFACTS_AVAILABLE'], 'true')
+      condition: and(succeeded(), eq(variables['ARTIFACTS_AVAILABLE'], 'true'))
 
     - task: PublishBuildArtifacts@1
       inputs:
         pathtoPublish: $(Build.ArtifactStagingDirectory)
         artifactName: $(Target)_firmware
-      condition: eq(variables['ARTIFACTS_AVAILABLE'], 'true')
+      condition: and(succeeded(), eq(variables['ARTIFACTS_AVAILABLE'], 'true'))
 
     - task: ComponentGovernanceComponentDetection@0
 
@@ -367,7 +367,7 @@ stages:
         downloadType: 'single'
         artifactName: '$(Target)_firmware'
         downloadPath: '$(System.ArtifactsDirectory)'
-      condition: eq(variables['UPDATE_FIRMWARE'], 'true')
+      condition: and(succeeded(), eq(variables['UPDATE_FIRMWARE'], 'true'))
 
     - task: CopyFiles@2
       inputs:
@@ -375,7 +375,7 @@ stages:
         targetFolder: $(Build.SourcesDirectory)
         contents: '**'
         overWrite: true
-      condition: eq(variables['UPDATE_FIRMWARE'], 'true')
+      condition: and(succeeded(), eq(variables['UPDATE_FIRMWARE'], 'true'))
 
     - task: PowerShell@2
       displayName: 'Download ADK 1809 from MSDN'
