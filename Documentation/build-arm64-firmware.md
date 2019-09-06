@@ -71,7 +71,30 @@ Note: The UEFI build environment has changed for 1903 and any existing build env
        |- u-boot
       ```
 
-1) Build firmware to test the setup. Adding "-j 20" to make will parallelize the build and speed it up significantly on WSL, but since the firmwares build in parallel it will be more difficult to diagnose any build failures. You can customize the number to work best with your system.
+1) A makefile is available which automates the build process.
+    ```bash
+    cd imx-iotcore/build/firmware
+    # Build firmware components for a specific board, but don't update the packages
+    make -f imx8.mk IMX8_TARGET=NXPEVK_iMX8M_4GB CROSS_COMPILE=~/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu- imx8_build
+    ```
+    To update the binaries in the FFU packages:
+    ```bash
+    cd imx-iotcore/build/firmware
+    # Build AND update the packages for a specific board
+    make -f imx8.mk IMX8_TARGET=NXPEVK_iMX8M_4GB CROSS_COMPILE=~/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu- imx8_update-ffu
+    ```
+    Build/update all i.MX8 boards:
+    ```bash
+    cd imx-iotcore/build/firmware
+    # Build each firmware (Note: will override the outputs)    
+    make imx8_all
+    # Update the firmware binaries in the package folders (requires re-build)
+    make imx8_update-ffu
+    # Stage the firmware for a commit (requires re-build)
+    make imx8_commit-firmware
+    ```
+
+1) Manually build the firmware to test the setup. Adding "-j 20" to make will parallelize the build and speed it up significantly on WSL, but since the firmwares build in parallel it will be more difficult to diagnose any build failures. You can customize the number to work best with your system.
 
     ```bash
    # U-Boot
