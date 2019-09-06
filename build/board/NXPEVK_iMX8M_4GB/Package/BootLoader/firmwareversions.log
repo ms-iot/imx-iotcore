@@ -1,3 +1,43 @@
-U-Boot commit information:
-OPTEE commit information:
-EDK2 commit information:
+imx-iotcore commit information:
+mu_platform_nxp commit information:
+https://github.com/ms-iot/mu_platform_nxp
+3a99545aba6e037d3ad44ffb3ff7ab9506b97b72
+mu_platform_nxp diff information:
+diff --git a/Microsoft/OpteeClientPkg/Bin/AuthvarsTa/Arm64/Test/2d57c0f7-bddf-48ea-832f-d84a1a219301.elf b/Microsoft/OpteeClientPkg/Bin/AuthvarsTa/Arm64/Test/2d57c0f7-bddf-48ea-832f-d84a1a219301.elf
+index 4753da8..091ca4f 100644
+Binary files a/Microsoft/OpteeClientPkg/Bin/AuthvarsTa/Arm64/Test/2d57c0f7-bddf-48ea-832f-d84a1a219301.elf and b/Microsoft/OpteeClientPkg/Bin/AuthvarsTa/Arm64/Test/2d57c0f7-bddf-48ea-832f-d84a1a219301.elf differ
+diff --git a/Microsoft/OpteeClientPkg/Bin/AuthvarsTa/Arm64/Test/2d57c0f7-bddf-48ea-832f-d84a1a219301.ta b/Microsoft/OpteeClientPkg/Bin/AuthvarsTa/Arm64/Test/2d57c0f7-bddf-48ea-832f-d84a1a219301.ta
+index 35d4070..bee7262 100644
+Binary files a/Microsoft/OpteeClientPkg/Bin/AuthvarsTa/Arm64/Test/2d57c0f7-bddf-48ea-832f-d84a1a219301.ta and b/Microsoft/OpteeClientPkg/Bin/AuthvarsTa/Arm64/Test/2d57c0f7-bddf-48ea-832f-d84a1a219301.ta differ
+diff --git a/Microsoft/OpteeClientPkg/Bin/fTpmTa/Arm64/Test/bc50d971-d4c9-42c4-82cb-343fb7f37896.elf b/Microsoft/OpteeClientPkg/Bin/fTpmTa/Arm64/Test/bc50d971-d4c9-42c4-82cb-343fb7f37896.elf
+index 603516a..279d839 100644
+Binary files a/Microsoft/OpteeClientPkg/Bin/fTpmTa/Arm64/Test/bc50d971-d4c9-42c4-82cb-343fb7f37896.elf and b/Microsoft/OpteeClientPkg/Bin/fTpmTa/Arm64/Test/bc50d971-d4c9-42c4-82cb-343fb7f37896.elf differ
+diff --git a/Microsoft/OpteeClientPkg/Bin/fTpmTa/Arm64/Test/bc50d971-d4c9-42c4-82cb-343fb7f37896.ta b/Microsoft/OpteeClientPkg/Bin/fTpmTa/Arm64/Test/bc50d971-d4c9-42c4-82cb-343fb7f37896.ta
+index 7642897..cb29c8a 100644
+Binary files a/Microsoft/OpteeClientPkg/Bin/fTpmTa/Arm64/Test/bc50d971-d4c9-42c4-82cb-343fb7f37896.ta and b/Microsoft/OpteeClientPkg/Bin/fTpmTa/Arm64/Test/bc50d971-d4c9-42c4-82cb-343fb7f37896.ta differ
+mu_platform_nxp diff end
+u-boot commit information:
+https://github.com/ms-iot/u-boot.git
+60dc0276fce6cb398841bf73a1e1c9e8263e393f
+u-boot diff information:
+u-boot diff end
+optee_os commit information:
+https://github.com/ms-iot/optee_os.git
+70a19147cddb63303d162574da4872f802cc7d3b
+optee_os diff information:
+optee_os diff end
+imx-atf commit information:
+https://source.codeaurora.org/external/imx/imx-atf
+30d73be7383282ddf8179390ff7a98485e65b8a7
+imx-atf diff information:
+imx-atf diff end
+imx-mkimage commit information:
+https://source.codeaurora.org/external/imx/imx-mkimage
+7f7b5b25ed32ce7731b3b314d9750e96567f1cc5
+imx-mkimage diff information:
+imx-mkimage diff end
+MSRSec commit information:
+https://github.com/Microsoft/MSRSec.git
+e636ec7aa4e4fa3da8951bbcbd811469799e57d8
+MSRSec diff information:
+MSRSec diff end
