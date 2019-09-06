@@ -69,8 +69,8 @@ imx8_tas:
 	popd
 	cp $(IMX8_REPO_ROOT)/MSRSec/TAs/optee_ta/out/AuthVars/2d57c0f7-bddf-48ea-832f-d84a1a219301.ta  $(IMX8_REPO_ROOT)/mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/AuthvarsTa/Arm64/Test/
 	cp $(IMX8_REPO_ROOT)/MSRSec/TAs/optee_ta/out/AuthVars/2d57c0f7-bddf-48ea-832f-d84a1a219301.elf $(IMX8_REPO_ROOT)/mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/AuthvarsTa/Arm64/Test/
-	cp $(IMX8_REPO_ROOT)/MSRSec/TAs/optee_ta/out/fTPM/53bab89c-b864-4d7e-acbc-33c07a9c1b8d.ta $(IMX8_REPO_ROOT)/mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/fTpmTa/Arm64/Test/
-	cp $(IMX8_REPO_ROOT)/MSRSec/TAs/optee_ta/out/fTPM/53bab89c-b864-4d7e-acbc-33c07a9c1b8d.elf $(IMX8_REPO_ROOT)/mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/fTpmTa/Arm64/Test/
+	cp $(IMX8_REPO_ROOT)/MSRSec/TAs/optee_ta/out/fTPM/bc50d971-d4c9-42c4-82cb-343fb7f37896.ta $(IMX8_REPO_ROOT)/mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/fTpmTa/Arm64/Test/
+	cp $(IMX8_REPO_ROOT)/MSRSec/TAs/optee_ta/out/fTPM/bc50d971-d4c9-42c4-82cb-343fb7f37896.elf $(IMX8_REPO_ROOT)/mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/fTpmTa/Arm64/Test/
 
 IMX8_MKIMAGE_DEPS_DDR=$(wildcard $(IMX8_REPO_ROOT)/firmware-imx-8.1/firmware/ddr/synopsys/lpddr4_pmu_train_*.bin)
 IMX8_MKIMAGE_DEPS_HDMI=$(wildcard $(IMX8_REPO_ROOT)/firmware-imx-8.1/firmware/hdmi/cadence/signed_hdmi_imx8m.bin)
