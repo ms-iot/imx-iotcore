@@ -1,7 +1,19 @@
+# Note: Some sections of this pipeline require access to prior builds and cannot
+# run for pull request validation.
+
+# Control Variables:
+#   BUILD_FIRMWARE:true/false - Build new versions of the firmware binaries
+#   BUILD_FFU:true/false - Build new FFUs
+#   UPDATE_FIRMWARE:true/false - Update the firmware binaries before building new FFUs
+
 trigger:
 - public_preview
 
-jobs:
+stages:
+- stage: firmware_build_stage
+  displayName: Firmware Build
+  condition: eq(variables['BUILD_FIRMWARE'], 'true')
+  jobs:
   - job: Build8
     displayName: Build iMX 8
     pool:
@@ -10,8 +22,17 @@ jobs:
       matrix:
         NXPEVK_iMX8M_4GB:
           Target: NXPEVK_iMX8M_4GB
+          AlternateName: MCIMX8M_EVK_4GB
+        NXPEVK_iMX8M_Mini_2GB:
+          Target: NXPEVK_iMX8M_Mini_2GB
+          AlternateName: NXPEVK_iMX8M_Mini_2GB
 
     steps:
+    - script: |
+        echo '##vso[task.setvariable variable=ARTIFACTS_AVAILABLE]true'
+      displayName: Check Artifact Availability
+      condition: ne(variables['Build.Reason'], 'PullRequest')
+
     - script: |
         sudo apt-get update
         sudo apt-get install build-essential device-tree-compiler bison flex swig iasl uuid-dev wget git bc libssl-dev zlib1g-dev gcc g++ make python3 mono-devel
@@ -22,16 +43,28 @@ jobs:
         sudo apt-get install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev wget libsqlite3-dev
       displayName: Install Python components
 
+    - script: |
+        pip install wheel
+        pip3 install wheel
+        pip3 install --upgrade setuptools
+        pip3 uninstall crypto
+        pip3 uninstall pycrypto
+        pip install pycrypto
+        pip3 install pycrypto
+        pip3 install mu_environment
+
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '2.7' 
+        addToPath: true
+      name: python2Install
+
+    # Don't add to the path, since that overwrites python2.x Path to python will be in $(python3Install.pythonLocation)
     - task: UsePythonVersion@0
       inputs:
         versionSpec: '3.7' 
-        addToPath: true
-        
-    - script: |
-        python3 --version
-        pip3 install --upgrade pip
-        pip3 install --upgrade setuptools
-        pip3 install mu_environment
+        addToPath: false
+      name: python3Install
 
     - script: |
         wget https://releases.linaro.org/components/toolchain/binaries/7.2-2017.11/aarch64-linux-gnu/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu.tar.xz
@@ -45,86 +78,88 @@ jobs:
         git clone --recursive https://github.com/ms-iot/mu_platform_nxp
         git clone -b imx_4.14.62_1.0.0_beta https://source.codeaurora.org/external/imx/imx-atf
         git clone -b imx_4.14.62_1.0.0_beta https://source.codeaurora.org/external/imx/imx-mkimage
-        git clone https://github.com/Microsoft/MSRSec.git
+        git clone https://github.com/Microsoft/MSRSec.git $(MSRSEC_BRANCH)
         popd
       displayName: Clone repos
 
     - script: |
         pushd ..
-        wget https://www.nxp.com/lgfiles/NMG/MAD/YOCTO/firmware-imx-7.9.bin
-        chmod +x firmware-imx-7.9.bin
-        yes | ./firmware-imx-7.9.bin
+        wget https://www.nxp.com/lgfiles/NMG/MAD/YOCTO/firmware-imx-8.1.bin && \
+        chmod +x firmware-imx-8.1.bin && \
+        yes | ./firmware-imx-8.1.bin && \
         popd
       displayName: Install NXP HDMI/DDR firmware
 
     - script: |
-        pushd ../u-boot
-        export CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
-        export ARCH=arm64
-        make imx8mq_evk_nt_defconfig
-        make
-        popd
+        cd build/firmware
+        make -f imx8.mk IMX8_TARGET=$(Target) imx8_u-boot \
+            CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
       displayName: Build U-Boot
 
     - script: |
-        pushd ../imx-atf
-        export CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
-        export ARCH=arm64
-        make PLAT=imx8mq SPD=opteed bl31
-        popd
+        cd build/firmware
+        make -f imx8.mk IMX8_TARGET=$(Target) imx8_atf \
+            CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
       displayName: Build ATF
 
     - script: |
-        pushd ../optee_os
-        export -n CROSS_COMPILE
-        export -n ARCH
-        export CROSS_COMPILE64=$(Build.SourcesDirectory)/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
-        make PLATFORM=imx PLATFORM_FLAVOR=mx8mqevk CFG_TEE_CORE_DEBUG=n CFG_TEE_CORE_LOG_LEVEL=2  CFG_UART_BASE=0x30890000 CFG_RPMB_FS=y CFG_RPMB_TESTKEY=y CFG_RPMB_WRITE_KEY=y CFG_REE_FS=n CFG_IMXCRYPT=y CFG_CORE_HEAP_SIZE=98304
-        ${CROSS_COMPILE64}objcopy -O binary ./out/arm-plat-imx/core/tee.elf ./out/arm-plat-imx/tee.bin
-        popd
+        cd build/firmware
+        make -f imx8.mk IMX8_TARGET=$(Target) imx8_optee \
+            CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
       displayName: Build OP-TEE
 
     - script: |
-        # make TAs!
+        cd build/firmware
+        make -f imx8.mk IMX8_TARGET=$(Target) imx8_tas \
+            CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
       displayName: Build TAs
 
     - script: |
-        pushd ../imx-mkimage/iMX8M
-        export CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
-        export ARCH=arm64
-        cp ../../firmware-imx-7.9/firmware/ddr/synopsys/lpddr4_pmu_train_*.bin .
-        cp ../../firmware-imx-7.9/firmware/hdmi/cadence/signed_hdmi_imx8m.bin .
-        cp ../../optee_os/out/arm-plat-imx/tee.bin .
-        cp ../../imx-atf/build/imx8mq/release/bl31.bin .
-        cp ../../u-boot/u-boot-nodtb.bin  .
-        cp ../../u-boot/spl/u-boot-spl.bin .
-        cp ../../u-boot/arch/arm/dts/fsl-imx8mq-evk.dtb .
-        cp ../../u-boot/tools/mkimage .
-        mv mkimage mkimage_uboot
-        cd ..
-        make SOC=iMX8M flash_hdmi_spl_uboot
-        popd
+        cd build/firmware
+        make -f imx8.mk IMX8_TARGET=$(Target) imx8_mkimage \
+            CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
       displayName: Build Imx-mkimage_uboot
 
     - script: |
-        pushd ../mu_platform_nxp
-        export GCC5_AARCH64_PREFIX=$(Build.SourcesDirectory)/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
-        sudo pip3 install -r requirements.txt --upgrade
-        python3 NXP/MCIMX8M_EVK_4GB/PlatformBuild.py --setup
-
-        cd MU_BASECORE
-        make -C BaseTools
-        cd ..
-
-        python3 NXP/MCIMX8M_EVK_4GB/PlatformBuild.py TOOL_CHAIN_TAG=GCC5 BUILDREPORTING=TRUE BUILDREPORT_TYPES="PCD" TARGET=RELEASE MAX_CONCURRENT_THREAD_NUMBER=20 BLD_*_CONFIG_NOT_SECURE_UEFI=1
+        cd build/firmware
+        make -f imx8.mk IMX8_TARGET=$(Target) imx8_uefi \
+            CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu- \
+            PYTHON3=$(python3Install.pythonLocation)/python
       displayName: Build UEFI
 
     - script: |
-        pushd ../mu_platform_nxp/Build/MCIMX8M_EVK_4GB/RELEASE_GCC5/FV
-        cp $(Build.SourcesDirectory)/build/firmware/its/uefi_imx8_unsigned.its .
-        $(Build.SourcesDirectory)/../u-boot/tools/mkimage -f uefi_imx8_unsigned.its -r uefi.fit
-      displayName: Create uefi.fit
+        cd build/firmware
+        make -f imx8.mk IMX8_TARGET=$(Target) imx8_update-ffu \
+            CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu- \
+            PYTHON3=$(python3Install.pythonLocation)/python
+      displayName: Move fimrware files to package folders
 
+    - task: CopyFiles@2
+      displayName: Copy firmware artifacts to staging directory
+      inputs:
+        contents: |
+          $(Build.SourcesDirectory)/build/board/$(Target)/Package/BootFirmware/!(*.xml)
+          $(Build.SourcesDirectory)/build/board/$(Target)/Package/BootLoader/!(*.xml)
+        targetFolder: $(Build.ArtifactStagingDirectory)
+        flattenFolders: false
+      condition: and(succeeded(), eq(variables['ARTIFACTS_AVAILABLE'], 'true'))
+
+    - task: CopyFiles@2
+      displayName: Copy TAs to staging directory
+      inputs:
+        contents: |
+          $(Build.SourcesDirectory)/../mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/AuthvarsTa/Arm64/Test/*.ta
+          $(Build.SourcesDirectory)/../mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/AuthvarsTa/Arm64/Test/*.elf
+          $(Build.SourcesDirectory)/../mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/fTpmTa/Arm64/Test/*.ta
+          $(Build.SourcesDirectory)/../mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/fTpmTa/Arm64/Test/*.elf
+        targetFolder: $(Build.ArtifactStagingDirectory)
+        flattenFolders: true
+      condition: and(succeeded(), eq(variables['ARTIFACTS_AVAILABLE'], 'true'))
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+        pathtoPublish: $(Build.ArtifactStagingDirectory)
+        artifactName: $(Target)_firmware
 
   - job: Build67
     displayName: Build iMX 6 & 7
@@ -159,6 +194,11 @@ jobs:
 
     steps:
     - script: |
+        echo '##vso[task.setvariable variable=ARTIFACTS_AVAILABLE]true'
+      displayName: Check Artifact Availability
+      condition: ne(variables['Build.Reason'], 'PullRequest')
+
+    - script: |
         sudo apt-get update
         sudo apt-get install build-essential python python-dev python-crypto python-wand device-tree-compiler bison flex swig iasl uuid-dev wget git bc libssl-dev python3-pyelftools
       displayName: Download tools
@@ -168,28 +208,27 @@ jobs:
         tar xf gcc-linaro-6.4.1-2017.11-x86_64_arm-linux-gnueabihf.tar.xz
       displayName: Download gcc
 
-    - task: AzureCLI@1
-      displayName: 'Download CST'
+
+    - task: DownloadPipelineArtifact@2
       inputs:
-        azureSubscription: 'Silicon team: Cosine IOT Services Azure Internal Consumption'
-        scriptLocation: inlineScript
-        inlineScript: |
-          az storage blob download \
-          --account-name siliconfirmware \
-          --container-name cst \
-          --name cst.tar.gz \
-          --file $(Build.SourcesDirectory)/cst.tar.gz
+        buildType: specific
+        project: 'a0a9e539-5c45-490f-83c8-289a6ed8234e'
+        definition: 41039
+        buildVersionToDownload: specific
+        pipelineId: 16732832
+        artifactName: Cst
+        path: '$(System.ArtifactsDirectory)'
+        specificBuildWithTriggering: true
+      displayName: Download CST
+      continueOnError: true
+      condition: and(succeeded(), eq(variables['ARTIFACTS_AVAILABLE'], 'true'))
 
     - script: |
         pushd ..
-        if [ -f $(Build.SourcesDirectory)/cst.tar.gz ]
-        then
-          tar xf $(Build.SourcesDirectory)/cst.tar.gz
-          echo '##vso[task.setvariable variable=CST_AVAILABLE]yes'
-        else
-          echo '##vso[task.setvariable variable=CST_AVAILABLE]no'
-        fi
+        tar xf $(System.ArtifactsDirectory)/cst.tar.gz && \
+        rm $(System.ArtifactsDirectory)/cst.tar.gz
       displayName: Extract CST
+      condition: and(succeeded(), eq(variables['ARTIFACTS_AVAILABLE'], 'true'))
 
     # Branches are set using pipeline variables to allow overriding known build breaks (mostly useful for EDK2)
     # The variables can be set at queue time to allow custom runs.
@@ -206,7 +245,7 @@ jobs:
       displayName: Clone repos
 
 
-    # Builds all components except the final HAB signed SPL (Need to find a way to store the NXP code signing tools)
+    # Builds all components except the final HAB signed SPL
     - script: |
         echo build/firmware/$(Target)
         ls
@@ -229,17 +268,221 @@ jobs:
       displayName: Build UEFI
 
     - script: |
-        echo build/firmware/$(Target)
-        ls
-        cd build/firmware/$(Target)
-        make image.fit CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-6.4.1-2017.11-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-
-      displayName: Initial FIT packaging
-      condition: eq(variables['CST_AVAILABLE'], 'no')
-
-    - script: |
         cd build/firmware/$(Target)
         make CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-6.4.1-2017.11-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-
-      displayName: Full firmware build
-      condition: eq(variables['CST_AVAILABLE'], 'yes')
+        make update-ffu
+      displayName: Full firmware build (Only available with CST)
+      condition: and(succeeded(), eq(variables['ARTIFACTS_AVAILABLE'], 'true'))
+
+    - script: |	
+        echo build/firmware/$(Target)	
+        ls	
+        cd build/firmware/$(Target)	
+        make image.fit CROSS_COMPILE=$(Build.SourcesDirectory)/gcc-linaro-6.4.1-2017.11-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-	
+      displayName: Initial FIT packaging (Non-CST alternative)
+      condition: and(succeeded(), ne(variables['ARTIFACTS_AVAILABLE'], 'true'))
+
+    - task: CopyFiles@2
+      displayName: Copy firmware artifacts to staging directory  (Only available with CST)
+      inputs:
+        contents: |
+          $(Build.SourcesDirectory)/build/board/$(Target)/export-ta_arm32.tar.bz2
+          $(Build.SourcesDirectory)/build/board/$(Target)/Package/BootFirmware/!(*.xml)
+          $(Build.SourcesDirectory)/build/board/$(Target)/Package/BootLoader/!(*.xml)
+          $(Build.SourcesDirectory)/build/firmware/$(Target)/ftpm/*.ta
+          $(Build.SourcesDirectory)/build/firmware/$(Target)/ftpm/*.elf
+          $(Build.SourcesDirectory)/build/firmware/$(Target)/authvars/*.ta
+          $(Build.SourcesDirectory)/build/firmware/$(Target)/authvars/*.elf
+        targetFolder: $(Build.ArtifactStagingDirectory)
+        flattenFolders: false
+      condition: and(succeeded(), eq(variables['ARTIFACTS_AVAILABLE'], 'true'))
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+        pathtoPublish: $(Build.ArtifactStagingDirectory)
+        artifactName: $(Target)_firmware
+      condition: and(succeeded(), eq(variables['ARTIFACTS_AVAILABLE'], 'true'))
 
     - task: ComponentGovernanceComponentDetection@0
+
+# Implicit dependency on firmware_build_stage due to ordering in file.
+# Only available for scheduled/manual builds due to a dependency on the collateral build.
+- stage: ffu_build_stage
+  displayName: FFU Build
+  condition: and(eq(variables['BUILD_FFU'], 'true'), ne(variables['Build.Reason'], 'PullRequest'))
+  jobs:
+  - job: BuildFFU
+    displayName: Build i.MX FFU
+    pool:
+      vmImage: 'vs2017-win2016'
+    strategy:
+      matrix:
+        NXPEVK_iMX8M_Mini_2GB:
+          Target: NXPEVK_iMX8M_Mini_2GB
+          Arch: ARM64
+        NXPEVK_iMX8M_4GB:
+          Target: NXPEVK_iMX8M_4GB
+          Arch: ARM64
+        ClSomImx7_iMX7D_1GB:
+          Target: ClSomImx7_iMX7D_1GB
+          Arch: ARM
+        EVK_iMX6ULL_512MB:
+          Target: EVK_iMX6ULL_512MB
+          Arch: ARM
+        HummingBoardEdge_iMX6DL_1GB:
+          Target: HummingBoardEdge_iMX6DL_1GB
+          Arch: ARM
+        HummingBoardEdge_iMX6Q_2GB:
+          Target: HummingBoardEdge_iMX6Q_2GB
+          Arch: ARM
+        HummingBoardEdge_iMX6S_512MB:
+          Target: HummingBoardEdge_iMX6S_512MB
+          Arch: ARM
+        Sabre_iMX6Q_1GB:
+          Target: Sabre_iMX6Q_1GB
+          Arch: ARM
+        Sabre_iMX6QP_1GB:
+          Target: Sabre_iMX6QP_1GB
+          Arch: ARM
+        Sabre_iMX6SX_1GB:
+          Target: Sabre_iMX6SX_1GB
+          Arch: ARM
+        Sabre_iMX7D_1GB:
+          Target: Sabre_iMX7D_1GB
+          Arch: ARM
+        SabreLite_iMX6Q_1GB:
+          Target: SabreLite_iMX6Q_1GB
+          Arch: ARM
+        UdooNeo_iMX6SX_1GB:
+          Target: UdooNeo_iMX6SX_1GB
+          Arch: ARM
+        VAB820_iMX6Q_1GB:
+          Target: VAB820_iMX6Q_1GB
+          Arch: ARM
+
+    steps:
+    - task: DownloadBuildArtifacts@0
+      inputs:
+        buildType: 'current'
+        downloadType: 'single'
+        artifactName: '$(Target)_firmware'
+        downloadPath: '$(System.ArtifactsDirectory)'
+      condition: and(succeeded(), eq(variables['UPDATE_FIRMWARE'], 'true'))
+
+    - task: CopyFiles@2
+      inputs:
+        sourceFolder: $(System.ArtifactsDirectory)/$(Target)_firmware
+        targetFolder: $(Build.SourcesDirectory)
+        contents: '**'
+        overWrite: true
+      condition: and(succeeded(), eq(variables['UPDATE_FIRMWARE'], 'true'))
+
+    - task: PowerShell@2
+      displayName: 'Download ADK 1809 from MSDN'
+      inputs:
+        targetType: 'inline'
+        script: |
+          $url = "https://go.microsoft.com/fwlink/?linkid=2026036"
+          $output = "adksetup.exe"
+          $start_time = Get-Date
+          Invoke-WebRequest -Uri $url -OutFile $(Build.SourcesDirectory)/$output
+          Write-Output "Time taken: $((Get-Date).Subtract($start_time).Seconds) second(s)"
+
+    - task: PowerShell@2
+      displayName: 'Install ADK 1809'
+      inputs:
+        targetType: 'inline'
+        script: 'Start-Process .\adksetup.exe -ArgumentList "/quiet" -wait' 
+
+    - task: DownloadBuildArtifacts@0
+      inputs:
+        buildType: 'specific'
+        project: 'a0a9e539-5c45-490f-83c8-289a6ed8234e'
+        pipeline: '41039'
+        buildVersionToDownload: 'specific'
+        buildId: 16732832
+        downloadType: 'single'
+        artifactName: 'BuildCollaterals'
+        specificBuildWithTriggering: true
+        downloadPath: '$(System.ArtifactsDirectory)'
+
+    - task: PowerShell@2
+      displayName: 'Install $(Arch) IoT Core Packages'
+      inputs:
+        targetType: 'inline'
+        script: |
+          $msiPath = "$(System.ArtifactsDirectory)\BuildCollaterals\Windows_10_IoT_Core_$(Arch)_Packages.msi"
+          dir $msiPath
+          Start-Process msiexec.exe -ArgumentList @("/i $msiPath", "/quiet", "/qn", "/L*V `"$(Build.SourcesDirectory)\msi.log`"") -wait
+
+    - task: PowerShell@2
+      displayName: 'Verify Kit Installation'
+      inputs:
+        targetType: 'inline'
+        script: |
+          dir "C:\Program Files (x86)\Windows Kits\10\MSPackages\retail\$(Arch)\fre"
+          dir "C:\Program Files (x86)\Windows Kits\10\Assessment and Deployment Kit"
+
+    - task: PowerShell@2
+      displayName: 'Install Test Certificates'
+      inputs:
+        targetType: 'inline'
+        script: |
+          dir $(Build.SourcesDirectory)
+          cmd.exe /c '$(Build.SourcesDirectory)\build\tools\SetupCertificate.bat'
+
+    - script: |
+        git submodule init
+        git submodule update
+      displayName: 'Download submodules'
+
+    - task: PowerShell@2
+      inputs:
+        targetType: 'inline'
+        script: |
+          $batfile = 
+          @"
+          set BATCH_HOME=%~dp0
+          call ..\..\..\tools\SetupBuildEnv.bat
+          cd /d %BATCH_HOME%
+          call BuildImage $(Target) $(Target)_TestOEMInput.xml
+          "@
+          $batfile | Out-File -FilePath $(Build.SourcesDirectory)\build\solution\iMXPlatform\GenerateTestFFU\GenerateFFU.bat -Encoding ascii
+
+    - script: |
+        cat $(Build.SourcesDirectory)\build\solution\iMXPlatform\GenerateTestFFU\GenerateFFU.bat
+
+    - task: VSBuild@1
+      inputs:
+        solution: '**\*.sln'
+        vsVersion: '15.0'
+        platform: '$(Arch)'
+        configuration: 'Release'
+        createLogFile: true
+        logFileVerbosity: 'diagnostic'
+
+    - task: PublishSymbols@2
+      inputs:
+        symbolsFolder: '$(Build.SourcesDirectory)\build\solution\iMXPlatform'
+        SearchPattern: '**\*.pdb'
+        IndexSources: true
+        PublishSymbols: true
+        SymbolServerType: 'TeamServices'
+
+    - task: CopyFiles@2
+      inputs:
+        contents: '$(Build.SourcesDirectory)\**\*.ffu'
+        targetFolder: $(Build.ArtifactStagingDirectory)\Release
+        flattenFolders: true
+
+    - task: PowerShell@2
+      displayName: 'Check Artifact Directory'
+      inputs:
+        targetType: 'inline'
+        script: |
+          dir $(Build.ArtifactStagingDirectory)
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+        pathtoPublish: $(Build.ArtifactStagingDirectory)\Release
+        artifactName: $(Target)_ReleaseFFU

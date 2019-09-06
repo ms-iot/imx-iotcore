@@ -3,6 +3,7 @@ SHELL = bash
 .SHELLFLAGS = -ec
 
 CROSS_COMPILE ?=$(HOME)/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
+PYTHON3?=python3
 ARCH=arm64
 VERSIONS=firmwareversions.log
 
@@ -68,8 +69,8 @@ imx8_tas:
 	popd
 	cp $(IMX8_REPO_ROOT)/MSRSec/TAs/optee_ta/out/AuthVars/2d57c0f7-bddf-48ea-832f-d84a1a219301.ta  $(IMX8_REPO_ROOT)/mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/AuthvarsTa/Arm64/Test/
 	cp $(IMX8_REPO_ROOT)/MSRSec/TAs/optee_ta/out/AuthVars/2d57c0f7-bddf-48ea-832f-d84a1a219301.elf $(IMX8_REPO_ROOT)/mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/AuthvarsTa/Arm64/Test/
-	cp $(IMX8_REPO_ROOT)/MSRSec/TAs/optee_ta/out/fTPM/bc50d971-d4c9-42c4-82cb-343fb7f37896.ta $(IMX8_REPO_ROOT)/mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/fTpmTa/Arm64/Test/
-	cp $(IMX8_REPO_ROOT)/MSRSec/TAs/optee_ta/out/fTPM/bc50d971-d4c9-42c4-82cb-343fb7f37896.elf $(IMX8_REPO_ROOT)/mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/fTpmTa/Arm64/Test/
+	cp $(IMX8_REPO_ROOT)/MSRSec/TAs/optee_ta/out/fTPM/53bab89c-b864-4d7e-acbc-33c07a9c1b8d.ta $(IMX8_REPO_ROOT)/mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/fTpmTa/Arm64/Test/
+	cp $(IMX8_REPO_ROOT)/MSRSec/TAs/optee_ta/out/fTPM/53bab89c-b864-4d7e-acbc-33c07a9c1b8d.elf $(IMX8_REPO_ROOT)/mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/fTpmTa/Arm64/Test/
 
 IMX8_MKIMAGE_DEPS_DDR=$(wildcard $(IMX8_REPO_ROOT)/firmware-imx-8.1/firmware/ddr/synopsys/lpddr4_pmu_train_*.bin)
 IMX8_MKIMAGE_DEPS_HDMI=$(wildcard $(IMX8_REPO_ROOT)/firmware-imx-8.1/firmware/hdmi/cadence/signed_hdmi_imx8m.bin)
@@ -95,18 +96,18 @@ imx8_uefi: imx8_u-boot imx8_tas its/uefi_imx8_unsigned.its
 	export GCC5_AARCH64_PREFIX=$(CROSS_COMPILE)
 	
 	cd $(IMX8_REPO_ROOT)/mu_platform_nxp
-	pip3 install -r requirements.txt --upgrade
-	python3 NXP/$(EDK2_PLATFORM)/PlatformBuild.py --setup
+	$(PYTHON3) -m pip install -r requirements.txt --upgrade
+	$(PYTHON3) NXP/$(EDK2_PLATFORM)/PlatformBuild.py --setup
 
 	cd MU_BASECORE
 	$(MAKE) -C BaseTools 
 	cd ..
 	
-	python3 NXP/$(EDK2_PLATFORM)/PlatformBuild.py -V TARGET=RELEASE \
+	$(PYTHON3) NXP/$(EDK2_PLATFORM)/PlatformBuild.py -V TARGET=RELEASE \
      PROFILE=DEV MAX_CONCURRENT_THREAD_NUMBER=20
 	
 	cd Build/$(EDK2_PLATFORM)/RELEASE_GCC5/FV
-	cp $(IMX8_REPO_ROOT)/imx-iotcore/build/firmware/its/uefi_imx8_unsigned.its .
+	cp $(CURDIR)/its/uefi_imx8_unsigned.its .
 	$(IMX8_REPO_ROOT)/u-boot/tools/mkimage -f uefi_imx8_unsigned.its -r uefi.fit
 
 imx8_build: imx8_uefi imx8_mkimage
@@ -134,11 +135,11 @@ $(VERSIONS):
 	popd; )
 
 imx8_update-ffu: imx8_build $(VERSIONS)
-	cp $(VERSIONS) $(IMX8_REPO_ROOT)/imx-iotcore/build/board/$(IMX8_TARGET)/Package/BootLoader/
-	cp $(IMX8_REPO_ROOT)/imx-mkimage/iMX8M/flash.bin $(IMX8_REPO_ROOT)/imx-iotcore/build/board/$(IMX8_TARGET)/Package/BootLoader/flash.bin
-	cp $(IMX8_REPO_ROOT)/mu_platform_nxp/Build/$(EDK2_PLATFORM)/RELEASE_GCC5/FV/uefi.fit $(IMX8_REPO_ROOT)/imx-iotcore/build/board/$(IMX8_TARGET)/Package/BootFirmware/uefi.fit
+	cp $(VERSIONS) $(CURDIR)/../board/$(IMX8_TARGET)/Package/BootLoader/
+	cp $(IMX8_REPO_ROOT)/imx-mkimage/iMX8M/flash.bin $(CURDIR)/../board/$(IMX8_TARGET)/Package/BootLoader/flash.bin
+	cp $(IMX8_REPO_ROOT)/mu_platform_nxp/Build/$(EDK2_PLATFORM)/RELEASE_GCC5/FV/uefi.fit $(CURDIR)/../board/$(IMX8_TARGET)/Package/BootFirmware/uefi.fit
 
 imx8_commit-firmware: imx8_update-ffu
-	git add $(IMX8_REPO_ROOT)/imx-iotcore/build/board/$(IMX8_TARGET)/Package/BootLoader
-	git add $(IMX8_REPO_ROOT)/imx-iotcore/build/board/$(IMX8_TARGET)/Package/BootFirmware
+	git add $(CURDIR)/../board/$(IMX8_TARGET)/Package/BootLoader
+	git add $(CURDIR)/../board/$(IMX8_TARGET)/Package/BootFirmware
 	@echo "Successfully copied files to package and staged for commit"
