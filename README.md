@@ -9,7 +9,8 @@ Windows 10 IoT Core for NXP i.MX Processors
 | EDK2 Firmware | [![Build Status](https://microsoft.visualstudio.com/IOT/_apis/build/status/NXP/NXP-EDK2%20Firmware%20CI?branchName=imx)](https://microsoft.visualstudio.com/IOT/_build/latest?definitionId=38657&branchName=imx)|
 | MU Firmware | [![Build Status](https://dev.azure.com/microsoft/IOT/_apis/build/status/NXP/NXP-MU%20CI?branchName=master)](https://dev.azure.com/microsoft/IOT/_build/latest?definitionId=42775&branchName=master) |
 | All Firmware | [![Build Status](https://dev.azure.com/microsoft/IOT/_apis/build/status/NXP/Firmware%20CI?branchName=public_preview)](https://dev.azure.com/microsoft/IOT/_build/latest?definitionId=38649&branchName=public_preview)|
-| FFU | [![Build Status](https://microsoft.visualstudio.com/IOT/_apis/build/status/NXP/NXP-BuildFFU?branchName=public_preview)](https://microsoft.visualstudio.com/IOT/_build/latest?definitionId=41026&branchName=public_preview) |
+| Latest Firmware FFU | [![Build Status](https://microsoft.visualstudio.com/IOT/_apis/build/status/NXP/NXP-Latest%20Firmware%20FFU?branchName=public_preview)](https://microsoft.visualstudio.com/IOT/_build/latest?definitionId=43820&branchName=public_preview) |
+| Stable FFU | [![Build Status](https://microsoft.visualstudio.com/IOT/_apis/build/status/NXP/NXP-BuildFFU?branchName=public_preview)](https://microsoft.visualstudio.com/IOT/_build/latest?definitionId=41026&branchName=public_preview) |
 
 
 **Important! Please read this section first.**
