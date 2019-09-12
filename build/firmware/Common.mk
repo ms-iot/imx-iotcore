@@ -278,8 +278,8 @@ ftpm: optee
 	exit 1 ; \
 	fi
 	$(MAKE) -C $(TA_ROOT) TA_CPU=cortex-a9 O=$(FTPM_OUT) $(FTPM_FLAGS) ftpm
-	cp -f $(FTPM_OUT)/53bab89c-b864-4d7e-acbc-33c07a9c1b8d.elf $(FTPM_BIN_PLACE)
-	cp -f $(FTPM_OUT)/53bab89c-b864-4d7e-acbc-33c07a9c1b8d.ta $(FTPM_BIN_PLACE)
+	cp -f $(FTPM_OUT)/bc50d971-d4c9-42c4-82cb-343fb7f37896.elf $(FTPM_BIN_PLACE)
+	cp -f $(FTPM_OUT)/bc50d971-d4c9-42c4-82cb-343fb7f37896.ta $(FTPM_BIN_PLACE)
 
 authvars: optee
 	@if [ ! -d $(TA_ROOT) ] ; \
