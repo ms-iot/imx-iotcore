@@ -52,6 +52,7 @@
   <Feature>IOT_ENABLE_TESTSIGNING</Feature>
   <Feature>IOT_UMDFDBG_SETTINGS</Feature>
   <Feature>IOT_NANORDPSERVER</Feature>
+  <Feature>IOT_CONTAINERS</Feature>
 </Microsoft>
 <OEM>
   <Feature>IMX_DRIVERS</Feature>
