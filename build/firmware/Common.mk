@@ -384,7 +384,7 @@ $(OPTEE): verify_case_sensitivity_$(OPTEE_OUT)
 verify_case_sensitivity: verify_case_sensitivity_$(UBOOT_OUT) verify_case_sensitivity_$(OPTEE_OUT)
 CASE_DIR=$(subst verify_case_sensitivity_,,$@)
 CASE_DIR_WIN=$(shell wslpath -m $(CASE_DIR))
-CASE_WSL_MNT=$(UBOOT_OUT:/mnt/%=) # Need to statically check this, rather than use $@
+CASE_WSL_MNT=$(UBOOT_OUT:/mnt/%=)# Need to statically check this, rather than use $@
 CASE_SENSITIVITY_CMD=fsutil.exe file queryCaseSensitiveInfo $(CASE_DIR_WIN) | grep -o
 MOUNT_BASE_DIRECTORY=$(shell echo $(CASE_DIR) | cut -d "/" -f1-3)
 MOUNT_CASE_SENSITIVITY_CMD=mount | grep "$(MOUNT_BASE_DIRECTORY)" | grep -o
