@@ -472,7 +472,7 @@ stages:
     - task: CopyFiles@2
       inputs:
         contents: '$(Build.SourcesDirectory)\**\*.ffu'
-        targetFolder: $(Build.ArtifactStagingDirectory)\Release
+        targetFolder: $(Build.ArtifactStagingDirectory)\FFU
         flattenFolders: true
 
     - task: PowerShell@2
@@ -484,5 +484,20 @@ stages:
 
     - task: PublishBuildArtifacts@1
       inputs:
-        pathtoPublish: $(Build.ArtifactStagingDirectory)\Release
+        pathtoPublish: $(Build.ArtifactStagingDirectory)\FFU
         artifactName: $(Target)_ReleaseFFU
+      displayName: Publish FFU
+
+    - task: CopyFiles@2
+      inputs:
+        contents: '$(Build.SourcesDirectory)\**\*.cab'
+        targetFolder: $(Build.ArtifactStagingDirectory)\cabs
+        flattenFolders: false
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+        pathtoPublish: $(Build.ArtifactStagingDirectory)\cabs
+        artifactName: ReleaseCabs
+      displayName: Publish Cabs
+
+
