@@ -490,8 +490,8 @@ stages:
 
     - task: CopyFiles@2
       inputs:
-        contents: '$(Build.SourcesDirectory)\**\*.cab'
-        targetFolder: $(Build.ArtifactStagingDirectory)\cabs
+        contents: '$(Build.SourcesDirectory)\build\solution\iMXPlatform\Build\FFU\bspcabs\**\*.cab'
+        targetFolder: $(Build.ArtifactStagingDirectory)\cabs\$(Target)_cabs
         flattenFolders: false
 
     - task: PublishBuildArtifacts@1
