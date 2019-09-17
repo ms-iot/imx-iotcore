@@ -20,7 +20,7 @@ This is an overview of the currently supported features for each of the boards. 
 | SDHC     | Y   | Y   | Y   | Y   | Y   | Y   | Y   | Y   | Y   | Y   | Y   |
 | SPI      | Y   | Y   | Y   | Y   | Y   | Y   | Y   | Y   | N   | N   | Y   |
 | Display  | Y   | Y   | Y   | Y   | Y   | Y   | N   | Y   | N   | Y   | Y   |
-| UART     | Y (w/DMA)   | Y (w/DMA)   | Y   | Y   | Y   | Y   | Y   | Y   | N   | N   | N   |
+| UART     | Y (w/DMA)   | Y (w/DMA)   | Y   | Y   | Y   | Y   | Y   | Y   | N   | N   | Y   |
 | USB      | Y   | Y   | Y   | Y   | Y   | Y   | Y   | Y   | N   | Y   | Y   |
 | PCIe     | Y   | Y   | Y   | N   | Y   | N   | N   | N   | N   | N   | N   |
 | TrEE     | Y   | Y   | Y   | N   | Y   | N   | N   | Y   | N   | Y   | N   |
