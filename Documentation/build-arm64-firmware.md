@@ -52,8 +52,7 @@ Note: The UEFI build environment has changed for 1903 and any existing build env
 1) Download and extract the [iMX firmware](https://www.nxp.com/lgfiles/NMG/MAD/YOCTO/firmware-imx-7.9.bin) from NXP's website. This retrieves a self extracting shell script that provides HDMI firmware and DDR training firmware. 
     ```bash
     wget https://www.nxp.com/lgfiles/NMG/MAD/YOCTO/firmware-imx-8.1.bin
-    chmod +x firmware-imx-8.1.bin
-    ./firmware-imx-8.1.bin
+    bash ./firmware-imx-8.1.bin
     ````
 
 1) At this point your directory structure should look like the following
@@ -94,7 +93,7 @@ Note: The UEFI build environment has changed for 1903 and any existing build env
     make imx8_commit-firmware
     ```
 
-1) Manually build the firmware to test the setup. Adding "-j 20" to make will parallelize the build and speed it up significantly on WSL, but since the firmwares build in parallel it will be more difficult to diagnose any build failures. You can customize the number to work best with your system.
+1) Build the iMX8M EVK firmware. Adding "-j 20" to make will parallelize the build and speed it up significantly on WSL, but since the firmwares build in parallel it will be more difficult to diagnose any build failures. You can customize the number to work best with your system.
 
     ```bash
    # U-Boot
@@ -128,14 +127,14 @@ Note: The UEFI build environment has changed for 1903 and any existing build env
    make PLATFORM=imx PLATFORM_FLAVOR=mx8mqevk \
      CFG_TEE_CORE_DEBUG=n CFG_TEE_CORE_LOG_LEVEL=2  CFG_UART_BASE=0x30890000 \
      CFG_RPMB_FS=y CFG_RPMB_TESTKEY=y CFG_RPMB_WRITE_KEY=y CFG_REE_FS=n  \
-     CFG_IMXCRYPT=y CFG_CORE_HEAP_SIZE=98304
+     CFG_IMXCRYPT=y CFG_CORE_HEAP_SIZE=131072
 
    # debug
    # make PLATFORM=imx PLATFORM_FLAVOR=mx8mqevk \
    #  CFG_TEE_CORE_DEBUG=y CFG_TEE_CORE_LOG_LEVEL=3  CFG_UART_BASE=0x30890000 \
    #  CFG_RPMB_FS=y CFG_RPMB_TESTKEY=y CFG_RPMB_WRITE_KEY=y CFG_REE_FS=n \
    #  CFG_TA_DEBUG=y CFG_TEE_CORE_TA_TRACE=1 CFG_TEE_TA_LOG_LEVEL=2 \
-   #  CFG_IMXCRYPT=y CFG_CORE_HEAP_SIZE=98304
+   #  CFG_IMXCRYPT=y CFG_CORE_HEAP_SIZE=131072
 
    ${CROSS_COMPILE64}objcopy -O binary ./out/arm-plat-imx/core/tee.elf ./out/arm-plat-imx/tee.bin
    popd
@@ -242,6 +241,157 @@ Note: The UEFI build environment has changed for 1903 and any existing build env
     ```bash
     cp imx-mkimage/iMX8M/flash.bin imx-iotcore/build/board/NXPEVK_iMX8M_4GB/Package/BootLoader/flash.bin
     cp mu_platform_nxp/Build/MCIMX8M_EVK_4GB/RELEASE_GCC5/FV/uefi.fit imx-iotcore/build/board/NXPEVK_iMX8M_4GB/Package/BootFirmware/uefi.fit
+    ```
+
+
+# Building firmware for iMX8M Mini EVK board
+1) Build the iMX8M Mini EVK firmware. Adding "-j 20" to make will parallelize the build and speed it up significantly on WSL, but since the firmwares build in parallel it will be more difficult to diagnose any build failures. You can customize the number to work best with your system.
+
+    ```bash
+   # U-Boot
+   setfattr -n system.wsl_case_sensitive -v 1 u-boot
+
+   export CROSS_COMPILE=~/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
+   export ARCH=arm64
+
+   pushd u-boot
+   make imx8mm_evk_nt_defconfig
+   make
+   popd
+
+
+   # Arm Trusted Firmware
+
+   export CROSS_COMPILE=~/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
+   export ARCH=arm64
+
+   pushd imx-atf
+   make PLAT=imx8mm SPD=opteed bl31
+   popd
+
+   # OP-TEE OS
+
+   export -n CROSS_COMPILE
+   export -n ARCH
+   export CROSS_COMPILE64=~/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
+   pushd optee_os
+
+   make PLATFORM=imx PLATFORM_FLAVOR=mx8mmevk \
+     CFG_TEE_CORE_DEBUG=n CFG_TEE_CORE_LOG_LEVEL=2 \
+     CFG_RPMB_FS=y CFG_RPMB_TESTKEY=y CFG_RPMB_WRITE_KEY=y CFG_REE_FS=n  \
+     CFG_IMXCRYPT=y CFG_CORE_HEAP_SIZE=131072
+
+   # debug
+   # make PLATFORM=imx PLATFORM_FLAVOR=mx8mmevk \
+   #  CFG_TEE_CORE_DEBUG=y CFG_TEE_CORE_LOG_LEVEL=3 \
+   #  CFG_RPMB_FS=y CFG_RPMB_TESTKEY=y CFG_RPMB_WRITE_KEY=y CFG_REE_FS=n \
+   #  CFG_TA_DEBUG=y CFG_TEE_CORE_TA_TRACE=1 CFG_TEE_TA_LOG_LEVEL=2 \
+   #  CFG_IMXCRYPT=y CFG_CORE_HEAP_SIZE=131072
+
+   ${CROSS_COMPILE64}objcopy -O binary ./out/arm-plat-imx/core/tee.elf ./out/arm-plat-imx/tee.bin
+   popd
+
+   # OP-TEE Trusted Applications
+
+   export TA_DEV_KIT_DIR=../../../../optee_os/out/arm-plat-imx/export-ta_arm64
+   export TA_CROSS_COMPILE=~/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
+   export TA_CPU=cortex-a53
+
+   pushd MSRSec/TAs/optee_ta
+   make CFG_ARM64_ta_arm64=y CFG_FTPM_USE_WOLF=y CFG_AUTHVARS_USE_WOLF=y
+
+   # debug
+   # CFG_TEE_TA_LOG_LEVEL=4 CFG_TA_DEBUG=y make
+
+   popd
+
+   cp MSRSec/TAs/optee_ta/out/AuthVars/2d57c0f7-bddf-48ea-832f-d84a1a219301.ta  mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/AuthvarsTa/Arm64/Test/
+   cp MSRSec/TAs/optee_ta/out/AuthVars/2d57c0f7-bddf-48ea-832f-d84a1a219301.elf mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/AuthvarsTa/Arm64/Test/
+
+   cp MSRSec/TAs/optee_ta/out/fTPM/53bab89c-b864-4d7e-acbc-33c07a9c1b8d.ta mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/fTpmTa/Arm64/Test/
+   cp MSRSec/TAs/optee_ta/out/fTPM/53bab89c-b864-4d7e-acbc-33c07a9c1b8d.elf mu_platform_nxp/Microsoft/OpteeClientPkg/Bin/fTpmTa/Arm64/Test/
+
+
+   # Imx-mkimage
+
+   export CROSS_COMPILE=~/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
+   export ARCH=arm64
+
+   pushd imx-mkimage/iMX8M
+
+   cp ../../firmware-imx-8.1/firmware/ddr/synopsys/lpddr4_pmu_train_*.bin .
+   cp ../../optee_os/out/arm-plat-imx/tee.bin .
+   cp ../../imx-atf/build/imx8mm/release/bl31.bin .
+   cp ../../u-boot/u-boot-nodtb.bin  .
+   cp ../../u-boot/spl/u-boot-spl.bin .
+   cp ../../u-boot/arch/arm/dts/fsl-imx8mm-evk.dtb .
+   cp ../../u-boot/tools/mkimage .
+
+   mv mkimage mkimage_uboot
+
+   cd ..
+   make SOC=iMX8MM flash_spl_uboot
+
+   popd
+
+   # UEFI
+   # note: On Windows Ubuntu, ignore Python errors during build specifically like 
+   # "ERROR - Please upgrade Python! Current version is 3.6.7. Recommended minimum is 3.7."
+
+   # setup
+   pushd mu_platform_nxp
+   export GCC5_AARCH64_PREFIX=~/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
+   pip3 install -r requirements.txt --upgrade
+
+   python3 NXP/MCIMX8M_MINI_EVK_2GB/PlatformBuild.py --setup
+   # if error here about NugetDependency.global_cache_path, then make sure mono-devel package is installed
+   # using apt-get as listed in "Update and install build tools" above.
+
+   cd MU_BASECORE
+   make -C BaseTools
+   cd ..
+
+   popd
+
+   # clean
+   pushd mu_platform_nxp
+   rm -r Build
+   rm -r Config
+   popd
+
+   # build
+   pushd mu_platform_nxp
+
+
+   export GCC5_AARCH64_PREFIX=~/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
+
+   python3 NXP/MCIMX8M_MINI_EVK_2GB/PlatformBuild.py -V TARGET=RELEASE \
+     PROFILE=DEV MAX_CONCURRENT_THREAD_NUMBER=20
+
+   # debug
+   # python3 NXP/MCIMX8M_MINI_EVK_2GB/PlatformBuild.py -V TARGET=DEBUG \
+   #   PROFILE=DEV MAX_CONCURRENT_THREAD_NUMBER=20
+
+   cd Build/MCIMX8M_MINI_EVK_2GB/RELEASE_GCC5/FV
+   cp ../../../../../imx-iotcore/build/firmware/its/uefi_imx8_unsigned.its .
+   ../../../../../u-boot/tools/mkimage -f uefi_imx8_unsigned.its -r uefi.fit
+
+   popd
+    ```
+    
+1) After a successful build you should have several output files:
+    ```bash
+    imx-mkimage/iMX8M/flash.bin - Contains SPL, ATF, OP-TEE, and U-Boot proper
+    mu_platform_nxp/Build/MCIMX8M_MINI_EVK_2GB/RELEASE_GCC5/FV/uefi.fit - Contains the UEFI firmware
+    ```
+
+## Adding updated firmware to your ARM64 FFU
+1) To make the updated firmware a part of your FFU build, you must copy the firmwares to your board's Package folder in imx-iotcore.
+ * Copy uefi.fit into /board/boardname/Package/BootFirmware
+ * Copy flash.bin into /board/boardname/Package/BootLoader
+    ```bash
+    cp imx-mkimage/iMX8M/flash.bin imx-iotcore/build/board/NXPEVK_iMX8M_MINI_2GB/Package/BootLoader/flash.bin
+    cp mu_platform_nxp/Build/MCIMX8M_MINI_EVK_2GB/RELEASE_GCC5/FV/uefi.fit imx-iotcore/build/board/NXPEVK_iMX8M_MINI_2GB/Package/BootFirmware/uefi.fit
     ```
 
 ## Deploying firmware to an SD card manually
