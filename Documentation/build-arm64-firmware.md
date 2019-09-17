@@ -93,11 +93,14 @@ Note: The UEFI build environment has changed for 1903 and any existing build env
     make imx8_commit-firmware
     ```
 
-1) Build the iMX8M EVK firmware. Adding "-j 20" to make will parallelize the build and speed it up significantly on WSL, but since the firmwares build in parallel it will be more difficult to diagnose any build failures. You can customize the number to work best with your system.
-
-    ```bash
-   # U-Boot
+# Manually building firmware for iMX8M Quad EVK
+1) Ensure that case sensitivity is turned on for the u-boot directory when building in Windows. Perform the follow operation on the u-boot directory while running an elevated WSL shell:
+   ```bash
    setfattr -n system.wsl_case_sensitive -v 1 u-boot
+   ```
+1) Build the iMX8M EVK firmware. Adding "-j 20" to make will parallelize the build and speed it up significantly on WSL, but since the firmware build in parallel it will be more difficult to diagnose any build failures. You can customize the number to work best with your system.
+   ```bash
+   # U-Boot
 
    export CROSS_COMPILE=~/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
    export ARCH=arm64
@@ -245,7 +248,7 @@ Note: The UEFI build environment has changed for 1903 and any existing build env
 
 
 # Building firmware for iMX8M Mini EVK board
-1) Build the iMX8M Mini EVK firmware. Adding "-j 20" to make will parallelize the build and speed it up significantly on WSL, but since the firmwares build in parallel it will be more difficult to diagnose any build failures. You can customize the number to work best with your system.
+1) Building the iMX8M Mini EVK firmware is similar to the above iMX8M Quad EVK board with only a few minor changes to build parameters. Be careful to make sure you are building for the correct board.  Follow the instructions above for the iMX8M Quad EVK to setup and clone your build environment.
 
     ```bash
    # U-Boot
