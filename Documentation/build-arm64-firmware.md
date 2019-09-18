@@ -42,6 +42,11 @@ Note: The UEFI build environment has changed for 1903 and any existing build env
     git clone https://github.com/Microsoft/MSRSec
     ```
 
+1) Ensure that case sensitivity is turned on for the u-boot directory when building in Windows.
+   ```bash
+   setfattr -n system.wsl_case_sensitive -v 1 u-boot
+   ```
+
 1) Download and extract the [Code Signing Tools (CST)](https://www.nxp.com/webapp/sps/download/license.jsp?colCode=IMX_CST_TOOL) from NXP's website. You will need to create an account on NXP's website to access this tool. Extract the tool to the same directory as all the above repositories, and rename the folder to cst:
     ```bash
     tar xf cst-3.1.0.tgz
@@ -94,10 +99,6 @@ Note: The UEFI build environment has changed for 1903 and any existing build env
     ```
 
 # Manually building firmware for iMX8M Quad EVK
-1) Ensure that case sensitivity is turned on for the u-boot directory when building in Windows. Perform the follow operation on the u-boot directory while running an elevated WSL shell:
-   ```bash
-   setfattr -n system.wsl_case_sensitive -v 1 u-boot
-   ```
 1) Build the iMX8M EVK firmware. Adding "-j 20" to make will parallelize the build and speed it up significantly on WSL, but since the firmware build in parallel it will be more difficult to diagnose any build failures. You can customize the number to work best with your system.
    ```bash
    # U-Boot
