@@ -101,7 +101,6 @@ Note: The UEFI build environment has changed for 1903 and any existing build env
 1) Build the iMX8M EVK firmware. Adding "-j 20" to make will parallelize the build and speed it up significantly on WSL, but since the firmware build in parallel it will be more difficult to diagnose any build failures. You can customize the number to work best with your system.
    ```bash
    # U-Boot
-
    export CROSS_COMPILE=~/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
    export ARCH=arm64
 
@@ -252,8 +251,6 @@ Note: The UEFI build environment has changed for 1903 and any existing build env
 
     ```bash
    # U-Boot
-   setfattr -n system.wsl_case_sensitive -v 1 u-boot
-
    export CROSS_COMPILE=~/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
    export ARCH=arm64
 
