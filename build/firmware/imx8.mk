@@ -7,10 +7,6 @@ PYTHON3?=python3
 ARCH=arm64
 VERSIONS=firmwareversions.log
 
-ifeq (,$(IMX8_TARGET))
-$(error IMX8_TARGET not set)
-endif
-
 ifeq ($(IMX8_TARGET),NXPEVK_iMX8M_4GB)
 U_BOOT_CONFIG=imx8mq_evk_nt_defconfig
 U_BOOT_DTS=fsl-imx8mq-evk
@@ -27,6 +23,10 @@ U_BOOT_SOC=iMX8MM
 ATF_CONFIG=imx8mm
 EDK2_PLATFORM=MCIMX8M_MINI_EVK_2GB
 OPTEE_PLATFORM=mx8mmevk
+endif
+
+ifeq (,$(IMX8_TARGET))
+$(error IMX8_TARGET not set)
 endif
 
 IMX8_REPO_ROOT?=$(abspath ../../../)
@@ -50,16 +50,27 @@ imx8_atf:
 	
 imx8_optee:
 	cd $(IMX8_REPO_ROOT)/optee_os
+ifeq ($(IMX8_TARGET),NXPEVK_iMX8M_4GB)
 	$(MAKE) PLATFORM=imx PLATFORM_FLAVOR=$(OPTEE_PLATFORM) \
      CFG_TEE_CORE_DEBUG=n CFG_TEE_CORE_LOG_LEVEL=2  CFG_UART_BASE=0x30890000 \
      CFG_RPMB_FS=y CFG_RPMB_TESTKEY=y CFG_RPMB_WRITE_KEY=y CFG_REE_FS=n  \
-     CFG_IMXCRYPT=y CFG_CORE_HEAP_SIZE=98304 \
+     CFG_IMXCRYPT=y CFG_CORE_HEAP_SIZE=131072 \
 	 CROSS_COMPILE64=$(CROSS_COMPILE) \
 	 CROSS_COMPILE= \
+
+else
+	$(MAKE) PLATFORM=imx PLATFORM_FLAVOR=$(OPTEE_PLATFORM) \
+     CFG_TEE_CORE_DEBUG=n CFG_TEE_CORE_LOG_LEVEL=2 \
+     CFG_RPMB_FS=y CFG_RPMB_TESTKEY=y CFG_RPMB_WRITE_KEY=y CFG_REE_FS=n  \
+     CFG_IMXCRYPT=y CFG_CORE_HEAP_SIZE=131072 \
+	 CROSS_COMPILE64=$(CROSS_COMPILE) \
+	 CROSS_COMPILE= \
+
+endif
 	 
 	$(CROSS_COMPILE)objcopy -O binary ./out/arm-plat-imx/core/tee.elf ./out/arm-plat-imx/tee.bin
 	
-imx8_tas:
+imx8_tas: imx8_optee
 	pushd $(IMX8_REPO_ROOT)/MSRSec/TAs/optee_ta
 	$(MAKE) -j1 CFG_ARM64_ta_arm64=y CFG_FTPM_USE_WOLF=y CFG_AUTHVARS_USE_WOLF=y CFG_TEE_TA_LOG_LEVEL=4 CFG_TA_DEBUG=y \
 	TA_DEV_KIT_DIR=../../../../optee_os/out/arm-plat-imx/export-ta_arm64 \
@@ -77,10 +88,14 @@ IMX8_MKIMAGE_DEPS_HDMI=$(wildcard $(IMX8_REPO_ROOT)/firmware-imx-8.1/firmware/hd
 IMX8_MKIMAGE_DEPS_OPTEE=$(IMX8_REPO_ROOT)/optee_os/out/arm-plat-imx/tee.bin
 IMX8_MKIMAGE_DEPS_ATF=$(IMX8_REPO_ROOT)/imx-atf/build/$(ATF_CONFIG)/release/bl31.bin
 IMX8_MKIMAGE_DEPS_U-BOOT=$(IMX8_REPO_ROOT)/u-boot/u-boot-nodtb.bin $(IMX8_REPO_ROOT)/u-boot/spl/u-boot-spl.bin $(IMX8_REPO_ROOT)/u-boot/arch/arm/dts/$(U_BOOT_DTS).dtb $(IMX8_REPO_ROOT)/u-boot/tools/mkimage
+
 imx8_mkimage: imx8_optee imx8_u-boot imx8_atf $(IMX8_MKIMAGE_DEPS_DDR) $(IMX8_MKIMAGE_DEPS_HDMI)
 	cd $(IMX8_REPO_ROOT)/imx-mkimage/iMX8M
+	rm *.bin *.dtb
 	cp $(IMX8_MKIMAGE_DEPS_DDR) .
+ifeq ($(IMX8_TARGET),NXPEVK_iMX8M_4GB)
 	cp $(IMX8_MKIMAGE_DEPS_HDMI) .
+endif
 	cp $(IMX8_MKIMAGE_DEPS_OPTEE) .
 	cp $(IMX8_MKIMAGE_DEPS_ATF) .
 	cp $(IMX8_MKIMAGE_DEPS_U-BOOT) .
