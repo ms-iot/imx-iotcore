@@ -91,7 +91,7 @@ IMX8_MKIMAGE_DEPS_U-BOOT=$(IMX8_REPO_ROOT)/u-boot/u-boot-nodtb.bin $(IMX8_REPO_R
 
 imx8_mkimage: imx8_optee imx8_u-boot imx8_atf $(IMX8_MKIMAGE_DEPS_DDR) $(IMX8_MKIMAGE_DEPS_HDMI)
 	cd $(IMX8_REPO_ROOT)/imx-mkimage/iMX8M
-	rm *.bin *.dtb
+	rm -f *.bin *.dtb
 	cp $(IMX8_MKIMAGE_DEPS_DDR) .
 ifeq ($(IMX8_TARGET),NXPEVK_iMX8M_4GB)
 	cp $(IMX8_MKIMAGE_DEPS_HDMI) .
