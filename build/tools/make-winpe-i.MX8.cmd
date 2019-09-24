@@ -19,6 +19,7 @@ set SCRIPT_DIR=%~dp0
  if /I "%~1" == "/uefi" set UEFI_PATH=%2& shift
  if /I "%~1" == "/ffu" set FFU_PATH=%2& shift
  if /I "%~1" == "/ffudisk" set FFU_DISK_NUM=%2& shift
+ if /I "%~1" == "/winpedrive" set WINPE_DRIVE_LETTER=%2& shift
  if /I "%~1" == "/apply" set DISK_NUM=%2& shift
  if /I "%~1" == "/clean" set CLEAN=1
  shift
@@ -188,22 +189,24 @@ exit /b 0
 
 :USAGE
     echo make-winpe.cmd /builddir build_dir /firmware firmware_fit_path
-    echo   /uefi uefi_fit_path [/ffu ffu_path] [/ffudisk ffu_disk_number]
+    echo   /uefi uefi_fit_path [/ffu ffu_path] [/ffudisk ffu_disk_number] [/winpedrive winpe_drive_letter]
     echo make-winpe.cmd /apply disk_number
     echo make-winpe.cmd /clean
     echo.
     echo Creates a WinPE image for i.MX
     echo Options:
     echo.
-    echo    /builddir build_dir          Path to build output directory.
-    echo    /firmware firmware_fit_path  Path to flash.bin
-    echo    /uefi uefi_fit_path          Path to uefi.fit
-    echo    /ffu ffu_path                Optionally specify an FFU to flash
-    echo    /ffudisk ffu_disk_number     Optionally specify the physical disk
-    echo                                 number to which the FFU is applied.
-    echo                                 Defaults to 0.
-    echo    /apply disk_number           Apply WinPE image to physical disk
-    echo    /clean                       Clean up artifacts from a previous run.
+    echo    /builddir build_dir              Path to build output directory.
+    echo    /firmware firmware_fit_path      Path to flash.bin
+    echo    /uefi uefi_fit_path              Path to uefi.fit
+    echo    /ffu ffu_path                    Optionally specify an FFU to flash
+    echo    /ffudisk ffu_disk_number         Optionally specify the physical disk
+    echo                                     number to which the FFU is applied.
+    echo                                     Defaults to 0.
+    echo    /winpedrive winpe_drive_letter   Optionally specify the drive letter where
+    echo                                     WinPE is installed. Defaults to D.
+    echo    /apply disk_number               Apply WinPE image to physical disk
+    echo    /clean                           Clean up artifacts from a previous run.
     echo.
     echo Examples:
     echo.
