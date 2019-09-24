@@ -10,20 +10,6 @@ set FFU_DISK_NUM=0
 set WINPE_DRIVE_LETTER=D
 set SCRIPT_DIR=%~dp0
 
-:: make WIM mount directory
-rmdir /s /q mount > NUL 2>&1
-mkdir mount
-pushd mount
-set MOUNT_DIR=%CD%
-popd
-
-:: make directory to hold packages
-rmdir /s /q packages > NUL 2>&1
-mkdir packages
-pushd packages
-set PACKAGES_DIR=%CD%
-popd
-
 :: Parse options
 :GETOPTS
  if /I "%~1" == "/?" goto USAGE
@@ -37,6 +23,20 @@ popd
  if /I "%~1" == "/clean" set CLEAN=1
  shift
 if not (%1)==() goto GETOPTS
+
+:: make WIM mount directory
+rmdir /s /q mount > NUL 2>&1
+mkdir mount
+pushd mount
+set MOUNT_DIR=%CD%
+popd
+
+:: make directory to hold packages
+rmdir /s /q packages > NUL 2>&1
+mkdir packages
+pushd packages
+set PACKAGES_DIR=%CD%
+popd
 
 if not "%CLEAN%" == "" goto CLEAN
 if not "%DISK_NUM%" == "" goto APPLY
