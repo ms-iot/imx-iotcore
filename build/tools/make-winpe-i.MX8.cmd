@@ -22,6 +22,7 @@ set SCRIPT_DIR=%~dp0
  if /I "%~1" == "/winpedrive" set WINPE_DRIVE_LETTER=%2& shift
  if /I "%~1" == "/apply" set DISK_NUM=%2& shift
  if /I "%~1" == "/clean" set CLEAN=1
+ if /I "%~1" == "/winpedebug" set WINPE_DEBUG=1
  shift
 if not (%1)==() goto GETOPTS
 
@@ -82,10 +83,13 @@ copy "%WINPE_DIR%\en-us\winpe.wim" "%DEST%\sources\boot.wim" || goto err
 move "%DEST%\bootmgr.efi" "%DEST%\EFI\Microsoft\boot\" || goto err
 
 :: BCD
-echo Enabling kernel debugging
 set TARGET_BCD_STORE=%DEST%\EFI\Microsoft\boot\bcd
-bcdedit /store "%TARGET_BCD_STORE%" /dbgsettings SERIAL DEBUGPORT:1 BAUDRATE:115200 || goto err
-bcdedit /store "%TARGET_BCD_STORE%" /debug {default} on || goto err
+
+if not "%WINPE_DEBUG%" == "" (
+    echo Enabling kernel debugging
+    bcdedit /store "%TARGET_BCD_STORE%" /dbgsettings SERIAL DEBUGPORT:1 BAUDRATE:115200 || goto err
+    bcdedit /store "%TARGET_BCD_STORE%" /debug {default} on || goto err
+)
 
 echo Enable boot test/flight signing
 bcdedit /store "%TARGET_BCD_STORE%" /set {bootmgr} flightsigning on || goto err
@@ -189,7 +193,8 @@ exit /b 0
 
 :USAGE
     echo make-winpe.cmd /builddir build_dir /firmware firmware_fit_path
-    echo   /uefi uefi_fit_path [/ffu ffu_path] [/ffudisk ffu_disk_number] [/winpedrive winpe_drive_letter]
+    echo   /uefi uefi_fit_path [/ffu ffu_path] [/ffudisk ffu_disk_number] 
+    echo   [/winpedrive winpe_drive_letter] [/winpedebug]
     echo make-winpe.cmd /apply disk_number
     echo make-winpe.cmd /clean
     echo.
@@ -197,15 +202,16 @@ exit /b 0
     echo Options:
     echo.
     echo    /builddir build_dir              Path to build output directory.
-    echo    /firmware firmware_fit_path      Path to flash.bin
-    echo    /uefi uefi_fit_path              Path to uefi.fit
-    echo    /ffu ffu_path                    Optionally specify an FFU to flash
-    echo    /ffudisk ffu_disk_number         Optionally specify the physical disk
+    echo    /firmware firmware_fit_path      Path to flash.bin.
+    echo    /uefi uefi_fit_path              Path to uefi.fit.
+    echo    /ffu ffu_path                    Optionally specify an FFU to flash.
+    echo    /ffudisk ffu_disk_number         Optionally specify the physical disk.
     echo                                     number to which the FFU is applied.
     echo                                     Defaults to 0.
     echo    /winpedrive winpe_drive_letter   Optionally specify the drive letter where
     echo                                     WinPE is installed. Defaults to D.
-    echo    /apply disk_number               Apply WinPE image to physical disk
+    echo    /winpedebug                      Optionally enable debugging for WinPE.
+    echo    /apply disk_number               Apply WinPE image to physical disk.
     echo    /clean                           Clean up artifacts from a previous run.
     echo.
     echo Examples:
