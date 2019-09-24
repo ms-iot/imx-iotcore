@@ -1,5 +1,5 @@
 ::
-:: Prepares a WinPE image for boot on i.MX6 or i.MX7
+:: Prepares a WinPE image for boot on i.MX 8M and i.MX 8M Mini.
 ::
 @echo off
 setlocal enableextensions disabledelayedexpansion
@@ -196,12 +196,12 @@ exit /b 0
     echo Options:
     echo.
     echo    /builddir build_dir          Path to build output directory.
-    echo    /firmware firmware_fit_path  Path to firmware_fit.merged
+    echo    /firmware firmware_fit_path  Path to flash.bin
     echo    /uefi uefi_fit_path          Path to uefi.fit
     echo    /ffu ffu_path                Optionally specify an FFU to flash
     echo    /ffudisk ffu_disk_number     Optionally specify the physical disk
     echo                                 number to which the FFU is applied.
-    echo                                 Defaults to 1.
+    echo                                 Defaults to 0.
     echo    /apply disk_number           Apply WinPE image to physical disk
     echo    /clean                       Clean up artifacts from a previous run.
     echo.
