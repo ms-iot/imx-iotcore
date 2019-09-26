@@ -8,6 +8,7 @@
   owner="SV"
   legacyName="SV.PlatExtensions.UpdateOS"
   >
+  <!-- Note: Package must be named SV.PlatExtensions.UpdateOS -->
   <onecorePackageInfo targetPartition="UPDATEOS"/>
   <drivers>
     <driver>
