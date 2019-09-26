@@ -138,7 +138,7 @@ Here are the steps to run in an admin CMD to prepare an SD card in Windows:
   ```
   Where `PhysicalDrive<X>` is the DeviceID of your SD card as shown by `Get-WmiObject`.
 
-You might get the output: `Error reading file: 87 The parameter is incorrect`. This error can be ignored.
+You might get the output: `Error reading file: 87 The parameter is incorrect`. This error can be ignored as it refers to non-aligned writes on block devices. DD for Windows will align and retry.
 
 If you are working on a dedicated Linux machine (not WSL or VM) use:
 ```
