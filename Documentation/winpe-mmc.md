@@ -14,7 +14,7 @@ The high-level process we will follow is,
 
 First, we need to identify where the bootloader will live. i.MX6/7 can boot from a number of sources including eMMC/SD, NOR flash, SPI, I2C, and USB. For more information about i.MX6/7 early boot, see [Firmware Boot Documentation](boot.md) and the "System Boot" chapter of the processor reference manual. The reference BSP only implements boot from SD card. It is possible to port the reference material to boot from a different source, though for this document we will assume the initial boot device is SD. The initial boot device is set by processor fuses.
 
-To avoid breaking your device, we recommend putting the first stage bootloader on media that can be reprogrammed via external means if necessary, such as an SD card, SPI flash with external programing circuitry, or I2C flash with external programming circuitry. By external programming circuitry, we mean that you can write new contents to the storage device without booting the i.MX processor.
+To avoid bricking your device, we recommend putting the first stage bootloader on media that can be reprogrammed via external means if necessary, such as an SD card, SPI flash with external programing circuitry, or I2C flash with external programming circuitry. By external programming circuitry, we mean that you can write new contents to the storage device without booting the i.MX processor.
 
 Another strategy is to place the bootloader on eMMC and have a second, read-only eMMC part containing a recovery boot image which can be selected via hardware muxing. This way, if the primary eMMC part becomes corrupted, you can press a button or connect a jumper and boot the device from the backup eMMC part, which then allows you to recover the main eMMC part.
 
