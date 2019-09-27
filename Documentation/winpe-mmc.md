@@ -1,7 +1,7 @@
 Booting WinPE and Flashing eMMC
 ==============
 
-The purpose of this document is show how to boot Windows from eMMC. To boot a device from eMMC, you first need to flash a Windows image to eMMC. Since eMMC is soldered to the board, the only way to write to it is to boot some kind of manufacturing OS on the device, then write the image from this manufacturing OS. The manufacturing OS is booted from removable storage such as USB or SD. In this document, we will walk through the process of booting Windows from eMMC on HummingBoard. The tools and techniques can be adapted to other hardware designs.
+The purpose of this document is show how to boot Windows from eMMC. To boot a device from eMMC, you first need to flash a Windows image to eMMC. Since eMMC is soldered to the board, the only way to write to it is to boot some kind of manufacturing OS on the device, then write the image from this manufacturing OS. The manufacturing OS is booted from removable storage such as USB or SD. In this document, we will walk through the process of booting Windows from eMMC on an HummingBoard as an example of an ARM32 board. We will also list commands for an MCIMX8M-EVK board to show an example of an ARM64 board. The tools and techniques can be adapted to other hardware designs.
 
 For the manufacturing OS, we will use [Windows PE (WinPE)](https://docs.microsoft.com/en-us/windows-hardware/manufacture/desktop/winpe-intro), which stands for Windows Preinstallation Environment. Windows PE is a small Windows image that can boot without persistent storage, and has tools to help install Windows such as `diskpart` and `dism`.
 
@@ -31,7 +31,7 @@ We need to create an image that can boot off removable media, does not require p
 1. copy the WinPE image to an SD card
 1. copy firmware to the SD card
 
-The script [make-winpe.cmd](../build/tools/make-winpe.cmd) does all of the above, and can configure the WinPE image to flash an FFU to a storage device at boot.
+The script [make-winpe.cmd](../build/tools/make-winpe.cmd) does all of the above for an ARM32 board and can configure the WinPE image to flash an FFU to a storage device at boot. For an i.MX8 board use [make-winpe-i.MX8.cmd](../build/tools/make-winpe-i.MX8.cmd) instead.
 
 You must install the following software:
 
@@ -44,7 +44,10 @@ First, we create a WinPE image on our machine. In this example, we specify the `
 ```cmd
 mkdir winpe
 cd winpe
+:: For HummingBoard run:
 path/to/imx-iotcore/build/tools/make-winpe.cmd /builddir d:\build\Binaries\release\ARM /firmware d:\build\FFU\HummingBoardEdge_iMX6Q_2GB\Package\BootLoader\firmware_fit.merged /uefi d:\build\FFU\HummingBoardEdge_iMX6Q_2GB\Package\BootFirmware\uefi.fit /ffu d:\build\FFU\HummingBoardEdge_iMX6Q_2GB\HummingBoardEdge_iMX6Q_2GB_TestOEMInput.xml.Release.ffu
+:: For MCIMX8M-EVK run:
+path/to/imx-iotcore/build/tools/make-winpe-i.MX8.cmd /builddir d:\build\Binaries\release\ARM64 /firmware d:\build\FFU\NXPEVK_iMX8M_4GB\Package\BootLoader\firmware_fit.merged /uefi d:\build\FFU\NXPEVK_iMX8M_4GB\Package\BootFirmware\uefi.fit /ffu d:\build\FFU\NXPEVK_iMX8M_4GB\NXPEVK_iMX8M_4GB_TestOEMInput.xml.Release.ffu
 ```
 
 Then, we apply the image to an SD card. Insert an SD card into your machine, then determine the physical disk number by running
