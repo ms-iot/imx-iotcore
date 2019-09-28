@@ -20,7 +20,7 @@ This is an overview of the currently supported features for each of the boards. 
 | SDHC     | Y   | Y   | Y   | Y   | Y   | Y   | Y   | Y   | Y   | Y   | Y   |
 | SPI      | Y   | Y   | Y   | Y   | Y   | Y   | Y   | Y   | N   | N   | Y   |
 | Display  | Y   | Y   | Y   | Y   | Y   | Y   | N   | Y   | N   | Y   | Y   |
-| UART     | Y (w/DMA)   | Y (w/DMA)   | Y   | Y   | Y   | Y   | Y   | Y   | N   | N   | Y   |
+| UART     | Y (w/DMA)   | Y (w/DMA)   | Y   | Y   | Y   | Y   | Y   | Y   | N   | Y\*  | Y   |
 | USB      | Y   | Y   | Y   | Y   | Y   | Y   | Y   | Y   | N   | Y   | Y   |
 | PCIe     | Y   | Y   | Y   | N   | Y   | N   | N   | N   | N   | N   | N   |
 | TrEE     | Y   | Y   | Y   | N   | Y   | N   | N   | Y   | N   | Y   | N   |
@@ -32,3 +32,8 @@ This is an overview of the currently supported features for each of the boards. 
 
 
 Not all features of a given subsystem maybe fully enabled and/or optimized. If you encounter issues with supported features, please open an issue.
+
+\* To enable the UART, the kernel debugger must be disabled by running the following command on the device and rebooting. The UART exposed is the same UART that the kernel debugger uses.
+```
+bcdedit /debug off
+```
