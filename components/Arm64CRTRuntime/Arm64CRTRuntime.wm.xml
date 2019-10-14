@@ -11,8 +11,8 @@
   <!-- workaround to drop VC runtime 140 to system32 directory since it isn't part of
        Arm64 IoT image -->
   <files>
-    <file source="$(_Redist)vcruntime140.dll" destinationDir="$(runtime.system32)" />
-    <file source="$(_Redist)vccorlib140.dll" destinationDir="$(runtime.system32)" />
-    <file source="$(_Redist)msvcp140.dll" destinationDir="$(runtime.system32)" />
+    <file source="$(_RELEASEDIR)vcruntime140.dll" destinationDir="$(runtime.system32)" />
+    <file source="$(_RELEASEDIR)vccorlib140.dll" destinationDir="$(runtime.system32)" />
+    <file source="$(_RELEASEDIR)msvcp140.dll" destinationDir="$(runtime.system32)" />
   </files>
 </identity>

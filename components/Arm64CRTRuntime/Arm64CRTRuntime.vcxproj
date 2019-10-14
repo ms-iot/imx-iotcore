@@ -70,7 +70,7 @@
   <ItemGroup>
     <Pkggen Include="Arm64CRTRuntime.wm.xml">
       <AdditionalOptions>/universalbsp</AdditionalOptions>
-      <Variables>"HIVE_ROOT=$(CoreSystem_HivesPath);WIM_ROOT=$(CoreSystem_HivesPath);_REDIST=$(RuntimeRedistDirectory);_RELEASEDIR=$(PackageDir);TARGETNAME=$(TargetName);TARGETEXT=$(TargetExt);$(PkgGen_DefaultDriverDest);OEMNAME=$(OEMName)"</Variables>
+      <Variables>"HIVE_ROOT=$(CoreSystem_HivesPath);WIM_ROOT=$(CoreSystem_HivesPath);_RELEASEDIR=$(PackageDir);TARGETNAME=$(TargetName);TARGETEXT=$(TargetExt);$(PkgGen_DefaultDriverDest);OEMNAME=$(OEMName)"</Variables>
     </Pkggen>
   </ItemGroup>
   <ItemGroup>
@@ -78,6 +78,17 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Driver.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="$(RuntimeRedistDirectory)msvcp140.dll">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="$(RuntimeRedistDirectory)vcruntime140.dll">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="$(RuntimeRedistDirectory)vccorlib140.dll">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -273,7 +273,7 @@ copy %INFO_ROOT%\BootFirmware\uefi.fit %PKG_ROOT%\BootFirmware\BootFirmware\ >NU
 
 mkdir %PKG_ROOT%\BootLoader\BootLoader >NUL 2>NUL
 copy %INFO_ROOT%\BootLoader\BootLoader.wm.xml %PKG_ROOT%\BootLoader\ >NUL
-copy %INFO_ROOT%\BootLoader\firmware_fit.merged %PKG_ROOT%\BootLoader\BootLoader\ >NUL
+copy %INFO_ROOT%\BootLoader\flash.bin %PKG_ROOT%\BootLoader\BootLoader\ >NUL
 
 :: Copy the UpdateOS Package XML
 mkdir %PKG_ROOT%\SVPlatExtensions >NUL 2>NUL
