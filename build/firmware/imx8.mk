@@ -59,7 +59,7 @@ imx8_optee:
 	 
 	$(CROSS_COMPILE)objcopy -O binary ./out/arm-plat-imx/core/tee.elf ./out/arm-plat-imx/tee.bin
 	
-imx8_tas:
+imx8_tas: imx8_optee
 	pushd $(IMX8_REPO_ROOT)/MSRSec/TAs/optee_ta
 	$(MAKE) -j1 CFG_ARM64_ta_arm64=y CFG_FTPM_USE_WOLF=y CFG_AUTHVARS_USE_WOLF=y CFG_TEE_TA_LOG_LEVEL=4 CFG_TA_DEBUG=y \
 	TA_DEV_KIT_DIR=../../../../optee_os/out/arm-plat-imx/export-ta_arm64 \
