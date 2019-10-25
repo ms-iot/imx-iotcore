@@ -1,3 +1,20 @@
+# IoT Core NXP BSP Repository Support Notice
+
+Recently, NXP released the BSP for the iMX6, iMX7 and iMX8 processors for Windows 10 IoT. Their web page where both the BSP and documentation can be downloaded is [here](https://www.nxp.com/design/software/embedded-software/windows-10-iot-core-for-i.mx-applications-processors:IMXWIN10IOT). Any future support for the BSP will done in NXP's [community forums](https://community.nxp.com/community/imx/content?filterID=contentstatus%5Bpublished%5D%7Ecategory%5Bwindows%5D). Any open issues will not be transferred and must be reopened on NXP's support forums.
+
+The following repositories will be archived and made read-only on GitHub on November 8th. If you have a fork of any of these repositories they will remain active, but no new updates will be supplied by Microsoft. Development will stop in these repositories and all future work will be released by NXP in their BSP.
+
+The repositories to be archived are:
+https://github.com/ms-iot/imx-iotcore
+https://github.com/ms-iot/u-boot
+https://github.com/ms-iot/optee_os
+https://github.com/ms-iot/imx-edk2-platforms
+https://github.com/ms-iot/edk2
+https://github.com/ms-iot/mu_platform_nxp
+https://github.com/ms-iot/mu_silicon_nxp
+
+The NXP BSP only has board support for NXP EVK and Sabre devices. For other devices you will need to contact the manufacturer for further support.
+
 Windows 10 IoT Core for NXP i.MX Processors
 ==============
 | Component | Build Status |
