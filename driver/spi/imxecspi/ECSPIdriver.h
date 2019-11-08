@@ -183,7 +183,7 @@ ECSPIDriverIsLoopback ()
 
     _IRQL_requires_max_(PASSIVE_LEVEL)
     static NTSTATUS
-    ECSPIpDriverReadConfig();
+    ECSPIpDriverReadConfig(WDFDEVICE Device);
 
 #endif //_ECSPI_DRIVER_CPP_
 
