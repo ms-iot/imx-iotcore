@@ -1,34 +1,22 @@
 # IoT Core NXP BSP Repository Support Notice
 
-Recently, NXP released the BSP for the iMX6, iMX7 and iMX8 processors for Windows 10 IoT. Their web page where both the BSP and documentation can be downloaded is [here](https://www.nxp.com/design/software/embedded-software/windows-10-iot-core-for-i.mx-applications-processors:IMXWIN10IOT). Any future support for the BSP will done in NXP's [community forums](https://community.nxp.com/community/imx/content?filterID=contentstatus%5Bpublished%5D%7Ecategory%5Bwindows%5D). Any open issues will not be transferred and must be reopened on NXP's support forums.
+This repository is no longer supported and is now read-only. The BSP and documentation for the iMX6, iMX7 and iMX8 processors for Windows 10 IoT is now published by NXP [here](https://www.nxp.com/design/software/embedded-software/windows-10-iot-core-for-i.mx-applications-processors:IMXWIN10IOT). Support for the BSP is available in NXP's [community forums](https://community.nxp.com/community/imx/content?filterID=contentstatus%5Bpublished%5D%7Ecategory%5Bwindows%5D).
 
-The following repositories will be archived and made read-only on GitHub on November 8th. If you have a fork of any of these repositories they will remain active, but no new updates will be supplied by Microsoft. Development will stop in these repositories and all future work will be released by NXP in their BSP.
+The following repositories have been archived and made read-only on GitHub. If you have a fork of any of these repositories they will remain active, but no new updates will be supplied by Microsoft. Development has stopped in these repositories and all future work will be released by NXP in their BSP.
 
 The repositories to be archived are:
 https://github.com/ms-iot/imx-iotcore
 https://github.com/ms-iot/u-boot
-https://github.com/ms-iot/optee_os
-https://github.com/ms-iot/imx-edk2-platforms
 https://github.com/ms-iot/edk2
+https://github.com/ms-iot/imx-edk2-platforms
 https://github.com/ms-iot/mu_platform_nxp
 https://github.com/ms-iot/mu_silicon_nxp
 
-The NXP BSP only has board support for NXP EVK and Sabre devices. For other devices you will need to contact the manufacturer for further support.
+The NXP BSP only has board support for NXP EVK and Sabre devices. For other previously supported devices, contact the manufacturer for further support.
 
-Windows 10 IoT Core for NXP i.MX Processors
-==============
-| Component | Build Status |
-|-----|-----|
-| U-Boot Firmware | [![Build Status](https://microsoft.visualstudio.com/IOT/_apis/build/status/NXP/NXP-U-Boot%20Firmware%20CI?branchName=u-boot-imx)](https://microsoft.visualstudio.com/IOT/_build/latest?definitionId=39257&branchName=u-boot-imx)|
-| OP-TEE Firmware | [![Build Status](https://microsoft.visualstudio.com/IOT/_apis/build/status/NXP/NXP-OP-TEE%20Firmware%20CI?branchName=ms-iot)](https://microsoft.visualstudio.com/IOT/_build/latest?definitionId=39229&branchName=ms-iot)|
-| Security TAs | [![Build Status](https://dev.azure.com/msresearch/MSRSec/_apis/build/status/MSRSec-CI?branchName=master)](https://dev.azure.com/msresearch/MSRSec/_build/latest?definitionId=1447&branchName=master) |
-| Security TA Test | [![Build Status](https://microsoft.visualstudio.com/IOT/_apis/build/status/NXP/NXP-Security%20TA%20QEMU%20Testing?branchName=master)](https://microsoft.visualstudio.com/IOT/_build/latest?definitionId=42972&branchName=master)|
-| EDK2 Firmware | [![Build Status](https://microsoft.visualstudio.com/IOT/_apis/build/status/NXP/NXP-EDK2%20Firmware%20CI?branchName=imx)](https://microsoft.visualstudio.com/IOT/_build/latest?definitionId=38657&branchName=imx)|
-| MU Firmware | [![Build Status](https://dev.azure.com/microsoft/IOT/_apis/build/status/NXP/NXP-MU%20CI?branchName=master)](https://dev.azure.com/microsoft/IOT/_build/latest?definitionId=42775&branchName=master) |
-| All Firmware | [![Build Status](https://dev.azure.com/microsoft/IOT/_apis/build/status/NXP/Firmware%20CI?branchName=public_preview)](https://dev.azure.com/microsoft/IOT/_build/latest?definitionId=38649&branchName=public_preview)|
-| Latest Firmware FFU | [![Build Status](https://microsoft.visualstudio.com/IOT/_apis/build/status/NXP/NXP-Latest%20Firmware%20FFU?branchName=public_preview)](https://microsoft.visualstudio.com/IOT/_build/latest?definitionId=43820&branchName=public_preview) |
-| Stable FFU | [![Build Status](https://microsoft.visualstudio.com/IOT/_apis/build/status/NXP/NXP-BuildFFU?branchName=public_preview)](https://microsoft.visualstudio.com/IOT/_build/latest?definitionId=41026&branchName=public_preview) |
+All compiled firmware binaries in this repository have been removed. The sources in this repository can still be built, but to generate a bootable image, the boot loaders and firmware must be manually built first according to the instructions in the Building Firmware from Source section later in this document.
 
+# Windows 10 IoT Core for NXP i.MX Processors
 
 **Important! Please read this section first.**
 
